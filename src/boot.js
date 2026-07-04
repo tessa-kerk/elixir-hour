@@ -52,6 +52,28 @@
   }
   devBtn("tome", Game.openTome);
   devBtn("wipe save", function () { Save.clear(); Game.show("title"); });
+  /* dev-only: populate a fully-unlocked save so the Tome's real layouts can
+     be reviewed without replaying (all recipes, all regulars met, all
+     published Herald editions, all Songbook tracks) */
+  devBtn("fill save", function () {
+    var recipes = [];
+    for (var i = 0; i < window.BREWBOOK.length; i++) recipes.push(window.BREWBOOK[i].name);
+    var songs = [];
+    for (var j = 0; j < window.SONGBOOK.length; j++) songs.push(window.SONGBOOK[j].name);
+    Game.state.unlocks = {
+      recipes: recipes,
+      ledger: {
+        "Knight": "The anchor. Been fighting a long time.",
+        "Hog Rider": "Loud. Always the last to leave.",
+        "Wizard": "Performs. Desperate to be taken seriously.",
+        "Princess": "", "P.E.K.K.A": "",
+      },
+      heralds: [1, 2, 3],
+      songs: songs,
+    };
+    Save.store(Game.snapshot());
+    Game.openTome();
+  });
 
   /* character / expression pickers (mirrors the mockup's dev bar) */
   var cs = document.createElement("select"), es = document.createElement("select");

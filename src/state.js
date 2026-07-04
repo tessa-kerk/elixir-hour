@@ -125,8 +125,8 @@ window.Game = (function () {
   }
   function saveQuit() { Save.store(snapshot()); show("title"); }
 
-  function openTome() { document.getElementById("tome").classList.add("open"); }
-  function closeTome() { document.getElementById("tome").classList.remove("open"); }
+  function openTome() { if (window.Tome) Tome.open(); }
+  function closeTome() { if (window.Tome) Tome.close(); }
 
   return {
     show: show, advance: advance, playBeat: playBeat,

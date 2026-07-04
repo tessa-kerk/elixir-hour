@@ -18,8 +18,6 @@ window.Screens = (function () {
     el("ph-duo-note").textContent = t("ph.duo.note");
     el("ph-epi-title").textContent = t("ph.epilogue.title");
     el("ph-epi-note").textContent = t("ph.epilogue.note");
-    el("ph-tome-title").textContent = t("ph.tome.title");
-    el("ph-tome-note").textContent = t("ph.tome.note");
     el("btn-totitle").textContent = t("epilogue.totitle");
     el("btn-savequit").textContent = t("night.savequit");
     el("tomeclose").textContent = t("tome.close");
@@ -73,7 +71,7 @@ window.Screens = (function () {
 
     var comp = Stage.composite();
     var span = Math.max(e.base - e.top, 0.4);
-    var imgH = comp.charH / span;
+    var imgH = (comp.charH * (e.tall || 1)) / span;
 
     img.style.display = "";
     img.src = c.dir + "/" + e.file;

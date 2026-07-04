@@ -92,9 +92,11 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
 #serve-bubble.notail:after{display:none;}
 #serve-bubble .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
 
-/* tone-shaping choices (GDD §14.4) */
-#serve-choices{position:absolute; left:2%; top:20%; width:36%; z-index:7; display:none;
-  flex-direction:column; gap:8px;}
+/* tone-shaping choices (GDD §14.4) — anchored bottom-LEFT, stacked up from
+   the bottom (the mixing panel owns bottom-right), so the block never covers
+   the character's face; overlapping the lower body/counter is fine */
+#serve-choices{position:absolute; left:2%; bottom:4%; width:36%; z-index:7; display:none;
+  flex-direction:column; gap:8px; justify-content:flex-end;}
 #serve-choices.on{display:flex;}
 .choice-prompt{font-family:'Baloo 2',cursive; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
   color:var(--cream); text-shadow:0 2px 4px rgba(0,0,0,.6); padding-left:4px;}
@@ -103,7 +105,7 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
   padding:8px 12px; cursor:pointer; box-shadow:0 3px 0 #b7a888;}
 .choice-btn:hover{border-color:var(--sage); background:#fdf6e8;}
 .choice-btn:active{transform:translateY(2px); box-shadow:none;}
-body.portrait #serve-choices{left:4%; top:12%; width:70%;}
+body.portrait #serve-choices{left:4%; top:auto; bottom:37.5%; width:78%;}  /* above the stacked panel */
 
 /* dialogue bubble (shared look, from the mockup) */
 .bubble{position:absolute; background:var(--cream); border-radius:14px; padding:7px 14px 9px; z-index:5;
@@ -187,13 +189,214 @@ body.portrait .panel{width:88%;}
 .placeholder b{font-family:'Baloo 2',cursive; font-size:30px; letter-spacing:.03em;}
 .placeholder span{font-size:15px; opacity:.75; max-width:560px; line-height:1.5;}
 
-/* ---------- TOME OVERLAY ---------- */
-#tome{position:absolute; inset:0; z-index:30; display:none;}
+/* ---------- TOME OVERLAY (mockup geometry; §11 marginalia rule) ---------- */
+#tome{position:absolute; inset:0; z-index:30; display:none; animation:tomein .3s ease;}
 #tome.open{display:block;}
-#tome .placeholder{background:rgba(16,11,22,.93);}
+@keyframes tomein{from{opacity:0; transform:scale(1.02);} to{opacity:1; transform:none;}}
+#tomeimg{position:absolute; inset:0; width:100%; height:100%;}
 #tomeclose{position:absolute; top:2.5%; right:1.5%; width:34px; height:34px; border-radius:50%;
   background:rgba(20,14,10,.72); color:#e8d9bd; font-family:'Baloo 2',cursive; font-size:17px;
   text-align:center; line-height:33px; cursor:pointer; z-index:35; border:2px solid #6b5638;}
+.tab{position:absolute; left:85.5%; width:9%; z-index:34; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;}
+.tab svg{width:26px; height:26px; opacity:.85; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); transition:all .2s ease;}
+.tab:hover svg{transform:translateX(-3px);}
+.tab.on svg{opacity:1; filter:drop-shadow(0 0 6px rgba(255,255,255,.9));}
+#tab-brew{top:19.6%; height:8.4%;} #tab-ledger{top:34.45%; height:8.9%;}
+#tab-herald{top:50.3%; height:8.9%;} #tab-song{top:65.15%; height:9%;}
+/* NO scrollbars anywhere in the Tome (GDD §11) — the book turns pages */
+#pageL{position:absolute; left:18.5%; top:15%; width:24.5%; height:68%; z-index:33; color:var(--ink); overflow:hidden; padding:0 10px;}
+#pageR{position:absolute; left:55%; top:15%; width:26%; height:68%; z-index:33; color:var(--ink); overflow:hidden; padding:0 10px;}
+
+/* the character spread (GDD §11): card top-left, nameplate beside it at the
+   card's mid-height — no title banner, no divider */
+/* the character spread as a real book flow: two CSS columns = the two pages;
+   the bio always starts on the LEFT page under the card and the browser
+   carries the text onto the right page (GDD §11 reading order and balance) */
+#spread{position:absolute; left:18.5%; top:15%; width:62.5%; height:68%; z-index:33; color:var(--ink);}
+#spread[hidden]{display:none;}
+#spreadvp{position:absolute; inset:0; overflow:hidden;}
+#spreadflow{height:100%; column-fill:auto; transition:transform .3s ease;}
+#spreadflow .spread-head{padding:30px 14px 14px;}
+#spreadflow .ledger-bio{padding:0 58px 12px; font-size:15.5px; line-height:1.5; width:auto; margin:0;}
+#spreadflow .hand-note.pinned{margin:6px 58px 16px; break-inside:avoid; -webkit-column-break-inside:avoid;}
+#spreadnotes{position:absolute; left:0; top:0; height:100%; pointer-events:none;}
+#spreadnotes .margin-note{position:absolute; font-size:14.5px; line-height:1.08; margin:0;}
+#spreadnotes .note-arrows{position:absolute; left:0; top:0; overflow:visible;}
+body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
+
+.spread-head{display:flex; align-items:center; gap:18px; padding-top:34px; margin-bottom:14px;
+  break-inside:avoid; -webkit-column-break-inside:avoid;}
+.nameplate{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:29px; color:var(--ink); line-height:1.05;}
+
+/* page navigation is UI, not Sage's hand: the ornate fletched-arrow icon
+   (points left as drawn; the next arrow flips it). The green hand-drawn
+   style belongs only to the note→phrase arrows. */
+.hand-nav{position:absolute; width:68px; height:21px; cursor:pointer; z-index:34; opacity:.85;}
+.hand-nav.back{left:4px; top:6px;}
+.hand-nav.prev{left:4px; bottom:6px;}
+.hand-nav.next{right:4px; bottom:6px;}
+.hand-nav img{height:100%; width:auto; display:block; filter:drop-shadow(0 1px 2px rgba(60,40,20,.35));}
+.hand-nav img.flip{transform:scaleX(-1);}
+.hand-nav.next img{margin-left:auto;}
+.hand-nav:hover{opacity:1;}
+
+/* ---------- the 3D page-turn (GDD §11, round 3) ----------
+   ONE page turns; the book stays put. The container is a full-bleed overlay
+   whose BACKDROP is the entire static Tome Spread art — whatever the leaf's
+   projection does, only book ever shows behind it (no leather gaps), and the
+   pages' content stays occluded until the leaf lands. The leaf is exactly
+   the painted right page (art: pages 11.12→84.74% × 8.07→87.24%, spine at
+   49.82%), hinged on the spine; the perspective eye sits ON the spine with
+   a long lens so the projection stays page-sized instead of sweeping the
+   whole spread. Paper softness is faked: a slight rotateX wobble, the free
+   edge's corners rounding mid-flight, and a sheen/shade band travelling
+   along the face like a moving bend. */
+#pageflip{position:absolute; inset:0; z-index:36; display:none; pointer-events:none;
+  perspective:2800px; perspective-origin:49.82% 47%;}
+#pageflip .backdrop{position:absolute; inset:0;
+  background-image:url("../assets/ui/Tome Spread.png"); background-size:100% 100%;}
+#pageflip .face{background-image:url("../assets/ui/Tome Spread.png"); background-repeat:no-repeat;}
+#pageflip .leaf{position:absolute; top:8.07%; height:79.17%; transform-style:preserve-3d;}
+#pageflip .face{position:absolute; inset:0; overflow:hidden;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;}
+/* forward: the RIGHT page lifts off the spine; its back carries the art of
+   the region it lands on, so touchdown is seamless */
+#pageflip.fwd .leaf{left:49.82%; width:34.92%; transform-origin:left center;}
+#pageflip.fwd .face.front{background-size:286.4% 126.31%; background-position:76.55% 38.74%;
+  box-shadow:inset 16px 0 28px rgba(90,64,38,.22);}
+#pageflip.fwd .face.back{transform:rotateY(180deg);
+  background-size:286.4% 126.31%; background-position:22.9% 38.74%;
+  box-shadow:inset -16px 0 28px rgba(90,64,38,.22);}
+/* reverse: the LEFT page lifts back across the spine */
+#pageflip.rev .leaf{left:11.12%; width:38.70%; transform-origin:right center;}
+#pageflip.rev .face.front{background-size:258.4% 126.31%; background-position:18.14% 38.74%;
+  box-shadow:inset -16px 0 28px rgba(90,64,38,.22);}
+#pageflip.rev .face.back{transform:rotateY(180deg);
+  background-size:258.4% 126.31%; background-position:81.27% 38.74%;
+  box-shadow:inset 16px 0 28px rgba(90,64,38,.22);}
+#pageflip.fwd.go .leaf{animation:leafturnF .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.rev.go .leaf{animation:leafturnR .62s cubic-bezier(.5,.06,.36,1) forwards;}
+@keyframes leafturnF{
+  0%{transform:rotateY(0) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}
+  25%{transform:rotateY(-48deg) rotateX(2deg);}
+  50%{transform:rotateY(-94deg) rotateX(2.6deg); filter:drop-shadow(-28px 12px 22px rgba(50,32,16,.4));}
+  75%{transform:rotateY(-146deg) rotateX(1.3deg);}
+  100%{transform:rotateY(-180deg) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}}
+@keyframes leafturnR{
+  0%{transform:rotateY(0) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}
+  25%{transform:rotateY(48deg) rotateX(2deg);}
+  50%{transform:rotateY(94deg) rotateX(2.6deg); filter:drop-shadow(28px 12px 22px rgba(50,32,16,.4));}
+  75%{transform:rotateY(146deg) rotateX(1.3deg);}
+  100%{transform:rotateY(180deg) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}}
+/* the free edge softens mid-flight (radius on the faces — the leaf itself
+   must stay unclipped to keep preserve-3d) */
+#pageflip.fwd.go .face{animation:curlEdgeF .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.rev.go .face{animation:curlEdgeR .62s cubic-bezier(.5,.06,.36,1) forwards;}
+@keyframes curlEdgeF{
+  0%{border-radius:0;}
+  45%{border-top-right-radius:26px 52px; border-bottom-right-radius:26px 52px;}
+  60%{border-top-right-radius:22px 44px; border-bottom-right-radius:22px 44px;}
+  100%{border-radius:0;}}
+@keyframes curlEdgeR{
+  0%{border-radius:0;}
+  45%{border-top-left-radius:26px 52px; border-bottom-left-radius:26px 52px;}
+  60%{border-top-left-radius:22px 44px; border-bottom-left-radius:22px 44px;}
+  100%{border-radius:0;}}
+/* the moving bend: a sheen + shade band travelling along the visible face */
+#pageflip .curlfx{position:absolute; top:-2%; height:104%; width:74%; left:110%; opacity:0;
+  background:linear-gradient(100deg, rgba(60,40,20,0) 0%, rgba(60,40,20,.16) 30%,
+    rgba(255,248,222,.42) 50%, rgba(60,40,20,.20) 70%, rgba(60,40,20,0) 100%);}
+#pageflip.fwd.go .curlfx{animation:curlbandF .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.rev.go .curlfx{animation:curlbandR .62s cubic-bezier(.5,.06,.36,1) forwards;}
+@keyframes curlbandF{0%{left:110%; opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:-84%; opacity:0;}}
+@keyframes curlbandR{0%{left:-84%; opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:110%; opacity:0;}}
+/* the curl-shadow sweeping the page the leaf lands on */
+#pageflip .sweep{position:absolute; top:8.07%; height:79.17%; opacity:0; z-index:1;}
+#pageflip.fwd .sweep{left:11.12%; width:38.70%;
+  background:linear-gradient(90deg, rgba(50,32,16,0) 0%, rgba(50,32,16,.28) 76%, rgba(50,32,16,.4) 100%);}
+#pageflip.rev .sweep{left:49.82%; width:34.92%;
+  background:linear-gradient(270deg, rgba(50,32,16,0) 0%, rgba(50,32,16,.28) 76%, rgba(50,32,16,.4) 100%);}
+#pageflip.go .sweep{animation:sweepin .62s cubic-bezier(.5,.06,.36,1) forwards;}
+@keyframes sweepin{0%{opacity:0;} 42%{opacity:0;} 70%{opacity:.9;} 100%{opacity:0;}}
+/* portrait: the tome is a cream panel — plain parchment backdrop/leaf */
+body.portrait #pageflip .backdrop,body.portrait #pageflip .face{background-image:none; background-color:#efe3c8;}
+body.portrait #pageflip .leaf{top:4%; height:92%;}
+body.portrait #pageflip.fwd .leaf{left:50%; width:46%;}
+body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
+.tometitle{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; letter-spacing:.01em;
+  border-bottom:2.5px solid rgba(122,103,72,.45); padding-bottom:5px; margin-bottom:10px;}
+.tometitle.centre{text-align:center;}
+/* printed epigraphs are BODY text (§11) — only Sage's hand is Caveat */
+.tome-epigraph{font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:15px;
+  color:#6b5a44; margin-bottom:12px; line-height:1.3;}
+.hand-note{font-family:'Caveat',cursive; font-size:19px; font-weight:700; color:var(--sage-deep); line-height:1.15; margin:8px 0;}
+/* tilts are rotation ONLY — placement belongs to the marginalia engine */
+.hand-note.tilt0{transform:rotate(-2.4deg);} .hand-note.tilt1{transform:rotate(1.8deg);}
+.hand-note.tilt2{transform:rotate(-1.2deg);}
+.hand-note.pinned{margin-top:12px; padding-top:8px; border-top:1.5px dashed rgba(107,127,92,.5);}
+.margin-rail{margin:2px 0 6px;}
+.entry{padding:7px 9px; border-radius:9px; cursor:pointer; margin-bottom:4px;}
+.entry:hover{background:rgba(122,103,72,.12);}
+.entry.sel{background:rgba(122,103,72,.18);}
+.entry b{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18.5px; display:block;}
+.entry span{font-family:'Cormorant Garamond',serif; font-size:14px; font-weight:600; color:var(--ink-soft);}
+.entry.locked{opacity:.5; cursor:default;}
+.entry.locked:hover{background:none;}
+/* UNIFORM card height (GDD §15): cards clip to their measured content box —
+   the selection outline hugs the card itself, never transparent padding */
+#cardgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:4px 8px; justify-items:center; align-items:end;}
+.cardthumb{cursor:pointer; position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center;}
+.cardclip{position:relative; overflow:hidden; border-radius:5px;}
+.cardclip img{position:absolute; width:auto; display:block;}
+.cardthumb.sel .cardclip{outline:3px solid var(--gold);}
+.cardthumb.locked .cardclip img{filter:brightness(0) opacity(.72);}
+.cardthumb.locked{cursor:default;}
+.cardthumb.locked:after{content:"?"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:'Baloo 2',cursive; font-size:30px; color:rgba(244,236,221,.85);}
+.cardthumb small{display:block; text-align:center; font-family:'Baloo 2',cursive; font-size:10.5px; color:var(--ink-soft); margin-top:2px;}
+.bigclip{position:relative; overflow:hidden; border-radius:6px; margin:2% auto 10px;
+  filter:drop-shadow(0 12px 16px rgba(30,20,10,.20));}
+.bigclip img{position:absolute; width:auto; display:block;}
+/* the annotated page (GDD §11): printed bio in a narrower centre column,
+   Sage's notes placed in the clear margins beside their marks */
+.ledger-annot{position:relative; margin-bottom:18px;}
+.ledger-annot .ledger-bio{width:60%; margin:0 auto; font-size:16px; line-height:1.52;}
+.note-arrows{position:absolute; inset:0; pointer-events:none; overflow:visible;}
+.note-arrows path{stroke:var(--sage-deep); stroke-width:1.8; fill:none; stroke-linecap:round; opacity:.6;}
+.margin-note{position:absolute; margin:0; font-size:14.5px; line-height:1.08;}
+.margin-note.foot{font-size:16px;}
+.ledger-bio{font-family:'Cormorant Garamond',serif; font-size:15.5px; font-weight:600; line-height:1.42; margin-bottom:4px;}
+.marked{border-bottom:2.5px solid rgba(107,127,92,.85); background:rgba(156,175,136,.18); border-radius:2px; padding:0 1px;}
+.rp-caption{text-align:center; font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:600;
+  color:var(--ink-soft); font-style:italic; line-height:1.35; margin-top:10px;}
+.rp-caption.strong{font-style:normal; font-weight:700; margin-top:4px;}
+.tome-tankard{display:block; height:96px; margin:14px auto 4px; transform:translateX(-12%);}
+.ingdots{display:flex; gap:8px; justify-content:center; margin:10px 0 0;}
+.ingdots i{width:20px; height:20px; border-radius:50%; display:block; box-shadow:inset 0 -3px 5px rgba(0,0,0,.25);}
+.masthead{font-family:'Pirata One',cursive; font-weight:400; font-size:33px; line-height:1.1; text-align:center;
+  letter-spacing:.04em; border-bottom:3px double rgba(122,103,72,.55); padding-bottom:6px;}
+.headline{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:20px; margin:10px 0 6px; line-height:1.2;}
+.story{font-family:'Cormorant Garamond',serif; font-size:15.5px; font-weight:600; line-height:1.4;}
+.ripple{margin-top:12px; font-size:12px; font-weight:700; color:var(--elixir); font-style:italic;}
+#phonowrap{position:relative; width:58%; margin:6% auto 0;}
+#phonoglow{position:absolute; inset:-14%; border-radius:50%;
+  background:radial-gradient(circle, rgba(178,106,224,.4) 0%, rgba(178,106,224,.14) 42%, rgba(178,106,224,0) 72%);
+  filter:blur(10px); animation:phonopulse 2.6s ease-in-out infinite;}
+@keyframes phonopulse{0%,100%{opacity:.45; transform:scale(.96);} 50%{opacity:1; transform:scale(1.05);}}
+#phonowrap img{position:relative; width:100%;}
+.plaque{margin-top:8px; text-align:center; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:16.5px; color:var(--ink);}
+
+/* portrait: the 16:9 spread art doesn't fit — fall back to a cream book panel */
+body.portrait #tomeimg{display:none;}
+body.portrait #tome{background:linear-gradient(175deg,#f7efdc,var(--cream));}
+body.portrait .tab{left:auto; width:15%; height:7%; top:1.5% !important; background:rgba(122,103,72,.16); border-radius:10px;}
+body.portrait .tab svg{stroke:#4a3a28;}
+body.portrait #tab-brew{left:4%;} body.portrait #tab-ledger{left:23%;}
+body.portrait #tab-herald{left:42%;} body.portrait #tab-song{left:61%;}
+body.portrait #pageL{left:5%; top:11%; width:90%; height:38%;}
+body.portrait #pageR{left:5%; top:52%; width:90%; height:45%;}
+body.portrait #pageflip{left:0; top:0; width:100%; height:100%;}
 
 /* ---------- SETTINGS & ABOUT OVERLAYS (GDD §11: cream panel, gold trim) ---------- */
 .overlay{position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center;

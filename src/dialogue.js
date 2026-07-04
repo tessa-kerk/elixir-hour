@@ -110,7 +110,7 @@ window.Dialogue = (function () {
   function applyUnlock(u) {
     var un = Game.state.unlocks;
     if (u.recipe && un.recipes.indexOf(u.recipe) < 0) un.recipes.push(u.recipe);
-    if (u.ledger && !un.ledger[u.ledger]) un.ledger[u.ledger] = u.note || "";
+    if (u.ledger && !Object.prototype.hasOwnProperty.call(un.ledger, u.ledger)) un.ledger[u.ledger] = u.note || "";
     if (u.herald && un.heralds.indexOf(u.herald) < 0) un.heralds.push(u.herald);
     Save.store(Game.snapshot());
   }

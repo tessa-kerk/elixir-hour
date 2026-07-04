@@ -113,10 +113,36 @@
         <button class="btn small" id="btn-totitle"></button></div>
     </div>
 
-    <!-- TOME OVERLAY (real build: Milestone 5) -->
+    <!-- TOME OVERLAY (GDD §11) — the four ribbon tabs are painted INTO the
+         spread art; these are hotspots + vector glyphs on top (mockup geometry) -->
     <div id="tome">
-      <div class="placeholder"><b id="ph-tome-title"></b><span id="ph-tome-note"></span></div>
+      <img id="tomeimg" src="assets/ui/Tome Spread.png" alt="">
       <div id="tomeclose"></div>
+      <div class="tab" id="tab-brew" title="Brew Book">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h8a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M16 9h2.5a1.5 1.5 0 0 1 0 5H16"/><path d="M6 8h10"/></svg>
+      </div>
+      <div class="tab" id="tab-ledger" title="Regulars' Ledger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="6" width="15" height="12" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
+      </div>
+      <div class="tab" id="tab-herald" title="Arena Herald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5c-1.2 0-2 .9-2 2s.8 2 2 2V5z"/><path d="M5 5h12a2 2 0 0 1 2 2v10a2 2 0 0 0 2 2H7a2 2 0 0 1-2-2V5z"/><path d="M9 9h6M9 13h6M9 16h4"/></svg>
+      </div>
+      <div class="tab" id="tab-song" title="Bard's Songbook">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="18" r="3"/><path d="M11 18V5l8-2v11"/><circle cx="16" cy="16" r="3"/></svg>
+      </div>
+      <div id="pageL"></div>
+      <div id="pageR"></div>
+      <div id="spread" hidden>
+        <div id="spreadvp"><div id="spreadflow"></div></div>
+      </div>
+      <div id="pageflip">
+        <div class="backdrop"></div>
+        <div class="sweep"></div>
+        <div class="leaf">
+          <div class="face front"><div class="curlfx"></div></div>
+          <div class="face back"><div class="curlfx"></div></div>
+        </div>
+      </div>
     </div>
 
     <!-- SETTINGS OVERLAY (GDD §11) -->
@@ -159,6 +185,7 @@
 <script src="src/brew.js"></script>
 <script src="src/dialogue.js"></script>
 <script src="src/state.js"></script>
+<script src="src/tome.js"></script>
 <script src="src/settings.js"></script>
 <script src="src/boot.js"></script>
 </body>

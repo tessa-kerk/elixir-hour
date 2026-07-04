@@ -46,7 +46,7 @@
   };
 
   var prefsBox = storageBox("elixirHour.prefs.v1");
-  var PREF_DEFAULTS = { version: 1, lang: "en", music: true, sfx: true };
+  var PREF_DEFAULTS = { version: 1, lang: "en", music: true, sfx: true, track: "Sage's Favourite" };
   window.Prefs = {
     get: function () {
       var raw = prefsBox.load() || {};
