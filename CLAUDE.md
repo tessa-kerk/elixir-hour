@@ -14,6 +14,7 @@ You are building **Elixir Hour**, a cosy conversation game — "Coffee Talk, in 
 - Web, single-page: **HTML + CSS + JavaScript**. Must run by opening in a browser and be **fully responsive down to mobile** (16:9 reference).
 - **Multi-file and data-driven:** keep dialogue, characters, recipes, Herald editions, Ledger bios + Sage's notes, and all UI strings in **separate data files** — never hard-coded in logic. All player-facing text goes through **string tables** (English populated; scaffold the other 6 languages).
 - **Assets:** reuse the locked art from `../Art/`; copy the files the game actually uses into `./assets/` so this repo is self-contained. Regenerate only the weak scene art per GDD §12/§15. Wire the audio system + Songbook slots, but leave the real music tracks for later (four slots: "Sage's Favourite", "Rain on the Strip", "The Little One's Tune", "Last Call").
+- **Sprite workflow (locked 05-07-2026):** Tessa generates characters on flat grey and background-removes them herself; the PNGs in `assets/characters/` are FINAL cutouts — **never re-key, re-cut or regenerate them**. Placement is programmatic via the per-expression `{file, top, base, tall}` metadata in `data/cast.js`. The transparent logo, title background, nav-arrow icon and all five character cards are likewise final. See PLAN.md's "CURRENT STATE" block for the full locked list.
 
 ## Do not
 - Do not invent narrative or character content. Load dialogue from the Full Script / data files; use the GDD §10 bios and Sage's margin notes verbatim.

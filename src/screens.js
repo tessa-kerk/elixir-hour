@@ -1,5 +1,7 @@
-/* Screen renderers. Title and Herald are real; serve/group/duo/epilogue are
-   labelled placeholders until their milestones (2, 5, 6). All text via t(). */
+/* Screen renderers. All screens are real as of Milestone 6 (title, herald,
+   serve composite, group ensemble, split duologue, night end, epilogue
+   Herald). All UI chrome text via t(); dialogue/content stays English until
+   the M7 content-localisation pass. */
 window.Screens = (function () {
   function el(id) { return document.getElementById(id); }
 
@@ -12,12 +14,6 @@ window.Screens = (function () {
     el("panel-info").textContent = "i";
     el("panel-info").title = t("panel.tome.tooltip");
     if (window.Brew) Brew.refreshText();
-    el("ph-group-title").textContent = t("ph.group.title");
-    el("ph-group-note").textContent = t("ph.group.note");
-    el("ph-duo-title").textContent = t("ph.duo.title");
-    el("ph-duo-note").textContent = t("ph.duo.note");
-    el("ph-epi-title").textContent = t("ph.epilogue.title");
-    el("ph-epi-note").textContent = t("ph.epilogue.note");
     el("btn-totitle").textContent = t("epilogue.totitle");
     el("btn-savequit").textContent = t("night.savequit");
     el("tomeclose").textContent = t("tome.close");
@@ -147,6 +143,200 @@ window.Screens = (function () {
     if (hasNext) next.textContent = t("night.begin", { n: night + 1 });
   }
 
+  /* ---- Group screen (Layout 3, GDD §11): the whole room at the bar ----
+     Wide ensemble, no mixing UI. Same composite discipline as the serve
+     screen: every cutout anchored by its measured torso-base to ONE counter
+     line, one standardised contact shadow each; the row spreads across the
+     counter. The bubble sits above whoever is speaking. */
+  var groupCast = {};          /* who → { img, cx, topY } */
+  var groupComp = null;
+  var lastGroup = null;
+
+  function groupComposite() {
+    var D = Stage.design();
+    var portrait = document.body.classList.contains("portrait");
+    return portrait
+      ? { counterY: 0.52 * D.H, charH: 0.245 * D.H, W: D.W, H: D.H }
+      : { counterY: 0.82 * D.H, charH: 0.42 * D.H, W: D.W, H: D.H };
+  }
+
+  function renderGroup(b) {
+    lastGroup = b;
+    var row = el("group-row");
+    row.innerHTML = "";
+    groupCast = {};
+    groupComp = groupComposite();
+    var cast = b.cast || [];
+    for (var i = 0; i < cast.length; i++) {
+      var cx = ((i + 0.5) / cast.length) * groupComp.W;
+      placeGroupChar(cast[i].who, cast[i].expr, cx);
+    }
+    el("group-bubble").classList.remove("on");
+  }
+
+  function placeGroupChar(who, exprName, cx) {
+    var c = window.CAST[who];
+    if (!c) return;
+    var names = [];
+    for (var k in c.exprs) names.push(k);
+    if (!exprName || !c.exprs[exprName]) exprName = names[0];
+    var e = c.exprs[exprName];
+    var span = Math.max(e.base - e.top, 0.4);
+    var imgH = (groupComp.charH * (e.tall || 1)) / span;
+
+    var row = el("group-row");
+    var old = groupCast[who];
+    var sh = old ? old.sh : document.createElement("div");
+    var img = old ? old.img : document.createElement("img");
+    if (!old) {
+      sh.className = "g-shadow";
+      img.className = "g-char";
+      row.appendChild(sh);
+      row.appendChild(img);
+    }
+    img.src = c.dir + "/" + e.file;
+    img.style.height = imgH + "px";
+    img.style.left = cx + "px";
+    img.style.top = (groupComp.counterY - imgH * e.base) + "px";
+    var shW = groupComp.charH * 0.60, shH = groupComp.charH * 0.065;
+    sh.style.width = shW + "px";
+    sh.style.height = shH + "px";
+    sh.style.left = cx + "px";
+    sh.style.top = (groupComp.counterY - shH * 0.5) + "px";
+    groupCast[who] = { img: img, sh: sh, cx: cx, expr: exprName,
+                       topY: groupComp.counterY - groupComp.charH * (e.tall || 1) };
+    /* end figures pull inward so nobody crops at the frame — neighbours
+       overlapping reads as a crowded bar; a cut-off face reads as a bug */
+    function clampX() {
+      var half = img.offsetWidth / 2;
+      if (!half) return;
+      var cxc = Math.max(half + groupComp.W * 0.004, Math.min(cx, groupComp.W * 0.996 - half));
+      if (Math.abs(cxc - cx) < 1) return;
+      img.style.left = cxc + "px";
+      sh.style.left = cxc + "px";
+      if (groupCast[who]) groupCast[who].cx = cxc;
+    }
+    if (img.complete) clampX(); else img.onload = clampX;
+  }
+
+  function groupExpr(who, exprName) {
+    var g = groupCast[who];
+    if (g) placeGroupChar(who, exprName, g.cx);
+  }
+
+  function groupLine(who, colour, html) {
+    var bub = el("group-bubble");
+    bub.querySelector(".speaker").textContent = who || "";
+    bub.querySelector(".speaker").style.color = colour;
+    bub.querySelector(".speaker").style.display = who ? "" : "none";
+    bub.querySelector(".line").innerHTML = html;
+    var g = who && groupCast[who];
+    var W = groupComp.W, H = groupComp.H;
+    var bw = Math.round(W * 0.34);
+    bub.style.width = bw + "px";
+    if (g) {
+      /* above the speaker, clamped to the stage, tail on */
+      var left = Math.max(W * 0.01, Math.min(g.cx - bw / 2, W * 0.99 - bw));
+      bub.style.left = left + "px";
+      bub.style.bottom = (H - g.topY + 12) + "px";
+      bub.classList.remove("notail");
+      bub.style.setProperty("--tailx", Math.round(g.cx - left - 9) + "px");
+    } else {
+      /* Sage / narration: bottom-centre, no tail (the keeper is the camera) */
+      bub.style.left = Math.round((W - bw) / 2) + "px";
+      bub.style.bottom = Math.round(H * 0.05) + "px";
+      bub.classList.add("notail");
+    }
+    bub.classList.add("on");
+  }
+
+  /* ---- Split duologue (Layout 5, GDD §11): two customers conversing ----
+     Diagonal split canvas, one customer per panel, bottom-centre name-box
+     in the speaker's colour; the silent half dims a touch. */
+  var duoCast = {};            /* who → side index (0 left, 1 right) */
+  var lastDuo = null;
+
+  /* Chest-up framing with stature kept honest: the same tall factors and
+     measured spans as the serve composite, torso-base carried just below
+     the panel's bottom edge (landscape) or the split line (portrait). */
+  function placeDuoChar(i, who, exprName) {
+    var c = window.CAST[who];
+    if (!c) return;
+    var names = [];
+    for (var k in c.exprs) names.push(k);
+    if (!exprName || !c.exprs[exprName]) exprName = names[0];
+    var e = c.exprs[exprName];
+    var D = Stage.design();
+    var portrait = document.body.classList.contains("portrait");
+    var charH = (portrait ? 0.33 : 0.56) * D.H;
+    var baseY = portrait ? (i === 0 ? 0.545 : 1.04) * D.H : 1.04 * D.H;
+    var span = Math.max(e.base - e.top, 0.4);
+    var imgH = (charH * (e.tall || 1)) / span;
+    var half = document.querySelector("#screen-duo .duo-half." + (i === 0 ? "left" : "right"));
+    var img = half.querySelector("img");
+    img.src = c.dir + "/" + e.file;
+    img.style.height = imgH + "px";
+    img.style.top = (baseY - imgH * e.base) + "px";
+    half.classList.remove("dim");
+    duoCast[who] = i;
+  }
+
+  function renderDuo(b) {
+    lastDuo = b;
+    duoCast = {};
+    var cast = b.cast || [];
+    for (var i = 0; i < 2 && i < cast.length; i++) placeDuoChar(i, cast[i].who, cast[i].expr);
+    el("duo-box").classList.remove("on");
+  }
+
+  function duoExpr(who, exprName) {
+    var i = duoCast[who];
+    if (i === undefined) return;
+    placeDuoChar(i, who, exprName);
+  }
+
+  function duoLine(who, colour, html) {
+    var box = el("duo-box");
+    box.querySelector(".speaker").textContent = who || "";
+    box.querySelector(".speaker").style.color = colour;
+    box.querySelector(".speaker").style.display = who ? "" : "none";
+    box.querySelector(".line").innerHTML = html;
+    var halves = document.querySelectorAll("#screen-duo .duo-half");
+    for (var i = 0; i < halves.length; i++) halves[i].classList.remove("dim");
+    if (who && duoCast[who] !== undefined) {
+      halves[duoCast[who] === 0 ? 1 : 0].classList.add("dim");
+    }
+    box.classList.add("on");
+  }
+
+  /* ---- Epilogue: the morning-after Herald (GDD §9) ----
+     One edition, one consequence line from the Knight's last cup, the
+     decree lifted, and the closing card. */
+  function renderEpilogue() {
+    var ed = null;
+    var eds = window.HERALD_EDITIONS || [];
+    for (var i = 0; i < eds.length; i++) if (eds[i].night === 4) ed = eds[i];
+    if (!ed) return;
+    el("epi-masthead").textContent = t("herald.masthead");
+    el("epi-ed").textContent = ed.ed;
+    el("epi-head").textContent = ed.head;
+    el("epi-story").textContent = ed.story;
+    var key = Game.state.consequence === "rattled" ? "rattled" : "clear";
+    el("epi-conseq").textContent = ed.consequence ? ed.consequence[key] : "";
+    el("epi-story2").textContent = ed.story2 || "";
+    el("epi-final").textContent = ed.final || "";
+  }
+
+  /* re-place anchored layers when the stage flips landscape/portrait */
+  document.addEventListener("stagemode", function () {
+    if (lastGroup && document.getElementById("screen-group").classList.contains("active")) {
+      renderGroup(lastGroup);
+    }
+    if (lastDuo && document.getElementById("screen-duo").classList.contains("active")) {
+      renderDuo(lastDuo);
+    }
+  });
+
   return {
     fillStatic: fillStatic,
     renderTitle: renderTitle,
@@ -159,5 +349,12 @@ window.Screens = (function () {
     serveChoices: serveChoices,
     hideServeChoices: hideServeChoices,
     renderNightEnd: renderNightEnd,
+    renderGroup: renderGroup,
+    groupExpr: groupExpr,
+    groupLine: groupLine,
+    renderDuo: renderDuo,
+    duoExpr: duoExpr,
+    duoLine: duoLine,
+    renderEpilogue: renderEpilogue,
   };
 })();

@@ -88,16 +88,30 @@
       </div>
     </div>
 
-    <!-- GROUP (real build: Milestone 6) -->
+    <!-- GROUP — Layout 3 (GDD §11): wide ensemble at the bar, no mixing UI.
+         Same master-scene placeholder pieces as the serve screen; the cast
+         row is placed programmatically (src/screens.js renderGroup). -->
     <div class="screen" id="screen-group">
-      <div class="placeholder"><b id="ph-group-title"></b><span id="ph-group-note"></span>
-        <button class="btn small" data-advance></button></div>
+      <div id="g-ms">
+        <div id="g-wall"></div>
+        <div id="g-counter"></div>
+      </div>
+      <div id="group-row"></div>
+      <div id="group-bubble" class="bubble">
+        <div class="speaker"></div>
+        <div class="line"></div>
+      </div>
     </div>
 
-    <!-- SPLIT DUOLOGUE (real build: Milestone 6) -->
+    <!-- SPLIT DUOLOGUE — Layout 5 (GDD §11): two customers conversing on a
+         diagonal split canvas, bottom-centre name-box in the speaker's colour. -->
     <div class="screen" id="screen-duo">
-      <div class="placeholder"><b id="ph-duo-title"></b><span id="ph-duo-note"></span>
-        <button class="btn small" data-advance></button></div>
+      <div class="duo-half left"><img src="" alt=""></div>
+      <div class="duo-half right"><img src="" alt=""></div>
+      <div id="duo-box">
+        <span class="speaker"></span>
+        <div class="line"></div>
+      </div>
     </div>
 
     <!-- NIGHT COMPLETE -->
@@ -107,10 +121,22 @@
         <button class="btn small" id="btn-savequit"></button></div>
     </div>
 
-    <!-- EPILOGUE (real build: Milestone 6) -->
+    <!-- EPILOGUE — the morning-after Herald (GDD §9): the Championship
+         report with the ONE line from the Knight's last cup, the decree
+         lifted, and the closing card. -->
     <div class="screen" id="screen-epilogue">
-      <div class="placeholder"><b id="ph-epi-title"></b><span id="ph-epi-note"></span>
-        <button class="btn small" id="btn-totitle"></button></div>
+      <div id="epi-wrap">
+        <div id="epi-sheet">
+          <h1 id="epi-masthead"></h1>
+          <div id="epi-ed"></div>
+          <h2 id="epi-head"></h2>
+          <p id="epi-story"></p>
+          <p id="epi-conseq"></p>
+          <p id="epi-story2"></p>
+        </div>
+        <div id="epi-final"></div>
+        <button class="btn small" id="btn-totitle"></button>
+      </div>
     </div>
 
     <!-- TOME OVERLAY (GDD §11) — the four ribbon tabs are painted INTO the
@@ -139,8 +165,10 @@
         <div class="backdrop"></div>
         <div class="sweep"></div>
         <div class="leaf">
-          <div class="face front"><div class="curlfx"></div></div>
-          <div class="face back"><div class="curlfx"></div></div>
+          <div class="paper">
+            <div class="face front"><div class="curlfx"></div></div>
+            <div class="face back"><div class="curlfx"></div></div>
+          </div>
         </div>
       </div>
     </div>

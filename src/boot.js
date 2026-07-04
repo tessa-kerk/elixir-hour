@@ -60,17 +60,26 @@
     for (var i = 0; i < window.BREWBOOK.length; i++) recipes.push(window.BREWBOOK[i].name);
     var songs = [];
     for (var j = 0; j < window.SONGBOOK.length; j++) songs.push(window.SONGBOOK[j].name);
+    /* stage-indexed note arrays (v3): all five pages at full depth */
     Game.state.unlocks = {
       recipes: recipes,
       ledger: {
-        "Knight": "The anchor. Been fighting a long time.",
-        "Hog Rider": "Loud. Always the last to leave.",
-        "Wizard": "Performs. Desperate to be taken seriously.",
-        "Princess": "", "P.E.K.K.A": "",
+        "Knight": ["The anchor. Been fighting a long time.",
+                   "Fights at dawn. Can't remember what for. Saving himself for something.", ""],
+        "Hog Rider": ["Loud. Always the last to leave.", "",
+                      "The noise is a shield. Wants, more than anything, somewhere he doesn't have to be loud."],
+        "Wizard": ["Performs. Desperate to be taken seriously.",
+                   "Forty years of fire, and not one card to show for it. The boast is the bandage.",
+                   "Doesn't need the card tonight. Learned the plain cup was the good one all along."],
+        "Princess": ["Sees everything from range. Upstaged by the Magic Archer — a wound she won't name. Lonely at the top and would rather burn than say so.", "",
+                     "Lonely at the top and finally said so. Put the Poison down for one night."],
+        "P.E.K.K.A": ["Gentle. Hates being feared. A mother. Loves butterflies — and keeps music where her heart would be.", "",
+                      "Seen at last. A mother, a music-lover, the gentlest soul in the realm — under the most frightening shell in it."],
       },
-      heralds: [1, 2, 3],
+      heralds: [1, 2, 3, 4],
       songs: songs,
     };
+    Game.state.consequence = "clear";              /* so the epilogue edition reads */
     Save.store(Game.snapshot());
     Game.openTome();
   });

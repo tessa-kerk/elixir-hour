@@ -181,13 +181,86 @@ body.portrait #brewstrip{left:3%; right:3%; top:64%; bottom:2.5%; height:auto;}
 body.portrait #title-logo{width:78%; top:13%;}
 body.portrait #broadsheet{width:88%; padding:30px 26px;}
 body.portrait .panel{width:88%;}
+/* portrait: group counter becomes a band mid-frame (the row shrinks to fit
+   five across); duo stacks its split top/bottom; epilogue sheet widens */
+body.portrait #screen-group{background:#241a12;}
+body.portrait #g-wall{height:52%;}
+body.portrait #g-counter{top:52%; height:15%; bottom:auto;}
+body.portrait .duo-half.left{clip-path:polygon(0 0, 100% 0, 100% 44%, 0 56%);}
+body.portrait .duo-half.right{clip-path:polygon(0 56%, 100% 44%, 100% 100%, 0 100%);}
+body.portrait .duo-half.left img,body.portrait .duo-half.right img{left:50%;}
+body.portrait #duo-box{width:88%; bottom:2.5%;}
+body.portrait #epi-sheet{width:88%; padding:26px 24px;}
 
-/* ---------- PLACEHOLDER PANELS (screens that land in later milestones) ---------- */
+/* ---------- PLACEHOLDER PANELS (night-end only now) ---------- */
 .placeholder{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:14px; text-align:center; padding:0 10%;
   background:radial-gradient(circle at 50% 45%, #33284a, #141019 80%); color:var(--cream);}
 .placeholder b{font-family:'Baloo 2',cursive; font-size:30px; letter-spacing:.03em;}
 .placeholder span{font-size:15px; opacity:.75; max-width:560px; line-height:1.5;}
+
+/* ---------- GROUP — Layout 3 (GDD §11): the whole room, no mixing UI ----------
+   Late-night dressing of the same master-scene placeholder: darker wall,
+   warmer lamp pools, ONE counter. Cast row + bubble placed programmatically
+   (src/screens.js renderGroup / groupLine). */
+#g-wall{position:absolute; left:0; right:0; top:0; height:82%;
+  background:
+    radial-gradient(ellipse 40% 55% at 20% 30%, rgba(232,183,112,.14), transparent 70%),
+    radial-gradient(ellipse 40% 55% at 80% 28%, rgba(232,183,112,.12), transparent 70%),
+    radial-gradient(ellipse 30% 40% at 50% 60%, rgba(178,106,224,.10), transparent 75%),
+    linear-gradient(180deg, #1c130d 0%, #2e2015 45%, #43301f 82%, #55391f 100%);}
+#g-counter{position:absolute; left:0; right:0; top:82%; bottom:0;
+  background:linear-gradient(180deg, #7a5530 0%, #6E4B2A 7%, #4a3220 46%, #3A2A20 100%);
+  box-shadow:inset 0 3px 0 rgba(244,236,221,.14), inset 0 14px 22px rgba(0,0,0,.25);}
+#group-row .g-char{position:absolute; transform:translateX(-50%); z-index:3;}
+#group-row .g-shadow{position:absolute; transform:translateX(-50%); border-radius:50%; z-index:2;
+  background:radial-gradient(ellipse, rgba(8,6,4,.4) 0%, rgba(8,6,4,.2) 48%, transparent 72%);}
+#group-bubble{display:none;}
+#group-bubble.on{display:block;}
+#group-bubble:after{left:var(--tailx, 46%);}
+#group-bubble.notail:after{display:none;}
+#group-bubble .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
+
+/* ---------- SPLIT DUOLOGUE — Layout 5 (GDD §11) ----------
+   Two customers on a diagonal split canvas; the words go in a bottom-centre
+   name-box in the speaker's colour; the silent half dims a touch. */
+#screen-duo{background:#141019;}
+.duo-half{position:absolute; inset:0; overflow:hidden; transition:filter .3s ease;}
+.duo-half.left{clip-path:polygon(0 0, 56% 0, 44% 100%, 0 100%);
+  background:radial-gradient(ellipse 60% 70% at 30% 35%, rgba(178,106,224,.14), transparent 75%),
+             linear-gradient(160deg, #33284a, #221b33 70%, #18132a);}
+.duo-half.right{clip-path:polygon(56% 0, 100% 0, 100% 100%, 44% 100%);
+  background:radial-gradient(ellipse 60% 70% at 70% 35%, rgba(232,183,112,.16), transparent 75%),
+             linear-gradient(200deg, #4a3423, #34251a 70%, #241a12);}
+.duo-half img{position:absolute; transform:translateX(-50%);}
+.duo-half.left img{left:24%;}
+.duo-half.right img{left:76%;}
+.duo-half.dim{filter:brightness(.6) saturate(.8);}
+#duo-box{position:absolute; left:50%; transform:translateX(-50%); bottom:4.5%; width:58%; z-index:5;
+  background:var(--cream); border-radius:14px; padding:10px 20px 13px; display:none;
+  box-shadow:0 10px 26px rgba(0,0,0,.5);}
+#duo-box.on{display:block;}
+#duo-box .speaker{font-family:'Baloo 2',cursive; font-size:13px; letter-spacing:.06em; text-transform:uppercase;}
+#duo-box .line{font-size:15px; line-height:1.4; color:var(--charcoal); font-weight:600; margin-top:3px;}
+#duo-box .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
+
+/* ---------- EPILOGUE — the morning-after Herald (GDD §9) ---------- */
+#epi-wrap{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:16px;
+  background:radial-gradient(circle at 50% 40%, #2a2347, #141019 75%);}
+#epi-sheet{width:54%; background:linear-gradient(175deg,#f7efdc,#e9dcc0); border-radius:6px;
+  padding:30px 40px; color:var(--charcoal); box-shadow:0 24px 60px rgba(0,0,0,.7);
+  transform:rotate(-1deg); border:1px solid #cbbd9c;}
+#epi-masthead{font-family:'Pirata One',cursive; font-weight:400; font-size:32px; letter-spacing:.04em;
+  border-bottom:3px double #8a7a5e; padding-bottom:8px; text-align:center;}
+#epi-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;
+  color:var(--ink-soft); margin-top:6px;}
+#epi-head{font-family:'Baloo 2',cursive; font-size:19px; margin:14px 0 6px;}
+#epi-story,#epi-conseq,#epi-story2{font-size:14px; line-height:1.5; font-weight:600; margin-top:9px;}
+#epi-conseq{font-style:italic; color:#5c4326;
+  border-left:3px solid var(--gold); padding-left:12px;}   /* the ripple — one line, one brew */
+#epi-final{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:21px; color:var(--cream);
+  letter-spacing:.02em; text-align:center; text-shadow:0 2px 10px rgba(0,0,0,.6);}
 
 /* ---------- TOME OVERLAY (mockup geometry; §11 marginalia rule) ---------- */
 #tome{position:absolute; inset:0; z-index:30; display:none; animation:tomein .3s ease;}
@@ -241,64 +314,76 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
 .hand-nav.next img{margin-left:auto;}
 .hand-nav:hover{opacity:1;}
 
-/* ---------- the 3D page-turn (GDD §11, round 3) ----------
-   ONE page turns; the book stays put. The container is a full-bleed overlay
-   whose BACKDROP is the entire static Tome Spread art — whatever the leaf's
-   projection does, only book ever shows behind it (no leather gaps), and the
-   pages' content stays occluded until the leaf lands. The leaf is exactly
-   the painted right page (art: pages 11.12→84.74% × 8.07→87.24%, spine at
-   49.82%), hinged on the spine; the perspective eye sits ON the spine with
-   a long lens so the projection stays page-sized instead of sweeping the
-   whole spread. Paper softness is faked: a slight rotateX wobble, the free
-   edge's corners rounding mid-flight, and a sheen/shade band travelling
-   along the face like a moving bend. */
+/* ---------- the 3D page-turn (GDD §11, round 4) ----------
+   ONE leaf turns; the book stays put. The full-bleed BACKDROP is the entire
+   static Tome Spread art (it reaches every edge, incl. the top and the
+   gutter), so only book ever shows behind the leaf and the destination
+   stays occluded until it lands. The leaf covers the WHOLE painted
+   page-block edge-to-edge (measured paper: x 11.1→84.9%, y 7.7→87.6% of
+   the art, spine at 49.82%), and it is hinged EXACTLY on the spine: the
+   leaf and its inner .paper wrapper rotate only about the spine axis (pure
+   rotateY, origin on the gutter), so the bound edge cannot drift — no
+   rotateX wobble (it tips the bound edge off the spine plane and opens the
+   brown gutter-notch gap) and NO filter anywhere in the 3D tree (an
+   animated drop-shadow forces the leaf to flatten and smears a translucent
+   shadow over the gutter — the "see-through page"). The faces carry an
+   opaque paper colour under their art slice, so the leaf can never be
+   seen through. Paper softness: the .paper wrapper lags a few degrees
+   behind the hinge (the free edge trails, then settles flat), the FREE
+   edge's corners round mid-flight, and a sheen band travels the face. */
 #pageflip{position:absolute; inset:0; z-index:36; display:none; pointer-events:none;
   perspective:2800px; perspective-origin:49.82% 47%;}
 #pageflip .backdrop{position:absolute; inset:0;
   background-image:url("../assets/ui/Tome Spread.png"); background-size:100% 100%;}
-#pageflip .face{background-image:url("../assets/ui/Tome Spread.png"); background-repeat:no-repeat;}
-#pageflip .leaf{position:absolute; top:8.07%; height:79.17%; transform-style:preserve-3d;}
+#pageflip .leaf{position:absolute; top:7.2%; height:81%; transform-style:preserve-3d;}
+#pageflip .paper{position:absolute; inset:0; transform-style:preserve-3d;}
+#pageflip.fwd .paper{transform-origin:left center;}
+#pageflip.rev .paper{transform-origin:right center;}
 #pageflip .face{position:absolute; inset:0; overflow:hidden;
-  backface-visibility:hidden; -webkit-backface-visibility:hidden;}
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  background-color:#dfc09e;
+  background-image:url("../assets/ui/Tome Spread.png"); background-repeat:no-repeat;}
 /* forward: the RIGHT page lifts off the spine; its back carries the art of
    the region it lands on, so touchdown is seamless */
-#pageflip.fwd .leaf{left:49.82%; width:34.92%; transform-origin:left center;}
-#pageflip.fwd .face.front{background-size:286.4% 126.31%; background-position:76.55% 38.74%;
-  box-shadow:inset 16px 0 28px rgba(90,64,38,.22);}
-#pageflip.fwd .face.back{transform:rotateY(180deg);
-  background-size:286.4% 126.31%; background-position:22.9% 38.74%;
-  box-shadow:inset -16px 0 28px rgba(90,64,38,.22);}
+#pageflip.fwd .leaf{left:49.82%; width:35.48%; transform-origin:left center;}
+#pageflip.fwd .face{background-size:281.85% 123.46%;}
+#pageflip.fwd .face.front{background-position:77.22% 37.89%;}
+#pageflip.fwd .face.back{transform:rotateY(180deg); background-position:22.23% 37.89%;}
 /* reverse: the LEFT page lifts back across the spine */
 #pageflip.rev .leaf{left:11.12%; width:38.70%; transform-origin:right center;}
-#pageflip.rev .face.front{background-size:258.4% 126.31%; background-position:18.14% 38.74%;
-  box-shadow:inset -16px 0 28px rgba(90,64,38,.22);}
-#pageflip.rev .face.back{transform:rotateY(180deg);
-  background-size:258.4% 126.31%; background-position:81.27% 38.74%;
-  box-shadow:inset 16px 0 28px rgba(90,64,38,.22);}
+#pageflip.rev .face{background-size:258.40% 123.46%;}
+#pageflip.rev .face.front{background-position:18.14% 37.89%;}
+#pageflip.rev .face.back{transform:rotateY(180deg); background-position:81.27% 37.89%;}
 #pageflip.fwd.go .leaf{animation:leafturnF .62s cubic-bezier(.5,.06,.36,1) forwards;}
 #pageflip.rev.go .leaf{animation:leafturnR .62s cubic-bezier(.5,.06,.36,1) forwards;}
-@keyframes leafturnF{
-  0%{transform:rotateY(0) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}
-  25%{transform:rotateY(-48deg) rotateX(2deg);}
-  50%{transform:rotateY(-94deg) rotateX(2.6deg); filter:drop-shadow(-28px 12px 22px rgba(50,32,16,.4));}
-  75%{transform:rotateY(-146deg) rotateX(1.3deg);}
-  100%{transform:rotateY(-180deg) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}}
-@keyframes leafturnR{
-  0%{transform:rotateY(0) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}
-  25%{transform:rotateY(48deg) rotateX(2deg);}
-  50%{transform:rotateY(94deg) rotateX(2.6deg); filter:drop-shadow(28px 12px 22px rgba(50,32,16,.4));}
-  75%{transform:rotateY(146deg) rotateX(1.3deg);}
-  100%{transform:rotateY(180deg) rotateX(0); filter:drop-shadow(0 0 0 rgba(50,32,16,0));}}
-/* the free edge softens mid-flight (radius on the faces — the leaf itself
-   must stay unclipped to keep preserve-3d) */
-#pageflip.fwd.go .face{animation:curlEdgeF .62s cubic-bezier(.5,.06,.36,1) forwards;}
-#pageflip.rev.go .face{animation:curlEdgeR .62s cubic-bezier(.5,.06,.36,1) forwards;}
-@keyframes curlEdgeF{
+@keyframes leafturnF{from{transform:rotateY(0);} to{transform:rotateY(-180deg);}}
+@keyframes leafturnR{from{transform:rotateY(0);} to{transform:rotateY(180deg);}}
+/* the sheet bows: the free edge lags the hinge, then settles flat — the
+   lag axis is ALSO the spine, so the bound edge stays pinned throughout */
+#pageflip.fwd.go .paper{animation:paperlagF .62s ease-in-out forwards;}
+#pageflip.rev.go .paper{animation:paperlagR .62s ease-in-out forwards;}
+@keyframes paperlagF{
+  0%{transform:rotateY(0);} 12%{transform:rotateY(0);}
+  40%{transform:rotateY(9deg);} 65%{transform:rotateY(11deg);}
+  88%{transform:rotateY(3deg);} 100%{transform:rotateY(0);}}
+@keyframes paperlagR{
+  0%{transform:rotateY(0);} 12%{transform:rotateY(0);}
+  40%{transform:rotateY(-9deg);} 65%{transform:rotateY(-11deg);}
+  88%{transform:rotateY(-3deg);} 100%{transform:rotateY(0);}}
+/* the FREE edge's corners soften mid-flight (radius on the faces — the
+   leaf/paper must stay unclipped to keep preserve-3d). The free edge is
+   the right side of the outgoing right page's front and of the landing
+   right page's back; the left side of the other two — never the spine. */
+#pageflip.fwd.go .face.front{animation:curlEdgeRt .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.fwd.go .face.back{animation:curlEdgeLt .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.rev.go .face.front{animation:curlEdgeLt .62s cubic-bezier(.5,.06,.36,1) forwards;}
+#pageflip.rev.go .face.back{animation:curlEdgeRt .62s cubic-bezier(.5,.06,.36,1) forwards;}
+@keyframes curlEdgeRt{
   0%{border-radius:0;}
   45%{border-top-right-radius:26px 52px; border-bottom-right-radius:26px 52px;}
   60%{border-top-right-radius:22px 44px; border-bottom-right-radius:22px 44px;}
   100%{border-radius:0;}}
-@keyframes curlEdgeR{
+@keyframes curlEdgeLt{
   0%{border-radius:0;}
   45%{border-top-left-radius:26px 52px; border-bottom-left-radius:26px 52px;}
   60%{border-top-left-radius:22px 44px; border-bottom-left-radius:22px 44px;}
@@ -312,10 +397,10 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
 @keyframes curlbandF{0%{left:110%; opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:-84%; opacity:0;}}
 @keyframes curlbandR{0%{left:-84%; opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{left:110%; opacity:0;}}
 /* the curl-shadow sweeping the page the leaf lands on */
-#pageflip .sweep{position:absolute; top:8.07%; height:79.17%; opacity:0; z-index:1;}
+#pageflip .sweep{position:absolute; top:7.2%; height:81%; opacity:0; z-index:1;}
 #pageflip.fwd .sweep{left:11.12%; width:38.70%;
   background:linear-gradient(90deg, rgba(50,32,16,0) 0%, rgba(50,32,16,.28) 76%, rgba(50,32,16,.4) 100%);}
-#pageflip.rev .sweep{left:49.82%; width:34.92%;
+#pageflip.rev .sweep{left:49.82%; width:35.48%;
   background:linear-gradient(270deg, rgba(50,32,16,0) 0%, rgba(50,32,16,.28) 76%, rgba(50,32,16,.4) 100%);}
 #pageflip.go .sweep{animation:sweepin .62s cubic-bezier(.5,.06,.36,1) forwards;}
 @keyframes sweepin{0%{opacity:0;} 42%{opacity:0;} 70%{opacity:.9;} 100%{opacity:0;}}

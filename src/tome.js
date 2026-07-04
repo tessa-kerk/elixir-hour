@@ -278,8 +278,18 @@ window.Tome = (function () {
     svg.setAttribute("height", pageH);
   }
 
-  /* stages 2–3 unlock in Milestone 6; DEV_LEDGER_STAGE lets Tessa preview */
-  function ledgerStage() { return window.DEV_LEDGER_STAGE || 1; }
+  /* A character's page depth = the highest stage slot their Ledger unlocks
+     have filled (the beats write stage-indexed notes — see data/nights.js).
+     v2 saves carried one note string = stage 1. DEV_LEDGER_STAGE still
+     overrides for layout preview. */
+  function ledgerStage(who) {
+    if (window.DEV_LEDGER_STAGE) return window.DEV_LEDGER_STAGE;
+    var l = Game.state.unlocks.ledger;
+    if (!Object.prototype.hasOwnProperty.call(l, who)) return 1;
+    var v = l[who];
+    var n = typeof v === "string" ? 1 : (v && v.length ? v.length : 1);
+    return Math.max(1, Math.min(3, n));
+  }
 
   /* Page navigation is GAME UI, not Sage's hand (GDD §11): the ornate
      fletched-arrow icon (Art/UI). It points left as drawn — the next-page
@@ -351,11 +361,18 @@ window.Tome = (function () {
 
     if (!eds.length) { el("pageR").innerHTML = ""; return; }
     var h = eds[sel.herald];
+    /* the epilogue edition prints the ONE line the Knight's last cup wrote
+       (GDD §8) plus the decree-lifted closer */
+    var story = esc(h.story);
+    if (h.consequence) {
+      story += "<br><br>" + esc(h.consequence[Game.state.consequence === "rattled" ? "rattled" : "clear"]);
+    }
+    if (h.story2) story += "<br><br>" + esc(h.story2);
     el("pageR").innerHTML =
       '<div class="masthead">The Arena Herald</div>' +
       '<div class="rp-caption">' + esc(h.ed) + "</div>" +
       '<div class="headline">' + esc(h.head) + "</div>" +
-      '<div class="story">' + esc(h.story) + "</div>" +
+      '<div class="story">' + story + "</div>" +
       (h.ripple ? '<div class="ripple">⚗ Traced to a quiet brew poured at a certain bar the night before.</div>' : "");
   }
 

@@ -10,6 +10,7 @@ window.Game = (function () {
     night: 1, beatIndex: 0,
     unlocks: { recipes: [], ledger: {}, heralds: [], songs: [] },
     tones: [],
+    consequence: null,          /* the Knight's last cup: "clear" | "rattled" (GDD §8) */
   };
   function freshUnlocks() { return { recipes: [], ledger: {}, heralds: [], songs: [] }; }
 
@@ -39,12 +40,29 @@ window.Game = (function () {
   }
 
   function snapshot() {
-    return { version: 2, night: state.night, beatIndex: state.beatIndex,
-             unlocks: state.unlocks, tones: state.tones };
+    return { version: 3, night: state.night, beatIndex: state.beatIndex,
+             unlocks: state.unlocks, tones: state.tones,
+             consequence: state.consequence };
   }
   function recordTone(tone) {
     state.tones.push({ night: state.night, beat: state.beatIndex, tone: tone });
     Save.store(snapshot());
+  }
+
+  /* An edition archives into the Tome the moment its interstitial is shown
+     (Night 1's lands end-of-night; Nights 2–3 open on theirs; the epilogue
+     morning-after edition archives with the epilogue). */
+  function archiveHerald(n) {
+    if (state.unlocks.heralds.indexOf(n) < 0) {
+      state.unlocks.heralds.push(n);
+      Save.store(snapshot());
+    }
+  }
+
+  function showEpilogue() {
+    archiveHerald(4);
+    Screens.renderEpilogue();
+    show("epilogue");
   }
 
   function playBeat() {
@@ -55,17 +73,17 @@ window.Game = (function () {
         Screens.renderNightEnd(state.night, true);
         show("nightend");
       } else {
-        show("epilogue");
+        showEpilogue();
       }
       return;
     }
     switch (b.type) {
-      case "herald":   Screens.renderHerald(state.night); show("herald"); break;
+      case "herald":   archiveHerald(state.night); Screens.renderHerald(state.night); show("herald"); break;
       case "visit":
       case "scene":    Dialogue.start(b); show("serve"); break;
-      case "group":    show("group"); break;       /* Milestone 6 */
-      case "duo":      show("duo"); break;         /* Milestone 6 */
-      case "epilogue": show("epilogue"); break;    /* Milestone 6 */
+      case "group":    Dialogue.start(b); show("group"); break;
+      case "duo":      Dialogue.start(b); show("duo"); break;
+      case "epilogue": showEpilogue(); break;
       default:
         console.warn("Elixir Hour: unknown beat type, skipping", b);
         advance();
@@ -107,6 +125,7 @@ window.Game = (function () {
     Save.clear();
     state.unlocks = freshUnlocks();
     state.tones = [];
+    state.consequence = null;
     startNight(1);
   }
   function continueGame() {
@@ -115,11 +134,20 @@ window.Game = (function () {
     state.night = typeof s.night === "number" ? s.night : 1;
     state.beatIndex = typeof s.beatIndex === "number" ? s.beatIndex : 0;
     var u = s.unlocks || {};
+    /* v2 saves stored one note string per Ledger character; v3 stores a
+       stage-indexed note array (page depth = highest slot filled) */
+    var ledger = {};
+    var lg = u.ledger || {};
+    for (var k in lg) {
+      if (!Object.prototype.hasOwnProperty.call(lg, k)) continue;
+      ledger[k] = typeof lg[k] === "string" ? [lg[k]] : (lg[k] || []);
+    }
     state.unlocks = {
-      recipes: u.recipes || [], ledger: u.ledger || {},
+      recipes: u.recipes || [], ledger: ledger,
       heralds: u.heralds || [], songs: u.songs || [],
     };
     state.tones = s.tones || [];
+    state.consequence = (s.consequence === "clear" || s.consequence === "rattled") ? s.consequence : null;
     if (!hasNight(state.night)) { newGame(); return; }
     resume();
   }

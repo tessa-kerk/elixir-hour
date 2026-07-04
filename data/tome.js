@@ -23,6 +23,9 @@ window.BREWBOOK = [
     taught: "Princess's preference",
     note: "A drink that bites back a little. She insists that's the point." },
   { name: "The Easy One", mix: ["Elixir", "Heal ×2"], dots: ["#B26AE0", "#4e9a51"],
+    taught: "Hog Rider's, tournament eve — the strong stuff set down",
+    note: "Light and warm, none of his usual fire. Just something easy." },
+  { name: "The Gentle One", mix: ["Elixir", "Heal ×3"], dots: ["#B26AE0", "#4e9a51"],
     taught: "For P.E.K.K.A — warm and gentle",
     note: "No spark in it. Served slower on purpose." },
 ];
@@ -110,14 +113,33 @@ window.LEDGER = [
   },
 ];
 
-/* Arena Herald — one edition per Night; unlocks as the Nights close.
-   `ripple` marks the edition traced back to a quiet brew (Night 3 epilogue). */
+/* Arena Herald — one edition per Night, VERBATIM from the Hour scripts;
+   an edition unlocks into the Tome archive the moment its interstitial is
+   shown (Night 1's lands end-of-night; Nights 2–3 open on theirs).
+   `night: 4` is the epilogue morning-after edition: `consequence` holds the
+   two possible lines from the Knight's last cup (GDD §8 — the save decides
+   which prints), `story2` the decree-lifted closer, `final` the closing
+   card (screen-only, not newspaper copy). `ripple` marks it as the edition
+   traced back to a quiet brew. */
 window.HERALD_EDITIONS = [
   { night: 1, ed: "Ed. XLVII", head: "Crown Championship in Three Days",
     story: "Blue and Red to settle it under the King's own eye. The greatest bout of the year draws near, and every fighter in the realm feels it — some with hunger, some with dread, and a rare few with nothing but thirst.",
     ripple: false },
-  { night: 2, ed: "", head: "", story: "", ripple: false },
-  { night: 3, ed: "", head: "", story: "", ripple: false },
+  { night: 2, ed: "Ed. XLVIII", head: "The Draw Is Set",
+    story: "The champions are paired, and they clash at dawn on the third day. By royal decree: the border strip to be SEALED for Championship night. “Neutral ground” to close, for the safety of the realm.",
+    ripple: false },
+  { night: 3, ed: "Ed. XLIX", head: "Championship at Dawn",
+    story: "By order of the Crown, the border strip is closed this night. All fighters to return to their own kingdoms before the bells. The neutral ground is neutral no longer.",
+    ripple: false },
+  { night: 4, ed: "Ed. L", head: "The Championship Is Over",
+    story: "The Crown has its victor, the stands are empty, and the realm heads home bleary-eyed.",
+    consequence: {
+      clear: "And a certain veteran fighter — steady, unshowy, no card to his name — came through his opening bout to everyone's surprise but his own.",
+      rattled: "And a certain veteran fighter went out in the opening bout, off his game, they say — though he was seen laughing about it by nightfall.",
+    },
+    story2: "DECREE LIFTED — the border strip is ruled neutral ground once more. The little bar upon it reopens tonight, and the Crown, it is reported, will not press the matter.",
+    final: "The victors are crowned. Elixir Hour opens again tonight.",
+    ripple: true },
 ];
 
 /* Bard's Songbook — the four tracks (Build Setup doc), progression-gated per

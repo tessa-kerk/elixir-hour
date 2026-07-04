@@ -13,7 +13,12 @@ window.SPELLS = {
   "Poison": { c: "#6d7a3f", warmth: 0, kick: 0, chill: 0, bite: 3 },
 };
 
-/* The six named brews. `dose` present = that exact dose required for the ✓. */
+/* The named brews. `dose` present = that exact dose required for the ✓.
+   The three Elixir + Heal drinks are dose-distinct: 1 drop = The Usual
+   (Knight), 2 = The Easy One (Hog Rider, tournament eve), 3 = The Gentle
+   One (P.E.K.K.A — the big, slow, warm pour). "The Gentle One" comes from
+   GDD §10 + the Hour 2 script (the §7 table lists six — the scripts win;
+   dose 3 is a build call, flagged in PLAN.md for Tessa). */
 window.RECIPES = [
   { name: "The Usual",        base: "Elixir",      mix: ["Heal"],         dose: 1 },
   { name: "The Strong Stuff", base: "Dark Elixir", mix: ["Rage"] },
@@ -21,6 +26,7 @@ window.RECIPES = [
   { name: "The Bittersweet",  base: "Elixir",      mix: ["Poison"] },
   { name: "The Long Look",    base: "Elixir",      mix: ["Mirror"] },
   { name: "The Easy One",     base: "Elixir",      mix: ["Heal"],         dose: 2 },
+  { name: "The Gentle One",   base: "Elixir",      mix: ["Heal"],         dose: 3 },
 ];
 
 /* The starter five — Tessa's regenerated no-bg cutouts (2026-07-05), used
