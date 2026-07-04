@@ -1,0 +1,20 @@
+# The repo root is game/ — the parent workshop folder's private design docs
+# (GDD, Lore Bible, Handoff notes, scripts) live outside the repo and can
+# never be committed. Keep it that way: never `git add` files from ../
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# If a toolchain ever gets added
+node_modules/
+dist/
+
+# Local scratch
+*.local.*
+_scratch/
