@@ -1,0 +1,222 @@
+/* Elixir Hour — global styles. Palette per GDD §12 (roles fixed). */
+:root{
+  --sage:#9CAF88; --sage-deep:#6B7F5C; --sage-pale:#C7D3B5;
+  --elixir:#7A3FA0; --glow:#B26AE0;
+  --wood-dark:#3A2A20; --wood:#6E4B2A; --amber:#E8B770;
+  --night:#1C1B3A; --cream:#F4ECDD; --charcoal:#241F1B;
+  --blue:#2E6FD6; --red:#C8392F;          /* accents only — never dominant */
+  --gold:#c9a55a; --ink:#4a3a28; --ink-soft:#7a6748;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
+
+/* The stage: everything is laid out in a fixed 1280×720 design space
+   (the mockup's reference resolution) and the whole stage scales to fit
+   the window — see src/stage.js. */
+#viewport{position:fixed; inset:0;}
+#stage{position:absolute; left:0; top:0; width:1280px; height:720px; overflow:hidden;
+  background:var(--night); transform-origin:0 0; user-select:none;}
+.screen{position:absolute; inset:0; display:none;}
+.screen.active{display:block;}
+
+/* buttons (mockup style) */
+.btn{font-family:'Baloo 2',cursive; font-size:20px; border:none; border-radius:12px; padding:11px 0;
+  cursor:pointer; letter-spacing:.05em;
+  background:linear-gradient(180deg,#fdf6e8,var(--cream)); color:var(--charcoal); box-shadow:0 4px 0 #b7a888;}
+.btn.primary{background:linear-gradient(180deg,var(--glow),var(--elixir)); color:#fff; box-shadow:0 4px 0 #572c73;}
+.btn.sage{background:linear-gradient(180deg,var(--sage-pale),var(--sage)); color:var(--charcoal); box-shadow:0 4px 0 var(--sage-deep);}
+.btn:active{transform:translateY(2px); box-shadow:none;}
+.btn:disabled{opacity:.45; cursor:default;}
+.btn:disabled:active{transform:none; box-shadow:0 4px 0 #b7a888;}
+.btn.small{font-size:15px; padding:8px 26px;}
+
+/* ---------- TITLE / LOADING ---------- */
+#title-bg{width:100%; height:100%; object-fit:cover; filter:brightness(.85);}
+#fx{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+#title-logo{position:absolute; top:9%; left:50%; transform:translateX(-50%); width:44%;
+  filter:drop-shadow(0 0 22px rgba(178,106,224,.35));}  /* soft Elixir glow re-added over the cut-out */
+#title-menu{position:absolute; bottom:12%; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; gap:12px; width:240px;}
+
+/* ---------- HERALD INTERSTITIAL ---------- */
+#herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 50% 40%, #2a2347, #141019 75%);}
+#broadsheet{width:54%; background:linear-gradient(175deg,#f7efdc,#e9dcc0); border-radius:6px;
+  padding:38px 42px; color:var(--charcoal); box-shadow:0 24px 60px rgba(0,0,0,.7);
+  transform:rotate(-1.2deg); border:1px solid #cbbd9c; cursor:pointer;}
+#herald-masthead{font-family:'Pirata One',cursive; font-weight:400; font-size:34px; letter-spacing:.04em;
+  border-bottom:3px double #8a7a5e; padding-bottom:8px; text-align:center;}
+#herald-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;
+  color:var(--ink-soft); margin-top:6px;}
+#herald-head{font-family:'Baloo 2',cursive; font-size:20px; margin:16px 0 8px;}
+#herald-story{font-size:15px; line-height:1.55; font-weight:600;}
+.cont{margin-top:22px; text-align:center; font-family:'Baloo 2',cursive; color:var(--sage-deep); font-size:14px;}
+
+/* ---------- SERVE SCREEN — the two-layer composite (GDD §12) ----------
+   Layer 1: #ms, the master scene. A palette-correct CSS placeholder (dark
+   warm wood, amber pools, window left, shelf + tap right, ONE counter along
+   the bottom) until the locked master scene image lands in Milestone 8 —
+   then #ms becomes a single <img> and everything else stays put.
+   Layer 2: #serve-char, the no-bar cutout, placed programmatically
+   (src/screens.js) by torso-base to the counter line. No occlusion layer. */
+#ms{position:absolute; inset:0;}
+#ms-wall{position:absolute; left:0; right:0; top:0; height:75.5%;
+  background:
+    radial-gradient(ellipse 42% 60% at 24% 34%, rgba(232,183,112,.12), transparent 70%),
+    radial-gradient(ellipse 36% 52% at 78% 30%, rgba(232,183,112,.16), transparent 70%),
+    linear-gradient(180deg, #241a12 0%, #3A2A20 42%, #4a3423 78%, #55391f 100%);}
+#ms-window{position:absolute; left:4%; top:12%; width:21%; height:52%; border-radius:10px 10px 4px 4px;
+  background:linear-gradient(180deg, #232250 0%, var(--night) 55%, #14132c 100%);
+  box-shadow:inset 0 0 0 6px #241a12, inset 0 0 34px rgba(0,0,0,.55), 0 0 26px rgba(28,27,58,.5);}
+#ms-window i{position:absolute; top:8%; bottom:8%; width:7%; border-radius:3px; opacity:.5;}
+#ms-hint-blue{left:5%; background:var(--blue);}
+#ms-hint-red{right:5%; background:var(--red);}   /* neutral ground: blue one side, red the other, accents only */
+#ms-shelf{position:absolute; right:8%; top:22%; width:30%; height:7%;
+  border-bottom:9px solid #241a12; display:flex; align-items:flex-end; justify-content:space-around;
+  background:linear-gradient(180deg, transparent 60%, rgba(0,0,0,.25));}
+.ms-bottle{display:block; width:9%; height:88%; border-radius:5px 5px 2px 2px; opacity:.85;
+  box-shadow:inset 0 -8px 10px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.25);}
+#ms-tap{position:absolute; right:14%; top:44%; width:6.5%; height:17%; border-radius:8px;
+  background:linear-gradient(180deg, #3a2a20 30%, #2e2118);
+  box-shadow:0 0 34px 8px rgba(178,106,224,.4), inset 0 -10px 14px rgba(122,63,160,.55);}
+#ms-counter{position:absolute; left:0; right:0; top:75.5%; bottom:0;
+  background:linear-gradient(180deg, #7a5530 0%, #6E4B2A 7%, #4a3220 46%, #3A2A20 100%);
+  box-shadow:inset 0 3px 0 rgba(244,236,221,.14), inset 0 14px 22px rgba(0,0,0,.25);}
+#serve-char{position:absolute; z-index:3; transform:translateX(-50%);}
+#serve-shadow{position:absolute; z-index:2; transform:translateX(-50%); border-radius:50%;
+  background:radial-gradient(ellipse, rgba(8,6,4,.4) 0%, rgba(8,6,4,.2) 48%, transparent 72%);}
+#serve-bubble{left:2%; width:36%; display:none;}
+#serve-bubble.on{display:block;}
+#serve-bubble:after{left:52%;}   /* tail points down at the cast anchor */
+#serve-bubble.notail:after{display:none;}
+#serve-bubble .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
+
+/* tone-shaping choices (GDD §14.4) */
+#serve-choices{position:absolute; left:2%; top:20%; width:36%; z-index:7; display:none;
+  flex-direction:column; gap:8px;}
+#serve-choices.on{display:flex;}
+.choice-prompt{font-family:'Baloo 2',cursive; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--cream); text-shadow:0 2px 4px rgba(0,0,0,.6); padding-left:4px;}
+.choice-btn{font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px; text-align:left;
+  background:var(--cream); color:var(--charcoal); border:2.5px solid #d8cbb2; border-radius:12px;
+  padding:8px 12px; cursor:pointer; box-shadow:0 3px 0 #b7a888;}
+.choice-btn:hover{border-color:var(--sage); background:#fdf6e8;}
+.choice-btn:active{transform:translateY(2px); box-shadow:none;}
+body.portrait #serve-choices{left:4%; top:12%; width:70%;}
+
+/* dialogue bubble (shared look, from the mockup) */
+.bubble{position:absolute; background:var(--cream); border-radius:14px; padding:7px 14px 9px; z-index:5;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));}
+.bubble:after{content:""; position:absolute; bottom:-11px; left:46%; border:8px solid transparent;
+  border-top-color:var(--cream); border-width:11px 9px 0;}
+.bubble .speaker{font-family:'Baloo 2',cursive; font-size:12px; letter-spacing:.06em; color:var(--sage-deep); text-transform:uppercase;}
+.bubble .line{font-size:13.5px; line-height:1.35; color:var(--charcoal); font-weight:600; margin-top:3px;}
+
+/* ---------- MIXING PANEL (Mixing UI Panel Spec, ported from the mockup) ---------- */
+#panel-frame{font-size:13px; position:absolute; right:1.2%; bottom:1.6%; left:40.6%; height:33%; z-index:6;
+  background:linear-gradient(160deg,#4a3527,#3A2A20 60%,#2e2118); border:3px solid #241a12; border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); padding:14px;
+  display:flex; gap:14px; transition:all .45s ease;}
+#panel-info{position:absolute; right:10px; top:10px; width:26px; height:26px; border-radius:50%;
+  background:var(--gold); color:#241a12; font-family:'Baloo 2',cursive; font-weight:800;
+  text-align:center; line-height:26px; cursor:pointer; z-index:2;}
+.slotcol{display:flex; flex-direction:column; gap:8px; width:150px;}
+.slot{background:var(--cream); border-radius:12px; padding:5px 10px; cursor:pointer; border:2.5px solid #d8cbb2; position:relative;}
+.slot:hover{border-color:var(--sage);}
+.slot small{display:block; font-size:9.5px; letter-spacing:.12em; color:#8a7a5e; font-family:'Baloo 2',cursive; text-transform:uppercase;}
+.slot b{font-family:'Baloo 2',cursive; font-size:15px; color:var(--charcoal);}
+.slot .dot{position:absolute; right:9px; top:50%; transform:translateY(-50%); width:16px; height:16px; border-radius:50%;}
+.picker{position:absolute; left:105%; top:0; background:var(--cream); border-radius:12px; border:2.5px solid #d8cbb2;
+  display:none; z-index:9; width:132px; padding:6px;}
+.picker div{padding:5px 8px; border-radius:8px; font-family:'Baloo 2',cursive; font-size:13.5px; color:var(--charcoal); cursor:pointer;}
+.picker div:hover{background:var(--sage); color:#fff;}
+.meters{flex:1; background:rgba(0,0,0,.25); border-radius:12px; padding:10px 14px;
+  display:flex; flex-direction:column; justify-content:space-around;}
+.meter{display:flex; align-items:center; gap:8px;}
+.meter label{width:58px; font-family:'Baloo 2',cursive; font-size:11.5px; letter-spacing:.08em; color:var(--cream);}
+.segs{display:flex; gap:3px; flex:1;}
+.seg{height:9px; flex:1; border-radius:3px; background:rgba(255,255,255,.13);}
+.seg.on.warmth{background:var(--amber);} .seg.on.kick{background:#d4574e;}
+.seg.on.chill{background:#6fa7d8;} .seg.on.bite{background:#8a67a8;}
+.dose-spacer{height:26px;}
+.rightcol{width:150px; display:flex; flex-direction:column; gap:8px; align-items:stretch;}
+#recipe{background:var(--cream); border-radius:12px; border:2.5px solid #d8cbb2; text-align:center; padding:6px 4px 7px;}
+#tankard{height:38px; transform:translateX(-12%);}  /* optical-centre on the mug body, not the handle */
+#recipename{font-family:'Baloo 2',cursive; font-size:12.5px; color:var(--charcoal); min-height:16px;}
+.pbtn{font-family:'Baloo 2',cursive; font-size:14.5px; border:none; border-radius:12px; padding:6px 0;
+  cursor:pointer; letter-spacing:.05em; background:var(--cream); color:var(--charcoal); box-shadow:0 3px 0 #b7a888;}
+.pbtn.pour{background:linear-gradient(180deg,var(--glow),var(--elixir)); color:#fff; box-shadow:0 3px 0 #572c73; font-size:17px;}
+.pbtn:active{transform:translateY(2px); box-shadow:none;}
+.dose{display:flex; align-items:center; gap:10px; position:absolute; bottom:10px; left:14px; right:180px;}
+.dose span{font-family:'Baloo 2',cursive; font-size:11.5px; color:var(--cream); letter-spacing:.08em;}
+.dose input{flex:1; accent-color:var(--glow);}
+#panel-frame.brewing{height:11%; bottom:44%; opacity:.96;}
+#panel-frame.brewing .meters,#panel-frame.brewing .slotcol,#panel-frame.brewing .dose{display:none;}
+#brewstrip{position:absolute; right:1.2%; bottom:1.6%; left:40.6%; height:40.5%; z-index:6; display:none; gap:12px;}
+#brewstrip.on{display:flex;}
+.brewpanel{flex:1; border-radius:14px; border:3px solid #241a12; background:#2e2118; position:relative; overflow:hidden;}
+.brewpanel img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.brewpanel .fill{position:absolute; inset:0; background:rgba(20,12,28,.85); animation:brewreveal .6s ease forwards;}
+.brewpanel:nth-child(2) .fill{animation-delay:.7s;} .brewpanel:nth-child(3) .fill{animation-delay:1.4s;}
+@keyframes brewreveal{from{opacity:1;} to{opacity:0;}}
+
+/* ---------- PORTRAIT REFLOW (GDD §13: stacked serve screen) ---------- */
+body.portrait #ms-wall{height:46%;}
+body.portrait #ms-window{left:5%; width:34%; top:8%; height:56%;}
+body.portrait #ms-shelf{right:6%; width:42%; top:16%;}
+body.portrait #ms-tap{right:12%; top:42%; width:9%; height:14%;}
+body.portrait #ms-counter{top:46%; height:16%; bottom:auto;}
+body.portrait #screen-serve{background:#241a12;}
+body.portrait #serve-bubble{left:4%; top:3%; width:70%;}
+body.portrait #panel-frame{left:3%; right:3%; top:64%; bottom:2.5%; height:auto; flex-wrap:wrap;}
+body.portrait .slotcol{width:44%;}
+body.portrait .rightcol{width:48%;}
+body.portrait .meters{flex-basis:100%; order:3;}
+body.portrait .picker{left:0; top:105%;}
+body.portrait #panel-frame.brewing{top:auto; height:9%; bottom:38.5%;}
+body.portrait #brewstrip{left:3%; right:3%; top:64%; bottom:2.5%; height:auto;}
+body.portrait #title-logo{width:78%; top:13%;}
+body.portrait #broadsheet{width:88%; padding:30px 26px;}
+body.portrait .panel{width:88%;}
+
+/* ---------- PLACEHOLDER PANELS (screens that land in later milestones) ---------- */
+.placeholder{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:14px; text-align:center; padding:0 10%;
+  background:radial-gradient(circle at 50% 45%, #33284a, #141019 80%); color:var(--cream);}
+.placeholder b{font-family:'Baloo 2',cursive; font-size:30px; letter-spacing:.03em;}
+.placeholder span{font-size:15px; opacity:.75; max-width:560px; line-height:1.5;}
+
+/* ---------- TOME OVERLAY ---------- */
+#tome{position:absolute; inset:0; z-index:30; display:none;}
+#tome.open{display:block;}
+#tome .placeholder{background:rgba(16,11,22,.93);}
+#tomeclose{position:absolute; top:2.5%; right:1.5%; width:34px; height:34px; border-radius:50%;
+  background:rgba(20,14,10,.72); color:#e8d9bd; font-family:'Baloo 2',cursive; font-size:17px;
+  text-align:center; line-height:33px; cursor:pointer; z-index:35; border:2px solid #6b5638;}
+
+/* ---------- SETTINGS & ABOUT OVERLAYS (GDD §11: cream panel, gold trim) ---------- */
+.overlay{position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center;
+  background:rgba(16,11,22,.72);}
+.overlay.open{display:flex;}
+.panel{width:52%; max-height:86%; overflow:auto; background:linear-gradient(175deg,#f7efdc,var(--cream));
+  border:3px solid var(--gold); border-radius:16px; padding:26px 34px; color:var(--charcoal);
+  box-shadow:0 24px 60px rgba(0,0,0,.7);}
+.panel h2{font-family:'Baloo 2',cursive; font-size:24px; letter-spacing:.03em;
+  border-bottom:2.5px solid rgba(122,103,72,.35); padding-bottom:8px; margin-bottom:16px;}
+.setrow{display:flex; align-items:center; justify-content:space-between; gap:18px; margin:14px 0;}
+.setrow label{font-family:'Baloo 2',cursive; font-size:16px;}
+#lang-select{font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; padding:6px 10px;
+  border-radius:10px; border:2.5px solid #d8cbb2; background:#fdf6e8; color:var(--charcoal); cursor:pointer;}
+#set-disclaimer{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 10px; line-height:1.45;}
+.toggle{min-width:110px;}
+#about .panel p{font-size:14px; line-height:1.55; font-weight:600; margin:10px 0;}
+#btn-set-back,#btn-about-back{margin-top:14px;}
+
+/* ---------- DEV BAR (outside the stage; ?dev=1 or Ctrl+D) ---------- */
+#dev{position:fixed; top:10px; right:12px; background:rgba(20,16,25,.92); border:1px solid #3c3350;
+  border-radius:10px; padding:8px 10px; z-index:50; color:#cfc6e0; font-size:12px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap; max-width:380px; font-family:'Nunito',sans-serif;}
+#dev[hidden]{display:none;}
+#dev button{font-family:inherit; font-size:12px; border-radius:6px; border:1px solid #4a4060;
+  background:#241f31; color:#e8e2f4; padding:3px 8px; cursor:pointer;}

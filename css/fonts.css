@@ -1,0 +1,10 @@
+/* Self-hosted fonts (latin subset, woff2, SIL OFL) — downloaded from Google
+   Fonts once and served locally so the game has zero external runtime
+   dependencies and works fully offline from file://. Baloo 2, Nunito and
+   Cormorant Garamond are variable fonts: one file covers the weight range. */
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:600 800;font-display:swap;src:url('../assets/fonts/Baloo2-600.woff2') format('woff2');}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/Caveat-700.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600 700;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600i.woff2') format('woff2');}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:600 800;font-display:swap;src:url('../assets/fonts/Nunito-600.woff2') format('woff2');}
+@font-face{font-family:'Pirata One';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/PirataOne-400.woff2') format('woff2');}

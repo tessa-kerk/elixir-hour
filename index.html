@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elixir Hour</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+
+    <!-- TITLE / LOADING -->
+    <div class="screen" id="screen-title">
+      <img id="title-bg" src="assets/scenes/Bar Scene V1 (title).jpg" alt="">
+      <canvas id="fx" width="1280" height="720"></canvas>
+      <img id="title-logo" src="assets/logo/Elixir Hour Logo (transparent).png" alt="Elixir Hour">
+      <div id="title-menu">
+        <button class="btn primary" id="btn-start"></button>
+        <button class="btn" id="btn-continue"></button>
+        <button class="btn" id="btn-settings"></button>
+      </div>
+    </div>
+
+    <!-- HERALD INTERSTITIAL -->
+    <div class="screen" id="screen-herald">
+      <div id="herald-wrap">
+        <div id="broadsheet">
+          <h1 id="herald-masthead"></h1>
+          <div id="herald-ed"></div>
+          <h2 id="herald-head"></h2>
+          <p id="herald-story"></p>
+          <div class="cont" id="herald-continue"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVE (Layout 1) — the locked two-layer composite (GDD §12):
+         master scene (bar baked in) below, no-bar character cutout on top,
+         mixing panel overlay bottom-right. The master scene here is a CSS
+         placeholder until the locked scene art lands (Milestone 8). -->
+    <div class="screen" id="screen-serve">
+      <div id="ms">
+        <div id="ms-wall">
+          <div id="ms-window"><i id="ms-hint-blue"></i><i id="ms-hint-red"></i></div>
+          <div id="ms-shelf">
+            <i class="ms-bottle" style="background:#7A3FA0"></i><i class="ms-bottle" style="background:#4e9a51"></i><i class="ms-bottle" style="background:#e8c34d"></i><i class="ms-bottle" style="background:#6fa7d8"></i><i class="ms-bottle" style="background:#5fb8a8"></i><i class="ms-bottle" style="background:#6d7a3f"></i>
+          </div>
+          <div id="ms-tap"></div>
+        </div>
+        <div id="ms-counter"></div>
+      </div>
+      <div id="serve-shadow"></div>
+      <img id="serve-char" src="" alt="">
+      <div id="serve-bubble" class="bubble">
+        <div id="serve-speaker" class="speaker"></div>
+        <div id="serve-line" class="line"></div>
+      </div>
+      <div id="serve-choices"></div>
+      <div id="panel-frame">
+        <div id="panel-info" title=""></div>
+        <div class="slotcol">
+          <div class="slot" id="slot-base"><small id="lbl-base"></small><b id="base-name"></b><span class="dot" id="base-dot"></span></div>
+          <div class="slot" id="slot-mix1"><small class="lbl-mixer"></small><b id="mix1-name"></b><span class="dot" id="mix1-dot"></span>
+            <div class="picker" id="picker1"></div></div>
+          <div class="slot" id="slot-mix2"><small class="lbl-mixer"></small><b id="mix2-name"></b><span class="dot" id="mix2-dot"></span>
+            <div class="picker" id="picker2"></div></div>
+        </div>
+        <div class="meters">
+          <div class="meter"><label id="lbl-warmth"></label><div class="segs" id="m-warmth"></div></div>
+          <div class="meter"><label id="lbl-kick"></label><div class="segs" id="m-kick"></div></div>
+          <div class="meter"><label id="lbl-chill"></label><div class="segs" id="m-chill"></div></div>
+          <div class="meter"><label id="lbl-bite"></label><div class="segs" id="m-bite"></div></div>
+          <div class="dose-spacer"></div>
+        </div>
+        <div class="rightcol">
+          <div id="recipe"><img id="tankard" src="assets/ui/Tankard Icon (cutout).png" alt=""><div id="recipename"></div></div>
+          <button class="pbtn" id="brew-reset"></button>
+          <button class="pbtn pour" id="brew-pour"></button>
+        </div>
+        <div class="dose"><span id="lbl-gentle"></span><input type="range" min="1" max="3" value="1" id="dose"><span id="lbl-strong"></span></div>
+      </div>
+      <div id="brewstrip">
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Pour (4x5).png" alt=""><div class="fill"></div></div>
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - Spell Drop (4x5).png" alt=""><div class="fill"></div></div>
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Stir (4x5).png" alt=""><div class="fill"></div></div>
+      </div>
+    </div>
+
+    <!-- GROUP (real build: Milestone 6) -->
+    <div class="screen" id="screen-group">
+      <div class="placeholder"><b id="ph-group-title"></b><span id="ph-group-note"></span>
+        <button class="btn small" data-advance></button></div>
+    </div>
+
+    <!-- SPLIT DUOLOGUE (real build: Milestone 6) -->
+    <div class="screen" id="screen-duo">
+      <div class="placeholder"><b id="ph-duo-title"></b><span id="ph-duo-note"></span>
+        <button class="btn small" data-advance></button></div>
+    </div>
+
+    <!-- NIGHT COMPLETE -->
+    <div class="screen" id="screen-nightend">
+      <div class="placeholder"><b id="nightend-title"></b>
+        <button class="btn small primary" id="btn-nextnight"></button>
+        <button class="btn small" id="btn-savequit"></button></div>
+    </div>
+
+    <!-- EPILOGUE (real build: Milestone 6) -->
+    <div class="screen" id="screen-epilogue">
+      <div class="placeholder"><b id="ph-epi-title"></b><span id="ph-epi-note"></span>
+        <button class="btn small" id="btn-totitle"></button></div>
+    </div>
+
+    <!-- TOME OVERLAY (real build: Milestone 5) -->
+    <div id="tome">
+      <div class="placeholder"><b id="ph-tome-title"></b><span id="ph-tome-note"></span></div>
+      <div id="tomeclose"></div>
+    </div>
+
+    <!-- SETTINGS OVERLAY (GDD §11) -->
+    <div id="settings" class="overlay">
+      <div class="panel">
+        <h2 id="set-title"></h2>
+        <div class="setrow"><label id="set-lang-label" for="lang-select"></label><select id="lang-select"></select></div>
+        <p id="set-disclaimer"></p>
+        <div class="setrow"><label id="set-music-label"></label><button class="btn small toggle" id="tgl-music"></button></div>
+        <div class="setrow"><label id="set-sfx-label"></label><button class="btn small toggle" id="tgl-sfx"></button></div>
+        <div class="setrow"><span></span><button class="btn small sage" id="btn-about"></button></div>
+        <button class="btn small primary" id="btn-set-back"></button>
+      </div>
+    </div>
+
+    <!-- ABOUT / CREDITS OVERLAY (GDD §13/§17 disclaimers) -->
+    <div id="about" class="overlay">
+      <div class="panel">
+        <h2 id="about-title"></h2>
+        <p id="about-p1"></p>
+        <p id="about-p2"></p>
+        <p id="about-p3"></p>
+        <button class="btn small primary" id="btn-about-back"></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="dev" hidden></div>
+
+<script src="strings/strings.js"></script>
+<script src="data/nights.js"></script>
+<script src="data/cast.js"></script>
+<script src="data/tome.js"></script>
+<script src="src/stage.js"></script>
+<script src="src/save.js"></script>
+<script src="src/particles.js"></script>
+<script src="src/screens.js"></script>
+<script src="src/brew.js"></script>
+<script src="src/dialogue.js"></script>
+<script src="src/state.js"></script>
+<script src="src/settings.js"></script>
+<script src="src/boot.js"></script>
+</body>
+</html>
