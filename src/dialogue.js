@@ -45,7 +45,13 @@ window.Dialogue = (function () {
     return {
       setup: function () { Screens.setServeCustomer(b.who || null, b.expr); },
       expr: function (who, expr) { if (who === customer()) Screens.setServeCustomer(who, expr); },
-      line: function (who, colour, html) { Screens.serveLine(who, colour, html, who === customer()); },
+      line: function (who, colour, html) {
+        /* Sage speaks from behind the counter, not above the customer (Fix 4):
+           her lines go to the bottom-left sage bubble; the customer (and
+           narration) stay in the top bubble. Only one shows at a time. */
+        if (who === "Sage") { Screens.sageLine(html); Screens.hideServeBubble(); }
+        else { Screens.hideSageBubble(); Screens.serveLine(who, colour, html, who === customer()); }
+      },
     };
   }
 
@@ -53,9 +59,11 @@ window.Dialogue = (function () {
     beat = b;
     queue = (b.script || []).slice();
     gate = null;
+    Brew.setOrder(null);         /* no stale gate order from a prior beat (GDD §7) */
     ui = uiFor(b);
     ui.setup();
     Screens.hideServeChoices();
+    Screens.hideSageBubble();
     step();
   }
 
@@ -84,6 +92,7 @@ window.Dialogue = (function () {
 
       if (e.choice) {
         mode = "choice";
+        Screens.hideSageBubble();   /* the choice stack owns the bottom-left; never overlap a lingering Sage bubble */
         (function (entry) {
           Screens.serveChoices(entry.choice, entry.options, function (i) {
             var opt = entry.options[i];
@@ -100,7 +109,11 @@ window.Dialogue = (function () {
         mode = "brew";
         gate = e.brew;
         Brew.reset();
+        /* arm the gate-aware ✓ (GDD §7). The consequence brew arms a never-true
+           predicate so it shows the name but never a tick — no §8 outcome leak. */
+        Brew.setOrder(e.brew.consequence ? function () { return false; } : orderMatcher(e.brew));
         Brew.onPour = onPour;
+        Screens.hideSageBubble();   /* a gate shouldn't inherit a lingering Sage bubble (portrait: it'd sit over the panel band) */
         return;                                              /* bubble keeps the request line */
       }
     }
@@ -108,6 +121,7 @@ window.Dialogue = (function () {
     mode = "idle";
     beat = null;
     Brew.onPour = null;
+    Brew.setOrder(null);   /* the stale-gate safety net: every beat end nulls the order (GDD §7) */
     Game.advance();
   }
 
@@ -116,6 +130,9 @@ window.Dialogue = (function () {
      consequential brew calls this NEVER — its recipe would leak the outcome. */
   function recordPour(recipe) {
     if (!recipe) return;
+    /* resilience: a stale-cached/partial save-state might predate `poured`
+       (P0 06-07) — never let a missing field throw and stall the pour */
+    if (!Array.isArray(Game.state.poured)) Game.state.poured = [];
     var log = Game.state.poured;
     for (var i = 0; i < log.length; i++) {
       if (log[i].night === Game.state.night && log[i].recipe === recipe) return;
@@ -131,6 +148,23 @@ window.Dialogue = (function () {
            (spec.dose === undefined || spec.dose === result.dose);
   }
 
+  /* Build the "does this live mix satisfy the gate order?" predicate the brew
+     panel uses for its gate-aware ✓ (GDD §7). Reuses pourMatches so the tick
+     and the accept decision are ONE rule and can never disagree. an any-gate
+     matches if any spec matches. (The consequence brew is armed with a
+     never-true predicate by the caller, not this, so its ✓ never leaks §8.) */
+  function orderMatcher(g) {
+    if (!g) return null;
+    return function (mix, base, dose) {
+      var result = { base: base, mix: mix, dose: dose };
+      if (g.any) {
+        for (var i = 0; i < g.any.length; i++) if (pourMatches(g.any[i], result)) return true;
+        return false;
+      }
+      return pourMatches(g, result);
+    };
+  }
+
   function onPour(result) {
     if (mode !== "brew" || !gate) return;
 
@@ -139,12 +173,15 @@ window.Dialogue = (function () {
     if (gate.consequence) {
       var right = pourMatches(gate.right, result);
       Game.state.consequence = right ? "clear" : "rattled";
-      Save.store(Game.snapshot());
+      /* clear the gate BEFORE any side effect, so nothing can leave the
+         sequencer stuck in "brew" (P0 06-07) */
       var g = gate;
       gate = null;
+      Brew.setOrder(null);
       Brew.onPour = null;
       Brew.reset();
       mode = "idle";
+      try { Save.store(Game.snapshot()); } catch (e) {}
       queue = ((right ? g.onRight : g.onWrong) || []).concat(queue);
       step();
       return;
@@ -158,28 +195,38 @@ window.Dialogue = (function () {
       ok = pourMatches(gate, result);
     }
     if (ok) {
-      recordPour(result.recipe);   /* Night Cap drinks list — named brews only (GDD §11) */
+      /* clear the gate FIRST, then record — so a side-effect throw can never
+         leave the sequencer stuck in "brew" and block the beat (P0 06-07) */
       gate = null;
+      Brew.setOrder(null);
       Brew.onPour = null;
       Brew.reset();
       mode = "idle";
+      try { recordPour(result.recipe); }        /* Night Cap drinks list (GDD §11) */
+      catch (e) { if (window.console) console.warn("Elixir Hour: recordPour failed (non-fatal)", e); }
       step();
     } else {
-      /* the gentle beat: no fail state. A bespoke reaction plays when the
-         wrong pour contains a flagged mixer (P.E.K.K.A's Zap flinch);
-         otherwise the customer repeats the request. */
+      /* the gentle beat: NO SILENT REJECTION (GDD §7 lock). Every wrong pour
+         visibly shows a line; the gate stays open so the request stands (the
+         bubble + panel are live for a re-pour). Priority:
+           (1) bespoke wrongIf reaction — P.E.K.K.A's Zap flinch;
+           (2) the beat's spoken `wrong:` line (which re-states the ask);
+           (3) a generic gentle beat, narrated in the speaker's own pronoun. */
       var w = null;
       if (gate.wrongIf) {
         for (var j = 0; j < gate.wrongIf.length; j++) {
           if (result.mix.indexOf(gate.wrongIf[j].has) >= 0) { w = gate.wrongIf[j]; break; }
         }
       }
+      var who = customer();
+      var colour = who && window.CAST[who] ? window.CAST[who].colour : SAGE_COLOUR;
       if (w && w.n) {
         ui.line("", NARRATION_COLOUR, "<em>" + fmt(w.n) + "</em>");
+      } else if (gate.wrong) {
+        ui.line(who || "", colour, fmt(gate.wrong));
       } else {
-        var who = customer();
-        var colour = who && window.CAST[who] ? window.CAST[who].colour : SAGE_COLOUR;
-        ui.line(who || "", colour, fmt(gate.nudge || ""));
+        var pron = who && window.CAST[who] && window.CAST[who].they ? window.CAST[who].they : "They";
+        ui.line("", NARRATION_COLOUR, "<em>" + fmt(t("brew.wrong.generic", { they: pron })) + "</em>");
       }
       Brew.reset();
     }

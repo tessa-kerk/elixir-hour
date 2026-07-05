@@ -7,6 +7,27 @@
    Tome entries) is translated with its content milestones, not here.
    The ph.* placeholder notes are dev scaffolding and stay English. */
 
+/* ---- BUILD STAMP (single source of truth) ----------------------------------
+   ONE integer identifies the build. It appears in exactly two places:
+     1. window.BUILD.n below  → rendered as the visible title-corner stamp.
+     2. The ?v=<n> cache token on every <link>/<script> in index.html.
+   THESE MUST MATCH. On every commit, bump BOTH in lockstep:
+     • strings.js : BUILD.n → next integer, BUILD.date → today (DD-MM).
+     • index.html : find-replace  ?v=<old>  →  ?v=<new>  (all occurrences).
+   The stamp is how a real player (and Tessa) confirms which build loaded — the
+   06-07 P0 was a stale cached build; this makes that visible at a glance. The
+   optional .hash is a git short-hash pasted in AFTER commit if wanted. */
+window.BUILD = { n: 9, date: "06-07", hash: "" };
+
+/* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
+window.buildLabel = function () {
+  var b = window.BUILD || { n: "?", date: "" };
+  var s = "v" + b.n;
+  if (b.date) s += " · " + b.date;
+  if (b.hash) s += " · " + b.hash;
+  return s;
+};
+
 window.LANGS = [
   { code: "en", native: "English" },
   { code: "ko", native: "한국어" },
@@ -36,9 +57,17 @@ window.STRINGS = {
     "brew.bite": "Bite",
     "brew.gentle": "Gentle",
     "brew.strong": "Strong",
+    "brew.drops1": "1 drop",
+    "brew.drops2": "2 drops",
+    "brew.drops3": "3 drops",
     "brew.reset": "Reset",
     "brew.pour": "Pour",
     "brew.unnamed": "Unnamed mix",
+    /* generic wrong-pour beat (GDD §7 no-silent-rejection) — used only when a
+       gate has no bespoke `wrong:` line. {they} = the speaker's pronoun (cast.js).
+       EN-only for now; other langs fall back to EN via t() (canon-term convention). */
+    "brew.wrong.generic": "{they} slides the cup back, kindly.",
+    "toast.nosave": "This browser can’t keep saves — tonight won’t be remembered.",
 
     /* Canon terms (GDD §13): Elixir, Dark Elixir and the six spells follow the
        OFFICIAL Clash Royale localisation. English is the canon here; each of
@@ -130,9 +159,13 @@ window.STRINGS = {
     "brew.bite": "쏘는 맛",
     "brew.gentle": "순하게",
     "brew.strong": "강하게",
+    "brew.drops1": "1방울",
+    "brew.drops2": "2방울",
+    "brew.drops3": "3방울",
     "brew.reset": "초기화",
     "brew.pour": "따르기",
     "brew.unnamed": "이름 없는 조합",
+    "toast.nosave": "이 브라우저는 저장할 수 없어요 — 오늘 밤은 기억되지 않아요.",
     "term.Elixir": "엘릭서",
     "term.Dark Elixir": "다크 엘릭서",
     "term.Rage": "분노 마법",
@@ -183,9 +216,13 @@ window.STRINGS = {
     "brew.bite": "刺激",
     "brew.gentle": "やさしく",
     "brew.strong": "強めに",
+    "brew.drops1": "1滴",
+    "brew.drops2": "2滴",
+    "brew.drops3": "3滴",
     "brew.reset": "リセット",
     "brew.pour": "注ぐ",
     "brew.unnamed": "名もない一杯",
+    "toast.nosave": "このブラウザは保存できません — 今夜のことは記憶されません。",
     "term.Elixir": "エリクサー",
     "term.Dark Elixir": "ダークエリクサー",
     "term.Rage": "レイジ",
@@ -236,9 +273,13 @@ window.STRINGS = {
     "brew.bite": "Biss",
     "brew.gentle": "Mild",
     "brew.strong": "Stark",
+    "brew.drops1": "1 Tropfen",
+    "brew.drops2": "2 Tropfen",
+    "brew.drops3": "3 Tropfen",
     "brew.reset": "Zurücksetzen",
     "brew.pour": "Einschenken",
     "brew.unnamed": "Namenlose Mischung",
+    "toast.nosave": "Dieser Browser kann nicht speichern — diese Nacht wird nicht erinnert.",
     "term.Elixir": "Elixier",
     "term.Dark Elixir": "Dunkles Elixier",
     "term.Rage": "Wut",
@@ -289,9 +330,13 @@ window.STRINGS = {
     "brew.bite": "Mordida",
     "brew.gentle": "Suave",
     "brew.strong": "Fuerte",
+    "brew.drops1": "1 gota",
+    "brew.drops2": "2 gotas",
+    "brew.drops3": "3 gotas",
     "brew.reset": "Reiniciar",
     "brew.pour": "Servir",
     "brew.unnamed": "Mezcla sin nombre",
+    "toast.nosave": "Este navegador no puede guardar — esta noche no se recordará.",
     /* Elixir: official es term IS "Elixir" (same as EN) → falls back. Dark Elixir: no official es term verified → stays English (GDD §13) */
     "term.Rage": "Furia",
     "term.Heal": "Curación",
@@ -341,9 +386,13 @@ window.STRINGS = {
     "brew.bite": "Mordant",
     "brew.gentle": "Doux",
     "brew.strong": "Fort",
+    "brew.drops1": "1 goutte",
+    "brew.drops2": "2 gouttes",
+    "brew.drops3": "3 gouttes",
     "brew.reset": "Réinitialiser",
     "brew.pour": "Verser",
     "brew.unnamed": "Mélange sans nom",
+    "toast.nosave": "Ce navigateur ne peut pas sauvegarder — cette nuit ne sera pas gardée en mémoire.",
     "term.Elixir": "Élixir",
     "term.Dark Elixir": "Élixir noir",
     "term.Freeze": "Gel",
@@ -391,9 +440,13 @@ window.STRINGS = {
     "brew.bite": "Mordida",
     "brew.gentle": "Suave",
     "brew.strong": "Forte",
+    "brew.drops1": "1 gota",
+    "brew.drops2": "2 gotas",
+    "brew.drops3": "3 gotas",
     "brew.reset": "Redefinir",
     "brew.pour": "Servir",
     "brew.unnamed": "Mistura sem nome",
+    "toast.nosave": "Este navegador não consegue guardar — esta noite não será lembrada.",
     /* Elixir: official pt-BR term IS "Elixir" (same as EN) → falls back */
     "term.Dark Elixir": "Elixir Negro",
     "term.Rage": "Fúria",

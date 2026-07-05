@@ -38,6 +38,13 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
   filter:drop-shadow(0 0 22px rgba(178,106,224,.35));}  /* soft Elixir glow re-added over the cut-out */
 #title-menu{position:absolute; bottom:12%; left:50%; transform:translateX(-50%);
   display:flex; flex-direction:column; gap:12px; width:240px;}
+/* visible build stamp (bottom-right corner) — recessive, but readable so Tessa
+   can confirm which build loaded and copy it into a bug report. Bumped with the
+   ?v= cache token (see strings.js BUILD). */
+#build-stamp{position:absolute; right:10px; bottom:7px; z-index:8;
+  font-family:'Nunito',sans-serif; font-size:10px; letter-spacing:.04em;
+  color:rgba(244,236,221,.34); text-shadow:0 1px 2px rgba(0,0,0,.55);
+  pointer-events:none; user-select:text;}
 
 /* ---------- HERALD INTERSTITIAL ---------- */
 #herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
@@ -54,35 +61,15 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
 .cont{margin-top:22px; text-align:center; font-family:'Baloo 2',cursive; color:var(--sage-deep); font-size:14px;}
 
 /* ---------- SERVE SCREEN — the two-layer composite (GDD §12) ----------
-   Layer 1: #ms, the master scene. A palette-correct CSS placeholder (dark
-   warm wood, amber pools, window left, shelf + tap right, ONE counter along
-   the bottom) until the locked master scene image lands in Milestone 8 —
-   then #ms becomes a single <img> and everything else stays put.
+   Layer 1: #ms, the LOCKED master scene image (§15, shipped 06-07): the
+   destarred full-width counter baked in, counter top at 71.9% of the frame.
+   object-fit:cover fills the 16:9 stage (the art is 1.792 vs 1.778 — a ~5px/side
+   crop) and preserves the vertical 71.9% fraction, so the cast anchor (stage.js
+   counterY 0.719) lands on the baked counter. Never regenerate this art.
    Layer 2: #serve-char, the no-bar cutout, placed programmatically
    (src/screens.js) by torso-base to the counter line. No occlusion layer. */
-#ms{position:absolute; inset:0;}
-#ms-wall{position:absolute; left:0; right:0; top:0; height:75.5%;
-  background:
-    radial-gradient(ellipse 42% 60% at 24% 34%, rgba(232,183,112,.12), transparent 70%),
-    radial-gradient(ellipse 36% 52% at 78% 30%, rgba(232,183,112,.16), transparent 70%),
-    linear-gradient(180deg, #241a12 0%, #3A2A20 42%, #4a3423 78%, #55391f 100%);}
-#ms-window{position:absolute; left:4%; top:12%; width:21%; height:52%; border-radius:10px 10px 4px 4px;
-  background:linear-gradient(180deg, #232250 0%, var(--night) 55%, #14132c 100%);
-  box-shadow:inset 0 0 0 6px #241a12, inset 0 0 34px rgba(0,0,0,.55), 0 0 26px rgba(28,27,58,.5);}
-#ms-window i{position:absolute; top:8%; bottom:8%; width:7%; border-radius:3px; opacity:.5;}
-#ms-hint-blue{left:5%; background:var(--blue);}
-#ms-hint-red{right:5%; background:var(--red);}   /* neutral ground: blue one side, red the other, accents only */
-#ms-shelf{position:absolute; right:8%; top:22%; width:30%; height:7%;
-  border-bottom:9px solid #241a12; display:flex; align-items:flex-end; justify-content:space-around;
-  background:linear-gradient(180deg, transparent 60%, rgba(0,0,0,.25));}
-.ms-bottle{display:block; width:9%; height:88%; border-radius:5px 5px 2px 2px; opacity:.85;
-  box-shadow:inset 0 -8px 10px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.25);}
-#ms-tap{position:absolute; right:14%; top:44%; width:6.5%; height:17%; border-radius:8px;
-  background:linear-gradient(180deg, #3a2a20 30%, #2e2118);
-  box-shadow:0 0 34px 8px rgba(178,106,224,.4), inset 0 -10px 14px rgba(122,63,160,.55);}
-#ms-counter{position:absolute; left:0; right:0; top:75.5%; bottom:0;
-  background:linear-gradient(180deg, #7a5530 0%, #6E4B2A 7%, #4a3220 46%, #3A2A20 100%);
-  box-shadow:inset 0 3px 0 rgba(244,236,221,.14), inset 0 14px 22px rgba(0,0,0,.25);}
+#ms{position:absolute; inset:0; overflow:hidden;}
+#ms-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;}
 #serve-char{position:absolute; z-index:3; transform:translateX(-50%);}
 #serve-shadow{position:absolute; z-index:2; transform:translateX(-50%); border-radius:50%;
   background:radial-gradient(ellipse, rgba(8,6,4,.4) 0%, rgba(8,6,4,.2) 48%, transparent 72%);}
@@ -91,6 +78,18 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
 #serve-bubble:after{left:52%;}   /* tail points down at the cast anchor */
 #serve-bubble.notail:after{display:none;}
 #serve-bubble .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
+
+/* Sage's own home (Fix 4): bottom-LEFT, sage-tinted cream, NO tail — the keeper
+   speaks from behind the counter, not from above the customer. Shares the
+   .bubble look; overrides fill/border to the sage tint. Sits in the same
+   bottom-left column as the choice stack; the two are never on at once
+   (dialogue mode is line XOR choice), so no z-fighting. */
+#sage-bubble{left:2%; bottom:4%; top:auto; width:36%; z-index:7; display:none;
+  background:#E9EFDC; border:2px solid #c6d2b4;}
+#sage-bubble.on{display:block;}
+#sage-bubble:after{display:none;}                 /* never a tail toward the customer */
+#sage-bubble .speaker{color:var(--sage-deep);}    /* deep sage #6B7F5C label */
+#sage-bubble .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
 
 /* tone-shaping choices (GDD §14.4) — anchored bottom-LEFT, stacked up from
    the bottom (the mixing panel owns bottom-right), so the block never covers
@@ -152,7 +151,22 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:37.5%; width:78%;}  /* ab
 .pbtn:active{transform:translateY(2px); box-shadow:none;}
 .dose{display:flex; align-items:center; gap:10px; position:absolute; bottom:10px; left:14px; right:180px;}
 .dose span{font-family:'Baloo 2',cursive; font-size:11.5px; color:var(--cream); letter-spacing:.08em;}
-.dose input{flex:1; accent-color:var(--glow);}
+/* the drop slider (Fix 1): notched track with • •• ••• pips under the three
+   detents + a live "{n} drop(s)" label that tracks the handle, so the player
+   can map "one drop" to the control. --th must equal TH in brew.js. */
+.dose-track{flex:1; position:relative; height:30px; display:flex; align-items:center;}
+.dose-track input{width:100%; margin:0; accent-color:var(--glow); position:relative; z-index:2;}
+.dose-pips{position:absolute; left:0; right:0; bottom:-1px; height:12px; z-index:1;
+  --th:14px; margin:0 calc(var(--th)/2); pointer-events:none;
+  display:flex; justify-content:space-between; align-items:flex-start;}
+.dose-pips span{font-size:9px; line-height:1; letter-spacing:1px; color:var(--cream);
+  opacity:.7; font-family:'Nunito',sans-serif; transform:translateX(-50%);}
+.dose-pips span:first-child{transform:none;}
+.dose-pips span:last-child{transform:translateX(-100%);}
+.dose-live{position:absolute; top:-14px; z-index:3; transform:translateX(-50%);
+  font-family:'Baloo 2',cursive; font-size:10.5px; letter-spacing:.04em; white-space:nowrap;
+  color:var(--glow); text-shadow:0 1px 3px rgba(0,0,0,.7); pointer-events:none;}
+body.portrait .dose-live{font-size:9.5px;}
 #panel-frame.brewing{height:11%; bottom:44%; opacity:.96;}
 #panel-frame.brewing .meters,#panel-frame.brewing .slotcol,#panel-frame.brewing .dose{display:none;}
 #brewstrip{position:absolute; right:1.2%; bottom:1.6%; left:40.6%; height:40.5%; z-index:6; display:none; gap:12px;}
@@ -177,21 +191,21 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:37.5%; width:78%;}  /* ab
 #stage.night1{--night-tint:transparent;}
 #stage.night2{--night-tint:rgba(58,104,188,0.62);}   /* dusk — the window cools to blue */
 #stage.night3{--night-tint:rgba(52,32,88,0.82);}     /* late night — purple candlelight */
-/* Night 2: the window (the outside) cools further; the interior stays warm */
-#stage.night2 #ms-window,#stage.night2 #ms-hint-blue,#stage.night2 #ms-hint-red{
-  filter:brightness(0.92) saturate(1.2) hue-rotate(-6deg);}
-/* Night 3: candlelight — dim the wall a touch and deepen the tap glow */
-#stage.night3 #ms-wall,#stage.night3 #g-wall{filter:brightness(0.84) saturate(1.06);}
-#stage.night3 #ms-tap{box-shadow:0 0 42px 13px rgba(178,106,224,.62), inset 0 -10px 14px rgba(122,63,160,.7);}
+/* Night 3: candlelight — dim the GROUP-screen wall a touch (that screen still
+   uses the CSS placeholder). The serve master scene is a baked image now, tinted
+   as a whole by .scene-tint; its window/tap accents no longer have separate CSS
+   hooks (flagged in PLAN — the whole-scene wash remains the primary mood). */
+#stage.night3 #g-wall{filter:brightness(0.84) saturate(1.06);}
 
 /* ---------- PORTRAIT REFLOW (GDD §13: stacked serve screen) ---------- */
-body.portrait #ms-wall{height:46%;}
-body.portrait #ms-window{left:5%; width:34%; top:8%; height:56%;}
-body.portrait #ms-shelf{right:6%; width:42%; top:16%;}
-body.portrait #ms-tap{right:12%; top:42%; width:9%; height:14%;}
-body.portrait #ms-counter{top:46%; height:16%; bottom:auto;}
+/* the landscape master scene occupies the TOP band; object-fit:cover crops its
+   width and its 71.9% counter top lands at ~0.719×64% ≈ 46% of the portrait
+   stage (matching stage.js portrait counterY 0.46). Below the band is the
+   letterbox backfill. */
+body.portrait #ms-img{top:0; bottom:auto; height:64%; object-position:center top;}
 body.portrait #screen-serve{background:#241a12;}
 body.portrait #serve-bubble{left:4%; top:3%; width:70%;}
+body.portrait #sage-bubble{left:4%; top:auto; bottom:37.5%; width:78%;}  /* above the stacked panel, matching the choice stack */
 body.portrait #panel-frame{left:3%; right:3%; top:64%; bottom:2.5%; height:auto; flex-wrap:wrap;}
 body.portrait .slotcol{width:44%;}
 body.portrait .rightcol{width:48%;}
@@ -585,6 +599,15 @@ body.portrait #pageflip{left:0; top:0; width:100%; height:100%;}
 .nc-actions{display:flex; gap:10px;}
 .epi-actions{display:flex; gap:12px; justify-content:center;}
 body.portrait .nc-preview canvas{height:64vh;}
+
+/* ---------- in-game toast (GDD §13: say it in-game, not console-only) ---------- */
+#toast{position:absolute; left:50%; top:5%; transform:translateX(-50%) translateY(-14px);
+  max-width:74%; background:linear-gradient(180deg,#fdf6e8,var(--cream)); color:var(--charcoal);
+  border:2.5px solid var(--gold); border-radius:13px; padding:11px 22px; z-index:60;
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:14.5px; line-height:1.35; text-align:center;
+  box-shadow:0 10px 28px rgba(0,0,0,.5); opacity:0; pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;}
+#toast.on{opacity:1; transform:translateX(-50%) translateY(0);}
 
 /* ---------- DEV BAR (outside the stage; ?dev=1 or Ctrl+D) ---------- */
 #dev{position:fixed; top:10px; right:12px; background:rgba(20,16,25,.92); border:1px solid #3c3350;

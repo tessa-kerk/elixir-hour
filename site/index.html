@@ -77,20 +77,32 @@
         <path class="na-line" d="M138 54 C 145 72, 149 86, 150 103"/>
         <path class="na-head" d="M143 96 L150 104 L157 95"/>
       </svg>
-    </div>
 
-    <!-- foreground: the Knight stands at the right, anchored to the section's
-         bottom edge (feet to the frame), clear of the bar's props -->
-    <img class="bb-char" src="assets/img/knight-arrival.png" alt="" loading="lazy" decoding="async">
-    <div class="bb-bubble">
-      <span class="bb-speaker">The Knight</span>
-      <span class="bb-line">Evening. You're new here, then.</span>
+      <!-- the Knight (full-body) stands on the floorboards near the stool,
+           clear of the taps + mugs; the bubble tracks just above his head -->
+      <img class="bb-char" src="assets/img/knight-full.png" alt="" loading="lazy" decoding="async">
+      <div class="bb-bubble">
+        <span class="bb-speaker">The Knight</span>
+        <span class="bb-line">Evening. You're new here, then.</span>
+      </div>
     </div>
 
     <div class="bb-caption">
       <span class="eyebrow">Chapter two</span>
       <h2>The bar builds itself</h2>
       <p>The arena closes. The lanterns come up. The fighters come in, and you're the one behind the taps.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BEAT — you play Sage ===================== -->
+<section class="sage-wrap" aria-label="You play Sage">
+  <div class="sage-inner">
+    <img class="sage-fig" src="assets/img/sage.png" width="461" height="1000" alt="Sage, the keeper of the bar" loading="lazy" decoding="async">
+    <div class="sage-copy">
+      <span class="eyebrow">You play Sage</span>
+      <h2>Sage keeps the taps.<br>You decide what she pours.</h2>
+      <p>Read the fighter in front of you, brew what fits, and the conversation opens. No combat, no fail state — just the keeper, the cup, and whoever walked in that night.</p>
     </div>
   </div>
 </section>
@@ -203,11 +215,11 @@
       <h2>The world fills in as you talk</h2>
       <p>Every regular gets a page in the Tome — a printed bio with Sage's own notes scribbled in the margin. Richer than any wiki, because it's personal. Content as friendship, not a checklist.</p>
     </div>
-    <div class="tome-book">
-      <img src="assets/img/tome.jpg" alt="The Tome — the bar's book of regulars, recipes and the Arena Herald" loading="lazy" decoding="async">
-      <span class="tnote tnote-1" style="--i:0">the anchor. been fighting a long time.</span>
-      <span class="tnote tnote-2" style="--i:1">she notices everything.</span>
-      <span class="tnote tnote-3" style="--i:2">gentle. no spark, ever.</span>
+    <!-- the real Ledger spread, captured from the game (Hog Rider, stage 3) -->
+    <div class="ledger">
+      <div class="ledger-frame">
+        <img class="ledger-img" src="assets/img/ledger-hog.jpg" width="1286" height="717" alt="The Hog Rider's page in the Regulars' Ledger — his printed bio flowing across both pages, with Sage's green notes in the margins." loading="lazy" decoding="async">
+      </div>
     </div>
   </div>
 </section>
@@ -223,10 +235,10 @@
     <div class="devices">
       <div class="dev desktop">
         <div class="dev-bar"><i></i><i></i><i></i></div>
-        <img src="assets/shots/serve.jpg" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
+        <img src="assets/shots/serve.jpg" width="1100" height="619" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
       </div>
       <div class="dev phone">
-        <img src="assets/shots/serve-portrait.jpg" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
+        <img src="assets/shots/serve-portrait.jpg" width="560" height="996" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
       </div>
     </div>
     <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
@@ -239,7 +251,7 @@
     <div class="arenas-head">
       <span class="eyebrow">Chapter eight</span>
       <h2>One bar, every arena</h2>
-      <p>Built once — Sage, the bar, the brew, the engine. Re-skinned per edition: a new arena, a cast themed to that locale, a story tied to whatever's live. Make the format, not the asset.</p>
+      <p>Built once — Sage, the bar, the brew, the engine. Every edition opens somewhere new: a different arena, its own regulars, a story tied to what's live in the game.</p>
     </div>
     <div class="arena-strip">
       <div class="arena live">
@@ -248,17 +260,17 @@
         <span class="arena-tag">Edition one — open now</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art frozen"></div>
+        <div class="arena-art"><img src="assets/shots/frozen.jpg" alt="Frozen Peak arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Frozen Peak</span>
         <span class="arena-tag">a future edition</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art spell"></div>
+        <div class="arena-art"><img src="assets/shots/spell.jpg" alt="Spell Valley arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Spell Valley</span>
         <span class="arena-tag">a future edition</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art hog"></div>
+        <div class="arena-art"><img src="assets/shots/hog.jpg" alt="Hog Mountain arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Hog Mountain</span>
         <span class="arena-tag">a future edition</span>
       </div>

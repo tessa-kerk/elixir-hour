@@ -24,6 +24,10 @@ window.Screens = (function () {
     el("nightcap-close").textContent = t("nightcap.close");
     var adv = document.querySelectorAll("[data-advance]");
     for (var i = 0; i < adv.length; i++) adv[i].textContent = t("advance");
+    /* visible build stamp (title corner) — lets Tessa confirm which build
+       loaded; bumped in lockstep with the ?v= cache token (see strings.js). */
+    var stamp = el("build-stamp");
+    if (stamp && window.buildLabel) stamp.textContent = buildLabel();
   }
 
   function renderTitle() {
@@ -107,6 +111,16 @@ window.Screens = (function () {
   }
   function hideServeBubble() { el("serve-bubble").classList.remove("on"); }
 
+  /* Sage's own spoken bubble (Fix 4): bottom-LEFT, sage-tinted, no tail toward
+     the customer — the keeper is behind the counter, not the customer above it.
+     CSS-positioned (fixed bottom-left), decoupled from the cast anchor, so it
+     renders correctly even with no customer figure (e.g. the opening monologue). */
+  function sageLine(html) {
+    el("sage-line").innerHTML = html;
+    el("sage-bubble").classList.add("on");
+  }
+  function hideSageBubble() { el("sage-bubble").classList.remove("on"); }
+
   function serveChoices(prompt, options, cb) {
     var box = el("serve-choices");
     box.innerHTML = "";
@@ -140,6 +154,18 @@ window.Screens = (function () {
       setServeCustomer(lastServe.who, lastServe.expr);
     }
   });
+
+  /* a brief cream toast (e.g. storage-unavailable) — shown in-game, never
+     console-only (GDD §13; P0 06-07) */
+  var toastTimer = null;
+  function toast(msg) {
+    var t2 = el("toast");
+    if (!t2 || !msg) return;
+    t2.textContent = msg;
+    t2.classList.add("on");
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { t2.classList.remove("on"); }, 5600);
+  }
 
   function renderNightEnd(night, hasNext) {
     el("nightend-title").textContent = t("night.complete", { n: night });
@@ -351,6 +377,8 @@ window.Screens = (function () {
     setServeCustomer: setServeCustomer,
     serveLine: serveLine,
     hideServeBubble: hideServeBubble,
+    sageLine: sageLine,
+    hideSageBubble: hideSageBubble,
     serveChoices: serveChoices,
     hideServeChoices: hideServeChoices,
     renderNightEnd: renderNightEnd,
@@ -361,5 +389,6 @@ window.Screens = (function () {
     duoExpr: duoExpr,
     duoLine: duoLine,
     renderEpilogue: renderEpilogue,
+    toast: toast,
   };
 })();

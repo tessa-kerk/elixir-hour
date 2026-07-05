@@ -22,8 +22,12 @@
 <meta name="twitter:image" content="assets/share/night-cap-share.png">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/main.css">
+<!-- Cache-bust: every local script/stylesheet carries ?v=<BUILD>. BUMP THIS
+     TOKEN ON EVERY BUILD (find-replace all "?v=9") so a refresh always gets the
+     current code — file:// and heuristic caches served stale JS to a real
+     player once (P0 06-07) and stalled progression. -->
+<link rel="stylesheet" href="css/fonts.css?v=9">
+<link rel="stylesheet" href="css/main.css?v=9">
 </head>
 <body>
 <div id="viewport">
@@ -39,6 +43,8 @@
         <button class="btn" id="btn-continue"></button>
         <button class="btn" id="btn-settings"></button>
       </div>
+      <!-- visible build stamp (filled from window.BUILD by Screens.fillStatic) -->
+      <div id="build-stamp" aria-hidden="true"></div>
     </div>
 
     <!-- HERALD INTERSTITIAL -->
@@ -60,14 +66,7 @@
          placeholder until the locked scene art lands (Milestone 8). -->
     <div class="screen" id="screen-serve">
       <div id="ms">
-        <div id="ms-wall">
-          <div id="ms-window"><i id="ms-hint-blue"></i><i id="ms-hint-red"></i></div>
-          <div id="ms-shelf">
-            <i class="ms-bottle" style="background:#7A3FA0"></i><i class="ms-bottle" style="background:#4e9a51"></i><i class="ms-bottle" style="background:#e8c34d"></i><i class="ms-bottle" style="background:#6fa7d8"></i><i class="ms-bottle" style="background:#5fb8a8"></i><i class="ms-bottle" style="background:#6d7a3f"></i>
-          </div>
-          <div id="ms-tap"></div>
-        </div>
-        <div id="ms-counter"></div>
+        <img id="ms-img" src="assets/scenes/Serve Screen - Master Scene V1.webp?v=9" alt="">
       </div>
       <div id="serve-shadow"></div>
       <img id="serve-char" src="" alt="">
@@ -75,6 +74,12 @@
       <div id="serve-bubble" class="bubble">
         <div id="serve-speaker" class="speaker"></div>
         <div id="serve-line" class="line"></div>
+      </div>
+      <!-- Sage's own bottom-left bubble (Fix 4): sage-tinted, no tail. SAGE is a
+           fixed proper name (not localised, like the other speaker names). -->
+      <div id="sage-bubble" class="bubble notail">
+        <div class="speaker">SAGE</div>
+        <div id="sage-line" class="line"></div>
       </div>
       <div id="serve-choices"></div>
       <div id="panel-frame">
@@ -98,7 +103,15 @@
           <button class="pbtn" id="brew-reset"></button>
           <button class="pbtn pour" id="brew-pour"></button>
         </div>
-        <div class="dose"><span id="lbl-gentle"></span><input type="range" min="1" max="3" value="1" id="dose"><span id="lbl-strong"></span></div>
+        <div class="dose">
+          <span id="lbl-gentle"></span>
+          <div class="dose-track">
+            <input type="range" min="1" max="3" step="1" value="1" id="dose" aria-label="Dose" aria-valuetext="1 drop">
+            <div class="dose-pips" aria-hidden="true"><span>•</span><span>••</span><span>•••</span></div>
+            <div id="dose-live" class="dose-live">1 drop</div>
+          </div>
+          <span id="lbl-strong"></span>
+        </div>
       </div>
       <div id="brewstrip">
         <div class="brewpanel"><img src="assets/ui/Brew Panel - The Pour (4x5).png" alt=""><div class="fill"></div></div>
@@ -240,26 +253,32 @@
       </div>
     </div>
 
+    <!-- in-game toast: e.g. "This browser can't keep saves" when storage is
+         blocked (file:// / private mode). Shown by Screens.toast(), never a
+         console-only note (P0 06-07). -->
+    <div id="toast"></div>
+
   </div>
 </div>
 
 <div id="dev" hidden></div>
 
-<script src="strings/strings.js"></script>
-<script src="data/nights.js"></script>
-<script src="data/cast.js"></script>
-<script src="data/tome.js"></script>
-<script src="src/stage.js"></script>
-<script src="src/save.js"></script>
-<script src="src/particles.js"></script>
-<script src="src/screens.js"></script>
-<script src="src/brew.js"></script>
-<script src="src/dialogue.js"></script>
-<script src="src/state.js"></script>
-<script src="src/tome.js"></script>
-<script src="src/nightcap.js"></script>
-<script src="src/audio.js"></script>
-<script src="src/settings.js"></script>
-<script src="src/boot.js"></script>
+<!-- ?v=<BUILD> on every script — BUMP the token on every build (see head note) -->
+<script src="strings/strings.js?v=9"></script>
+<script src="data/nights.js?v=9"></script>
+<script src="data/cast.js?v=9"></script>
+<script src="data/tome.js?v=9"></script>
+<script src="src/stage.js?v=9"></script>
+<script src="src/save.js?v=9"></script>
+<script src="src/particles.js?v=9"></script>
+<script src="src/screens.js?v=9"></script>
+<script src="src/brew.js?v=9"></script>
+<script src="src/dialogue.js?v=9"></script>
+<script src="src/state.js?v=9"></script>
+<script src="src/tome.js?v=9"></script>
+<script src="src/nightcap.js?v=9"></script>
+<script src="src/audio.js?v=9"></script>
+<script src="src/settings.js?v=9"></script>
+<script src="src/boot.js?v=9"></script>
 </body>
 </html>

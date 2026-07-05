@@ -10,6 +10,11 @@ window.Brew = (function () {
 
   var state = { base: "Elixir", mix: [null, null], dose: 1 };
   var brewing = false;
+  /* During a brew gate the dialogue arms an order predicate here — fn(mix,base,
+     dose)->bool = "matches the CURRENT ORDER" (GDD §7 gate-aware ✓). null = free
+     brew. Lifecycle is owned by dialogue.js via setOrder(); reset() must NOT
+     clear it (reset runs mid-gate: on arm, and after every wrong pour). */
+  var activeOrder = null;
   var METERS = ["warmth", "kick", "chill", "bite"];
   var BASE_DOT = { "Elixir": "#B26AE0", "Dark Elixir": "#3d2350" };
 
@@ -45,6 +50,23 @@ window.Brew = (function () {
     return null;
   }
 
+  /* the live "{n} drop(s)" label under the dose slider (Fix 1). Sets the text
+     (localised, plural handled by the three brew.drops{n} keys) AND slides it
+     to sit over the handle. TH must equal --th in .dose-pips (css) so the label
+     lines up with the detent pips. */
+  var TH = 14;   /* px, native range-thumb width estimate — keep == CSS --th */
+  function updateDoseLabel() {
+    var live = el("dose-live");
+    if (!live) return;
+    var n = state.dose;                        /* 1..3 */
+    var txt = t("brew.drops" + n);
+    live.textContent = txt;
+    var input = el("dose");
+    if (input) input.setAttribute("aria-valuetext", txt);
+    var frac = (n - 1) / 2;                     /* 1,2,3 → 0,.5,1 */
+    live.style.left = "calc(" + (TH / 2) + "px + (100% - " + TH + "px) * " + frac + ")";
+  }
+
   function update() {
     var tl = totals();
     for (var k = 0; k < METERS.length; k++) {
@@ -58,7 +80,19 @@ window.Brew = (function () {
       }
     }
     var hit = matchRecipe();
-    el("recipename").textContent = hit ? hit.name + " ✓" : t("brew.unnamed");
+    var name = hit ? hit.name : null;
+    var tick;
+    if (activeOrder) {
+      /* GDD §7 gate-aware ✓: name any valid recipe you've formed, but tick ONLY
+         when the mix matches the CURRENT ORDER. Valid-but-wrong = name, no tick.
+         (The consequence brew arms a never-true predicate → name, never a tick,
+         so it can't leak the "right" answer — GDD §8.) */
+      tick = !!activeOrder(state.mix, state.base, state.dose);
+    } else {
+      /* free brew: ✓ means "valid named recipe" */
+      tick = !!hit;
+    }
+    el("recipename").textContent = name ? (tick ? name + " ✓" : name) : t("brew.unnamed");
     el("base-name").textContent = canonTerm(state.base);   /* canon term (GDD §13) */
     el("base-dot").style.background = BASE_DOT[state.base];
     for (var n = 1; n <= 2; n++) {
@@ -81,6 +115,7 @@ window.Brew = (function () {
     state.mix = [null, null];
     state.dose = 1;
     el("dose").value = 1;
+    updateDoseLabel();
     update();
   }
 
@@ -104,8 +139,10 @@ window.Brew = (function () {
       panel.classList.remove("brewing");
       strip.classList.remove("on");
       brewing = false;
-      if (window.Sound) Sound.sfx("mug-clink");   /* the served drink lands */
+      /* resume the dialogue FIRST (never let a sound hiccup block it), then
+         the mug-clink as the drink lands (P0 06-07) */
       if (typeof onDone === "function") onDone(snapshot());
+      if (window.Sound) Sound.sfx("mug-clink");
     }, 2400);
   }
 
@@ -125,6 +162,7 @@ window.Brew = (function () {
     el("lbl-strong").textContent = t("brew.strong");
     el("brew-reset").textContent = t("brew.reset");
     el("brew-pour").textContent = t("brew.pour");
+    updateDoseLabel();
     /* rebuild pickers so the "none" row follows the language */
     for (var n = 1; n <= 2; n++) buildPicker(n);
     update();
@@ -158,13 +196,14 @@ window.Brew = (function () {
   el("slot-mix1").addEventListener("click", function (ev) { ev.stopPropagation(); closePickers(); el("picker1").style.display = "block"; });
   el("slot-mix2").addEventListener("click", function (ev) { ev.stopPropagation(); closePickers(); el("picker2").style.display = "block"; });
   document.addEventListener("click", closePickers);
-  el("dose").addEventListener("input", function () { state.dose = +this.value; update(); });
+  el("dose").addEventListener("input", function () { state.dose = +this.value; updateDoseLabel(); update(); });
   el("brew-reset").addEventListener("click", reset);
   el("brew-pour").addEventListener("click", function () { pour(); });
 
   return {
     update: update, reset: reset, pour: pour, pick: pick, cycleBase: cycleBase,
     refreshText: refreshText, snapshot: snapshot, matchRecipe: matchRecipe, totals: totals,
+    setOrder: function (fn) { activeOrder = fn || null; update(); },   /* dialogue arms/clears the gate order (GDD §7) */
     state: state,
   };
 })();

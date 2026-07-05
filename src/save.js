@@ -8,10 +8,21 @@
 (function () {
   var warned = false;
   function warn(e) {
-    if (!warned) {
-      warned = true;
-      console.warn("Elixir Hour: browser storage unavailable — progress won't persist beyond this session.", e);
+    if (warned) return;
+    warned = true;
+    console.warn("Elixir Hour: browser storage unavailable — progress won't persist beyond this session.", e);
+    /* Say it in-game too, not console-only (P0 06-07): a player on file:// or in
+       private mode must SEE that tonight won't be remembered. Deferred to a
+       microtask-ish tick so the toast infra (Screens + strings) is live even if
+       the very first storage touch happens during boot. */
+    function tell() {
+      try {
+        var msg = (window.t) ? t("toast.nosave") : "This browser can't keep saves — tonight won't be remembered.";
+        if (window.Screens && Screens.toast) Screens.toast(msg);
+        else if (window.setTimeout) window.setTimeout(tell, 400);
+      } catch (x) { /* never let the warning itself throw */ }
     }
+    tell();
   }
 
   /* A safe localStorage box with an in-memory fallback. */

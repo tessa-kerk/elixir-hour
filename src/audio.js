@@ -84,26 +84,29 @@ window.Sound = (function () {
     if (prefs().music) tryPlay(); else pauseMusic();
   }
 
-  /* one-shot SFX, gated by the Sound-effects pref */
+  /* one-shot SFX, gated by the Sound-effects pref. Wrapped whole so audio can
+     NEVER throw into its caller — SFX fire from the brew/flip critical path, and
+     a sound failure must never stall the game (P0 06-07). */
   function sfx(name) {
     lastSfx = name;
-    if (!prefs().sfx) return;
-    var path = SFX[name];
-    if (!path) return;
-    var a = sfxCache[name];
-    if (!a) {
-      a = sfxCache[name] = new window.Audio(path);
-      a.volume = SFX_VOL;
-      a.addEventListener("error", function () {
+    try {
+      if (!prefs().sfx) return;
+      var path = SFX[name];
+      if (!path) return;
+      var a = sfxCache[name];
+      if (!a) {
+        a = sfxCache[name] = new window.Audio(path);
+        a.volume = SFX_VOL;
+        a.addEventListener("error", function () {
+          note("nosfx:" + name, "no SFX file at " + path + " yet — this cue stays silent (drop the file and it plays, zero code). Expected, not an error.");
+        });
+      }
+      try { a.currentTime = 0; } catch (e) {}
+      var p = a.play();
+      if (p && p.catch) p.catch(function () {
         note("nosfx:" + name, "no SFX file at " + path + " yet — this cue stays silent (drop the file and it plays, zero code). Expected, not an error.");
       });
-    }
-    try { a.currentTime = 0; } catch (e) {}
-    var p = a.play();
-    if (p && p.catch) p.catch(function () {
-      /* missing file (or a blocked gesture) — note the silent cue once, never an error */
-      note("nosfx:" + name, "no SFX file at " + path + " yet — this cue stays silent (drop the file and it plays, zero code). Expected, not an error.");
-    });
+    } catch (e) { /* audio never blocks the game */ }
   }
 
   /* sync to the current prefs + Songbook pick (boot, and after a pref change) */

@@ -13,16 +13,21 @@
      { n:"..." }                                          narration (italic, no name)
      { cue:"sfx"|"art", text:"..." }                      kept for Milestone 7; skipped
      { choice:"...", options:[{label, tone, reply:[entries]}] }
-     { brew:{base, mix, dose?, recipe, nudge} }           gate: pour must match; a wrong
-                                                          pour repeats `nudge` (gentle
-                                                          beat — no fail state). Extras:
+     { brew:{base, mix, dose?, recipe, wrong?, nudge} }    gate: pour must match; a wrong
+                                                          pour ALWAYS shows a line, then
+                                                          the request stands (gentle beat,
+                                                          no fail state, GDD §7). Extras:
                                                           `any:[{base,mix,dose?}…]` = a
                                                           set of acceptable serves (the
-                                                          player's read); `wrongIf:
-                                                          [{has:"Zap", n:"…"}]` = a
-                                                          bespoke reaction when a wrong
+                                                          player's read); `wrong:"…"` = the
+                                                          customer's spoken reaction to ANY
+                                                          wrong pour (no silent rejects);
+                                                          `wrongIf:[{has:"Zap", n:"…"}]` =
+                                                          a bespoke reaction when a wrong
                                                           pour contains that mixer
-                                                          (P.E.K.K.A's flinch).
+                                                          (P.E.K.K.A's flinch — HIGHEST
+                                                          priority: wrongIf > wrong >
+                                                          generic gentle beat).
      { brew:{consequence:true, right:{base,mix,dose},     THE one consequential brew
              onRight:[entries], onWrong:[entries]} }      (GDD §8): every pour is
                                                           accepted; the result is
@@ -91,6 +96,8 @@ window.NIGHTS = [
           { who: "Knight", line: "Start with the Elixir, just the base for now. That stuff's the whole kingdom in a cup, literally. Everyone around here runs on it — some of us are pretty much made of this stuff, if you go back far enough." },
           { who: "Knight", line: "Now put in a drop of Heal — just the one, mind you. Two drops is for a bad day, and this isn't one of those." },
           { brew: { base: "Elixir", mix: ["Heal"], dose: 1, recipe: "The Usual",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "Kind of you — but that's not the usual. One drop of Heal, just the one. Two's for a bad day, and this isn't one.",
                     nudge: "Now put in a drop of Heal — just the one, mind you. Two drops is for a bad day, and this isn't one of those." } },
           { who: "Knight", line: "There you go. That's the usual. It's steady, nothing clever about it, and that's the point." },
           { cue: "art", text: "Knight lifts it, the purple glow catching his face." },
@@ -122,6 +129,8 @@ window.NIGHTS = [
           { who: "Sage", line: "Wait, there's a three?" },
           { who: "Hog Rider", line: "There's always a three! I'll think of it. You pour first." },
           { brew: { base: "Dark Elixir", mix: ["Rage"], recipe: "The Strong Stuff",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "HA! Wrong cup, keeper! The STRONG stuff — Dark Elixir, and don't you be shy with it!",
                     nudge: "Alright, then, here's the rules for you, newcomer. Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it. Number two, you put a Rage in there for me, because a drink ought to have a bit of personality. And number three —" } },
           { cue: "art", text: "Hog Rider takes it in one hand, grinning." },
           { who: "Hog Rider", line: "*(after an enormous gulp)* HA! Now see, THAT is a drink that's been to a battle and back. You lot honestly don't know what you're missing, sat there being all quiet—" },
@@ -151,6 +160,8 @@ window.NIGHTS = [
           { who: "Knight", line: "*(into his tankard)* Oh, here we go." },
           { who: "Wizard", line: "I heard that, you know." },
           { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "Mm. Drinkable. But I ordered a performance — double Rage, a Zap. Where's the spark?",
                     nudge: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark." } },
           { cue: "art", text: "Wizard catches it and raises it high — a flourish that's half magic trick, half plea." },
           { who: "Wizard", line: "*(to a crowd that is three people)* …and for my next— *(the spark fizzles early, with a small, sad pop)* …ah. Hm. That one was supposed to last a good deal longer than that." },
@@ -230,6 +241,8 @@ window.NIGHTS = [
           { who: "Sage", line: "Can I get you something?" },
           { who: "Princess", line: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little." },
           { brew: { base: "Elixir", mix: ["Poison"], recipe: "The Bittersweet",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "A sweet try. Mine's the one that bites back, remember.",
                     nudge: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little." } },
           { cue: "art", text: "Princess takes it without looking at it, still reading the room." },
           { who: "Princess", line: "*(after a measured sip)* Mm. Just enough bite. Most people either lose their nerve with the Poison, or they panic and drown the whole thing. You did neither." },
@@ -281,6 +294,8 @@ window.NIGHTS = [
           { who: "Sage", line: "Let me get you something. What's good, for a night like this?" },
           { who: "P.E.K.K.A", line: "Something warm. And gentle — no spark in it, please. I've had enough sharp things pointed at me for one lifetime." },
           { brew: { base: "Elixir", mix: ["Heal"], recipe: "The Gentle One",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval (the Zap flinch below still takes priority) */
+                    wrong: "…it is a nice cup. It is not mine. Warm, please. Gentle.",
                     nudge: "Something warm. And gentle — no spark in it, please. I've had enough sharp things pointed at me for one lifetime.",
                     wrongIf: [{ has: "Zap", n: "P.E.K.K.A flinches, the helmet dipping. A small, wrong beat. Sage can pour it again." }] } },
           { cue: "art", text: "she cups it in both gauntlets, careful, like it might break." },
@@ -302,6 +317,8 @@ window.NIGHTS = [
           { cue: "art", text: "the door. KNIGHT — Weary & Wistful. He's seen the draw. It's on him tonight." },
           { who: "Knight", line: "Evening, keeper. *(he doesn't take his usual stool at the middle of the bar; he settles off to one end instead)* Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it. I feel like looking backwards for a bit." },
           { brew: { base: "Elixir", mix: ["Mirror"], recipe: "The Long Look",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "Not that one tonight. Tonight it's the one with Mirror in it — the long look.",
                     nudge: "Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it. I feel like looking backwards for a bit." } },
           { cue: "art", text: "the surface of the drink shimmers, doubling the lamplight." },
           { who: "Knight", line: "There was a time this all meant something, you know. The clash of it. You'd win, and it *mattered*, and you'd feel it for a week. *(he turns the shimmering drink in his hand)* Now I've a bout at dawn like every other dawn, and I can't for the life of me remember what I'm meant to be fighting *for*." },
@@ -408,6 +425,8 @@ window.NIGHTS = [
           ] },
           { who: "Hog Rider", line: "*(whichever — something in him settles)* …Yeah. *(a breath)* Yeah, alright. Do us a favour — none of the strong stuff tonight. No Dark Elixir, no Rage. I don't need winding up. Just… something easy." },
           { brew: { base: "Elixir", mix: ["Heal"], recipe: "The Easy One",
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "Nah — light one tonight, remember? The easy one. …Don't make it weird.",
                     nudge: "Do us a favour — none of the strong stuff tonight. No Dark Elixir, no Rage. I don't need winding up. Just… something easy." } },
           { cue: "art", text: "he holds it in both hands, no toast, no showing off." },
           { who: "Hog Rider", expr: "Warm Grin", line: "*(after a sip — and then the real one)* You know what? This'll do. This'll do just fine. *(a proper smile, small and true)* Might bring the Hog next time. If he apologises." },
@@ -494,6 +513,8 @@ window.NIGHTS = [
           ] },
           { who: "Princess", line: "No Poison tonight. *(she surprises herself saying it)* Something kind, for a change. I won't tell anyone if you don't." },
           { brew: { base: "Elixir", mix: ["Heal"],
+                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    wrong: "Tonight I'll take the kind one. Just this once — don't write it down.",
                     nudge: "No Poison tonight. Something kind, for a change. I won't tell anyone if you don't." } },
           { who: "Princess", line: "*(after a sip; she doesn't make a joke of it)* …That's the one, isn't it. That's the drink you give someone you're not trying to keep at arm's length. *(she meets Sage's eye)* Thank you." },
           { unlock: { ledger: "Princess", note: "Lonely at the top and finally said so. Put the Poison down for one night.", stage: 3 } },

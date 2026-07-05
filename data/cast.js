@@ -45,6 +45,7 @@ window.CAST = {
   "Knight": {
     dir: "assets/characters/Knight",
     colour: "#5f7ea8",
+    they: "He",   /* pronoun for the generic wrong-pour beat (GDD §7) */
     demoLine: "Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it.",
     exprs: {
       "Warm & Content":  { file: "Knight - Warm & Content Served (no bg).png",  top: 0.114, base: 0.816 },
@@ -56,6 +57,7 @@ window.CAST = {
   "Wizard": {
     dir: "assets/characters/Wizard",
     colour: "#7A3FA0",
+    they: "He",
     demoLine: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish.",
     exprs: {
       "Boastful Grin": { file: "Wizard - Boastful Grin Served (no bg).png",       top: 0.132, base: 0.763 },
@@ -67,6 +69,7 @@ window.CAST = {
   "Princess": {
     dir: "assets/characters/Princess",
     colour: "#c4514a",
+    they: "She",
     demoLine: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little.",
     exprs: {
       "Cool & Poised":     { file: "Princess - Cool & Poised Served (no bg).png",     top: 0.030, base: 0.840, tall: 1.06 },
@@ -78,6 +81,7 @@ window.CAST = {
   "P.E.K.K.A": {
     dir: "assets/characters/P.E.K.K.A",
     colour: "#b05ec9",
+    they: "She",
     demoLine: "Something warm. And gentle — no spark in it, please.",
     exprs: {
       "Calm":    { file: "P.E.K.K.A - Calm Served (no bg).png",  top: 0.082, base: 0.840, tall: 1.12 },
@@ -89,6 +93,7 @@ window.CAST = {
   "Hog Rider": {
     dir: "assets/characters/Hog Rider",
     colour: "#c07a2e",
+    they: "He",
     demoLine: "Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it.",
     exprs: {
       "Warm Grin":       { file: "Hog Rider - Warm Grin Served (no bg).png",       top: 0.110, base: 0.759 },

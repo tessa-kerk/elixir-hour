@@ -11,14 +11,14 @@ window.Stage = (function () {
      horizontal anchor for the whole cast. Characters anchor by the BOTTOM OF
      THE TORSO (per-sprite torsoBase fraction, measured by the keying pipeline)
      to the counter line — never by hands or lowest pixel. Landscape: counter
-     at 75.5% (mockup bar-shade line), cast centred in the left zone. Portrait:
-     scene band sits in the top half, counter at 46%, cast centred.
-     Re-measure against the locked master scene when it lands (M8). */
+     at 71.9% (the baked master-scene counter top, §15), cast centred in the
+     left zone. Portrait: scene band sits in the top half, counter at 46%.
+     (Measured against the locked master scene, Serve Screen - Master Scene V1.) */
   /* charH leaves deliberate headroom above the tallest head/horns so the
      dialogue bubble never overlaps the character (bubble sits bottom-anchored
      just above figure top = counterY - charH; see Screens.renderServe). */
   var COMPOSITE = {
-    landscape: { counterY: 0.755 * LAND.H, anchorX: 0.21 * LAND.W, charH: 0.58 * LAND.H },
+    landscape: { counterY: 0.719 * LAND.H, anchorX: 0.21 * LAND.W, charH: 0.58 * LAND.H },
     portrait:  { counterY: 0.46 * PORT.H,  anchorX: 0.50 * PORT.W, charH: 0.36 * PORT.H },
   };
 
