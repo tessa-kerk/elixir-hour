@@ -1,0 +1,416 @@
+/* ===========================================================================
+   Elixir Hour — landing page. Scrollytelling product page.
+   Same visual system as the game (GDD §12 palette, self-hosted fonts).
+   Guard-rails: transforms + opacity only (GPU-safe), native scroll + sticky
+   pins (no scroll-jacking), prefers-reduced-motion -> static composed frames,
+   zero external runtime dependencies.
+   =========================================================================== */
+
+/* ---- self-hosted fonts (latin woff2, SIL OFL) — shared with the game ---- */
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:600 800;font-display:swap;src:url('../assets/fonts/Baloo2-600.woff2') format('woff2');}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:700;font-display:swap;src:url('../assets/fonts/Caveat-700.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600 700;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600i.woff2') format('woff2');}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:600 800;font-display:swap;src:url('../assets/fonts/Nunito-600.woff2') format('woff2');}
+@font-face{font-family:'Pirata One';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/PirataOne-400.woff2') format('woff2');}
+
+:root{
+  --sage:#9CAF88; --sage-deep:#6B7F5C; --sage-pale:#C7D3B5;
+  --elixir:#7A3FA0; --glow:#B26AE0;
+  --wood-dark:#3A2A20; --wood:#6E4B2A; --amber:#E8B770;
+  --night:#1C1B3A; --cream:#F4ECDD; --charcoal:#241F1B;
+  --blue:#2E6FD6; --red:#C8392F; --gold:#c9a55a; --ink:#4a3a28; --ink-soft:#7a6748;
+  --knight:#5f7ea8;        /* the Knight's canon colour (data/cast.js) */
+  --knight-ink:#3f5876;    /* darkened for AA on the cream speech bubble */
+  --maxw: 1180px;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+html.reduce{scroll-behavior:auto;}
+body{
+  font-family:'Nunito',sans-serif; font-weight:600; color:var(--cream);
+  background:var(--night);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+/* warm-inside / cool-night ambience — a cheap fixed viewport layer (no
+   background-attachment:fixed, which forces continuous re-raster on scroll) */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(60% 40% at 20% 8%, rgba(232,183,112,.05), transparent 60%),
+    radial-gradient(50% 40% at 85% 30%, rgba(178,106,224,.06), transparent 60%);
+}
+img{max-width:100%; display:block;}
+a{color:inherit;}
+/* visible keyboard focus (never removed) — amber reads over the purple CTA and
+   the night ground alike */
+a:focus-visible, .cta:focus-visible{outline:3px solid var(--amber); outline-offset:3px; border-radius:8px;}
+
+/* ---------- pinned-scene mechanics ---------- */
+.pin-wrap{position:relative;}
+.pin{position:sticky; top:0; height:100vh; overflow:hidden;}
+/* the tall wrappers give each pinned scene its scroll-scrub distance */
+.hero-wrap{height:150vh;}
+.reveal-wrap{height:280vh;}
+/* no-JS and reduced-motion: collapse the tall scroll into one screen and show
+   the fully composed frame (JS sets --p; these defaults hold without it) */
+.hero-wrap{--p:0;}
+.reveal-wrap{--p:1;}
+html:not(.js) .pin-wrap,
+html.reduce .pin-wrap{height:100vh !important;}
+
+/* ---------- HERO (chapter 1) ---------- */
+.hero{background:var(--night);}
+.hero-bar{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  /* faint establishing backdrop — the game's title scene, dimmed to night */
+  opacity:.5; transform:scale(1.04); transform-origin:50% 42%;}
+.hero-scrim{position:absolute; inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 30%, transparent 30%, rgba(20,19,35,.72) 100%),
+    linear-gradient(180deg, rgba(28,27,58,.55) 0%, rgba(20,19,35,.35) 45%, rgba(20,19,35,.9) 100%);}
+.hero-fx{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+.hero-content{position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:5vh 22px;
+  transform:translateY(calc(var(--p) * -6vh));
+  opacity:clamp(0, calc(1 - (var(--p) - .45) / .5), 1);}
+.hero-logo{width:min(460px, 66vw); height:auto; filter:drop-shadow(0 0 26px rgba(178,106,224,.4));
+  margin-bottom:10px;}
+.hero-logline{font-family:'Baloo 2',cursive; font-weight:700; font-size:clamp(18px, 2.5vw, 27px);
+  color:#fff; letter-spacing:.01em; text-shadow:0 2px 14px rgba(0,0,0,.6); max-width:18ch; line-height:1.2;}
+.hero-sub{font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic;
+  font-size:clamp(15px, 1.7vw, 20px); color:#e9dfce; max-width:46ch; margin:12px auto 0;
+  line-height:1.4; text-shadow:0 1px 8px rgba(0,0,0,.7);}
+
+/* Primary CTA (game button style) */
+.cta{display:inline-flex; align-items:center; gap:8px; margin-top:24px;
+  font-family:'Baloo 2',cursive; font-size:19px; letter-spacing:.04em; text-decoration:none;
+  padding:13px 28px; border-radius:14px; color:#fff;
+  background:linear-gradient(180deg,var(--glow),var(--elixir)); box-shadow:0 5px 0 #572c73, 0 12px 26px rgba(122,63,160,.4);
+  transition:transform .12s ease, box-shadow .12s ease;}
+.cta:hover{transform:translateY(-1px); box-shadow:0 6px 0 #572c73, 0 16px 30px rgba(122,63,160,.5);}
+.cta:active{transform:translateY(4px); box-shadow:0 1px 0 #572c73;}
+.cta.ghost{background:linear-gradient(180deg,#fdf6e8,var(--cream)); color:var(--charcoal); box-shadow:0 5px 0 #b7a888;}
+
+/* Herald stat clippings */
+.chips{list-style:none; display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:30px; max-width:760px;}
+.chip{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:14px; color:var(--charcoal);
+  background:linear-gradient(175deg,#f7efdc,#e9dcc0); border:1px solid #cbbd9c; border-radius:4px;
+  padding:8px 15px 9px; box-shadow:0 8px 18px rgba(0,0,0,.35); position:relative;
+  border-top:3px double #8a7a5e;}
+.chip:nth-child(1){transform:rotate(-1.6deg);}
+.chip:nth-child(2){transform:rotate(.8deg);}
+.chip:nth-child(3){transform:rotate(-.6deg);}
+
+/* scroll cue — the tankard that tips as you begin to scroll */
+.scrollcue{position:absolute; left:50%; bottom:4vh; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  opacity:clamp(0, calc(1 - var(--p) / .28), 1); pointer-events:none;}
+.cue-tankard{width:46px; height:auto; transform-origin:60% 80%;
+  transform:rotate(calc(var(--p) * 34deg)) translateY(calc(var(--p) * 8px));
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));}
+/* optical centring: the caption sits under the tankard's CUP, not the image box
+   — the handle is on the left, so the vessel centre is ~half a handle-width to
+   the right. Sitewide rule: caption an asymmetric asset on its visual mass. */
+.cue-label{font-family:'Baloo 2',cursive; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#cdbfe6;
+  transform:translateX(5px); animation:cuebob 2.1s ease-in-out infinite;}
+@keyframes cuebob{0%,100%{transform:translate(5px,0)} 50%{transform:translate(5px,4px)}}
+html.reduce .cue-label{animation:none;}
+
+/* ===========================================================================
+   CHAPTER 2 — "the bar builds itself" (the Apple moment).
+   The painted bar comes to life on scroll: room warms up -> taps ignite ->
+   lanterns bloom (staggered) -> the Knight settles at the counter -> bubble
+   pops. Everything mapped off --p (0..1) with clamp/calc. Opacity + transform
+   only. The stage is a letterboxed 16:9 box so every glow pool + the figure
+   stay locked to the painting's coordinates on any viewport.
+   =========================================================================== */
+.bar-build{background:
+    radial-gradient(80% 60% at 50% 40%, #2a2347, #141019 78%);
+  /* staged sub-timings, declared on the pin so BOTH the stage layers and the
+     foreground Knight/bubble (direct children of .pin) inherit them off --p */
+  --reveal: clamp(0, calc(var(--p) / .16), 1);
+  --warm:   clamp(0, calc((var(--p) - .04) / .30), 1);
+  --taps:   clamp(0, calc((var(--p) - .30) / .16), 1);
+  --lan1:   clamp(0, calc((var(--p) - .38) / .14), 1);
+  --lan2:   clamp(0, calc((var(--p) - .45) / .14), 1);
+  --lan3:   clamp(0, calc((var(--p) - .52) / .14), 1);
+  --char:   clamp(0, calc((var(--p) - .56) / .24), 1);
+  --bubble: clamp(0, calc((var(--p) - .82) / .14), 1);
+}
+.bb-stage{position:absolute; inset:0; margin:auto;
+  width:min(100vw, 177.78vh); height:min(56.25vw, 100vh);}
+.bb-bar{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:2px;
+  opacity:var(--reveal);
+  transform:translateY(calc((1 - var(--reveal)) * 26px)) scale(calc(1.05 - var(--reveal) * .05));
+  transform-origin:50% 60%;}
+/* night scrim that fades OUT as the room warms up for the night */
+.bb-night{position:absolute; inset:0; pointer-events:none; border-radius:2px;
+  background:linear-gradient(180deg, rgba(20,19,35,.6), rgba(12,10,22,.86));
+  opacity:calc(.9 * (1 - var(--warm)));}
+/* light pools (screen-blended over the painting) */
+.bb-glow{position:absolute; pointer-events:none; mix-blend-mode:screen; border-radius:50%;}
+.bb-tap{left:37%; top:56%; width:26%; height:34%; transform:translate(-50%,-50%) scale(calc(.5 + var(--taps) * .5));
+  opacity:var(--taps);
+  background:radial-gradient(ellipse at center, rgba(178,106,224,.75), rgba(122,63,160,.35) 40%, transparent 70%);}
+.bb-lan{width:20%; height:30%; transform:translate(-50%,-50%) scale(calc(.6 + var(--l,1) * .4));
+  background:radial-gradient(ellipse at center, rgba(255,214,150,.7), rgba(232,183,112,.32) 42%, transparent 72%);}
+.bb-lan1{left:15%; top:19%; --l:var(--lan1); opacity:var(--lan1);}
+.bb-lan2{left:31%; top:16%; --l:var(--lan2); opacity:var(--lan2);}
+.bb-lan3{left:91%; top:24%; --l:var(--lan3); opacity:var(--lan3); width:16%; height:26%;}
+
+/* the Knight stands at the right of the scene, anchored to the section's bottom
+   edge (his lower body runs off the frame — breaking the stage frame is fine),
+   clear of the bar's props. Sized off the SMALLER of viewport height/width so he
+   never overflows a phone; the entry slide is a % of his own height so it stays
+   proportional across viewports. Anchored to the pin, so on ~16:9 screens his
+   right edge sits at the scene's right. */
+.bb-char{position:absolute; right:2%; bottom:0; height:min(82vh, 110vw); width:auto;
+  transform-origin:50% 100%;
+  transform:translateY(calc((1 - var(--char)) * 15%)) scale(calc(.99 + var(--char) * .01));
+  opacity:var(--char); filter:drop-shadow(-6px 10px 16px rgba(0,0,0,.5));
+  z-index:4; pointer-events:none;}
+
+/* the Knight's speech bubble pops above his head (top-right of the scene) */
+.bb-bubble{position:absolute; right:13%; top:7%; max-width:260px; z-index:5;
+  background:var(--cream); color:var(--charcoal); border-radius:14px; padding:9px 15px 11px;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.45));
+  opacity:var(--bubble); transform:translateY(calc((1 - var(--bubble)) * 10px)) scale(calc(.82 + var(--bubble) * .18));
+  transform-origin:75% 120%;}
+.bb-bubble:after{content:""; position:absolute; bottom:-11px; right:20%; border:11px solid transparent;
+  border-top-color:var(--cream); border-width:11px 9px 0;}
+.bb-speaker{display:block; font-family:'Baloo 2',cursive; font-size:12px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--knight-ink);}
+.bb-line{display:block; font-size:14.5px; line-height:1.35; font-weight:700; margin-top:2px;}
+
+/* chapter caption + section intro copy */
+.bb-caption{position:absolute; left:0; right:0; bottom:6vh; text-align:center; padding:0 22px; z-index:5;
+  opacity:clamp(0, calc((var(--p) - .06) / .16), 1);}
+.eyebrow{display:inline-block; font-family:'Baloo 2',cursive; font-size:12px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--glow); margin-bottom:8px;}
+.bb-caption h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px, 4vw, 46px); color:#fff;
+  text-shadow:0 3px 20px rgba(0,0,0,.7); line-height:1.05;}
+.bb-caption p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,21px);
+  color:#e9dfce; max-width:52ch; margin:12px auto 0; line-height:1.45; text-shadow:0 1px 10px rgba(0,0,0,.7);}
+
+/* ---- Sage's green marginalia (the signature motif) ---- */
+.margin-note{position:absolute; font-family:'Caveat',cursive; font-weight:700; color:var(--sage);
+  font-size:clamp(18px, 2.1vw, 26px); line-height:1.05; filter:drop-shadow(0 2px 5px rgba(0,0,0,.6));
+  transform:rotate(-6deg); z-index:6;}
+.note-lanterns{left:3%; top:3.5%; max-width:min(150px, 34vw);
+  opacity:clamp(0, calc((var(--p) - .5) / .12), 1);}
+/* the arrow is a stage overlay in the painting's own 16:9 coords, so its head
+   always lands on the leftmost lantern glow (bb-lan1) at every viewport width */
+.note-arrow{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6;
+  color:var(--sage); opacity:clamp(0, calc((var(--p) - .5) / .12), 1);
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.65));}
+.na-line, .na-head{fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;}
+
+/* ---------- footer (compact — full version lands in milestone 2) ---------- */
+.foot{position:relative; background:linear-gradient(180deg,#141019,#0f0d18); padding:64px 22px 54px; text-align:center;}
+.foot-inner{max-width:var(--maxw); margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:18px;}
+.foot h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(24px,3.4vw,38px); color:#fff;}
+.foot-links{display:flex; flex-wrap:wrap; gap:10px 22px; justify-content:center;
+  font-family:'Baloo 2',cursive; font-size:15px; color:var(--sage-pale);}
+.foot-links a{text-decoration:none; opacity:.9;}
+.foot-links a:hover{opacity:1; color:#fff;}
+.disclaimer{font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:#8f88a8;
+  max-width:62ch; line-height:1.55; margin-top:6px;}
+/* signature — Baloo 2, not the reserved Caveat-green (that stays marginalia-only) */
+.byline{font-family:'Baloo 2',cursive; font-weight:700; color:var(--sage-pale); font-size:16px;
+  letter-spacing:.03em; margin-top:4px;}
+
+/* pinned-scene scrub distances + no-JS composed-frame defaults */
+.rail-wrap{height:260vh; --p:.5;}
+.brew-wrap{height:240vh; --p:1;}
+.herald-wrap{height:220vh; --p:1;}
+.tome-wrap{height:200vh; --p:1;}
+
+/* ===================== CHAPTER 3 — meet the regulars ===================== */
+.rail{background:radial-gradient(90% 70% at 50% 32%, #241f3f, #141019 82%); display:flex; align-items:center;}
+.rail-head{position:absolute; top:7vh; left:0; right:0; text-align:center; z-index:3;}
+.rail-head h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff;
+  text-shadow:0 3px 18px rgba(0,0,0,.6);}
+/* track centre: card i sits dead-centre at --p = i/4. 1312 = 4*(280+48) pitch,
+   140 = half the 280px card (keep these in step with .reg width + gap). */
+.rail-track{display:flex; align-items:center; gap:48px; width:max-content; will-change:transform;
+  transform:translateX(calc(50vw - 140px - var(--p) * 1312px));}
+/* --near = closeness to centre (1 = centred). max() (not abs()) for universal
+   support; consumed with a ,1 fallback so any parse failure shows every card at
+   full emphasis rather than blank. Floors kept high so an off-centre screenshot
+   still reads as an ensemble (share-quality bar). */
+.reg{--near:clamp(0, calc(1 - max(var(--p) - var(--pi), var(--pi) - var(--p)) / .22), 1);
+  flex:0 0 auto; width:280px; display:flex; flex-direction:column; align-items:center; text-align:center;
+  transform:scale(calc(.9 + var(--near, 1) * .1));}
+.reg-card{width:228px; height:auto; filter:drop-shadow(0 18px 30px rgba(0,0,0,.6));}
+.reg-meta{margin-top:16px; max-width:300px; opacity:calc(.55 + var(--near, 1) * .45);}
+.reg-name{display:block; font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(22px,2.4vw,30px); color:var(--c); letter-spacing:.02em;}
+.reg-line{display:block; margin-top:6px; font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic;
+  font-size:clamp(16px,1.9vw,20px); line-height:1.42; color:#e9dfce;}
+.rail-hint{position:absolute; bottom:6.5vh; left:0; right:0; text-align:center; z-index:3;
+  font-family:'Baloo 2',cursive; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:#8079a0;}
+/* reduced-motion / no-JS: never leave the rail translated (it would clip the
+   outer cards) — make it a reachable horizontal strip of all five regulars */
+html.reduce .rail-track, html:not(.js) .rail-track{transform:none !important; overflow-x:auto;
+  width:100%; justify-content:flex-start; padding-inline:6vw;}
+html.reduce .reg, html:not(.js) .reg{transform:none;}
+html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
+
+/* ===================== CHAPTER 4 — the brew (scroll toy) ================= */
+.brew{background:radial-gradient(80% 70% at 50% 46%, #241f3f, #131019 84%);
+  display:flex; align-items:center; justify-content:center;
+  --s-base: clamp(0, calc((var(--p) - .05) / .15), 1);
+  --s-mix:  clamp(0, calc((var(--p) - .22) / .15), 1);
+  --s-fill: clamp(0, calc((var(--p) - .30) / .30), 1);
+  --s-warm: clamp(0, calc((var(--p) - .38) / .24), 1);
+  --s-dose: clamp(0, calc((var(--p) - .50) / .25), 1);
+  --s-tick: clamp(0, calc((var(--p) - .80) / .14), 1);}
+.brew-head{position:absolute; top:7vh; left:0; right:0; text-align:center; z-index:3;}
+.brew-head h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(24px,3.6vw,40px); color:#fff;
+  text-shadow:0 3px 18px rgba(0,0,0,.6);}
+.brew-stage{display:flex; align-items:center; gap:clamp(18px,4vw,52px);}
+.brew-slots{display:flex; flex-direction:column; gap:14px; width:186px;}
+.bslot{position:relative; background:var(--cream); border-radius:12px; padding:8px 14px; border:2.5px solid #d8cbb2;}
+.bslot small{display:block; font-family:'Baloo 2',cursive; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#8a7a5e;}
+.bslot b{font-family:'Baloo 2',cursive; font-size:18px; color:var(--charcoal);}
+.bslot .bdot{position:absolute; right:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; border-radius:50%;}
+.bslot.base{opacity:var(--s-base); transform:translateX(calc((1 - var(--s-base)) * -22px));}
+.bslot.mix{opacity:var(--s-mix); transform:translateX(calc((1 - var(--s-mix)) * -22px));}
+.tankard{position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+.tk-liquid{position:absolute; width:72%; height:60%; top:12%; left:14%; z-index:0; border-radius:50%;
+  background:radial-gradient(circle, rgba(178,106,224,.85), rgba(122,63,160,.3) 46%, transparent 70%);
+  opacity:var(--s-fill); transform:scale(calc(.55 + var(--s-fill) * .45)); mix-blend-mode:screen;}
+.tankard img{width:172px; height:auto; position:relative; z-index:1; filter:drop-shadow(0 10px 18px rgba(0,0,0,.5));}
+/* ✓ on a dark disc so it reads against the tankard art at any size */
+.tk-tick{position:absolute; right:0; top:-4%; z-index:2; width:46px; height:46px; line-height:46px; text-align:center;
+  border-radius:50%; background:rgba(20,19,35,.6); font-family:'Baloo 2',cursive; font-weight:800; font-size:30px;
+  color:#7bd88a; text-shadow:0 2px 6px rgba(0,0,0,.5);
+  opacity:var(--s-tick); transform:scale(calc(.4 + var(--s-tick) * .6)) rotate(-8deg);}
+.brew-meters{display:flex; flex-direction:column; gap:9px; width:236px;}
+.mrow{display:flex; align-items:center; gap:10px;}
+.mrow label{width:56px; font-family:'Baloo 2',cursive; font-size:12px; color:var(--cream);}
+.mbar{flex:1; height:12px; border-radius:6px; background:rgba(255,255,255,.1); overflow:hidden;}
+/* fill grows via scaleX (GPU) not width (layout) */
+.mbar i{display:block; height:100%; width:100%; border-radius:6px; background:linear-gradient(90deg, var(--amber), #f0c789);
+  transform-origin:left center; transform:scaleX(calc(var(--m) * var(--s-warm)));}
+.dose{display:flex; align-items:center; gap:8px; margin-top:6px;}
+.dose span{font-family:'Baloo 2',cursive; font-size:13px; color:#c3b9dc;}
+.dtrack{position:relative; flex:1; height:6px; border-radius:3px; background:rgba(255,255,255,.14);}
+/* pip travels via translateX (GPU) not left (layout) */
+.dpip{position:absolute; top:50%; left:8%; width:16px; height:16px; border-radius:50%; background:var(--glow);
+  box-shadow:0 0 12px rgba(178,106,224,.7); transform:translate(-50%,-50%) translateX(calc(var(--s-dose) * 34px));}
+.recipe-name{margin-top:10px; font-family:'Cormorant Garamond',serif; font-weight:700; font-style:italic;
+  font-size:clamp(20px,2.6vw,28px); color:var(--sage-pale); text-align:center;
+  opacity:var(--s-tick);}
+.brew-caption{position:absolute; left:0; right:0; bottom:6vh; text-align:center; padding:0 22px; z-index:3;
+  opacity:clamp(0, calc((var(--p) - .82) / .14), 1);}
+.brew-caption p{font-family:'Baloo 2',cursive; font-weight:700; font-size:clamp(18px,2.4vw,26px); color:#fff;
+  text-shadow:0 2px 16px rgba(0,0,0,.7);}
+
+/* ================= CHAPTER 5 — you brew tomorrow's news ================= */
+.herald{background:radial-gradient(80% 70% at 50% 35%, #26224a, #141019 84%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:6vh 20px;}
+.broadsheet{width:min(560px, 88vw); background:linear-gradient(175deg,#f7efdc,#e9dcc0); color:var(--charcoal);
+  border:1px solid #cbbd9c; border-radius:6px; padding:clamp(24px,4vw,36px) clamp(24px,4vw,42px);
+  box-shadow:0 24px 60px rgba(0,0,0,.7); transform:rotate(-1deg);}
+.bs-mast{font-family:'Pirata One',cursive; font-weight:400; font-size:clamp(26px,4.5vw,38px); text-align:center;
+  border-bottom:3px double #8a7a5e; padding-bottom:8px;}
+.bs-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; color:var(--ink); margin-top:6px;}
+.bs-head{--ri:clamp(0, calc((var(--p) - .12 - var(--i) * .15) / .12), 1);
+  font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(19px,2.5vw,25px); margin:16px 0 10px;
+  opacity:var(--ri); transform:translateY(calc((1 - var(--ri)) * 8px));}
+.bs-story{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(15px,1.8vw,18px); line-height:1.5;}
+.bs-l{opacity:clamp(0, calc((var(--p) - .12 - var(--i) * .15) / .12), 1);}
+.ripplemark{font-style:normal; margin-left:5px; color:var(--elixir); display:inline-block;
+  animation:ripple 2.4s ease-in-out infinite;}
+@keyframes ripple{0%,100%{transform:scale(1); opacity:.65} 50%{transform:scale(1.28); opacity:1}}
+.bs-note{margin-top:16px; font-family:'Caveat',cursive; font-weight:700; color:var(--sage-deep); font-size:22px;
+  transform:rotate(-2deg); opacity:clamp(0, calc((var(--p) - .78) / .12), 1);}
+.herald-caption{text-align:center; max-width:640px; opacity:clamp(0, calc((var(--p) - .04) / .12), 1);}
+.herald-caption h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff; text-shadow:0 3px 18px rgba(0,0,0,.6);}
+.herald-caption p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,20px); color:#d8cfe6; max-width:52ch; margin:12px auto 0; line-height:1.45;}
+
+/* ===================== CHAPTER 6 — the Tome ===================== */
+.tome-sec{background:radial-gradient(80% 70% at 50% 40%, #241f3f, #141019 84%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding:6vh 20px;}
+.tome-book{position:relative; width:min(760px, 92vw);}
+.tome-book img{width:100%; height:auto; border-radius:8px; box-shadow:0 24px 60px rgba(0,0,0,.6);
+  opacity:clamp(0, calc(var(--p) / .2), 1);}
+.tnote{position:absolute; font-family:'Caveat',cursive; font-weight:700; color:var(--sage); font-size:clamp(15px,1.9vw,22px);
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.6)); max-width:34%;
+  opacity:clamp(0, calc((var(--p) - .3 - var(--i) * .16) / .14), 1);}
+.tnote-1{left:7%; top:24%; transform:rotate(-5deg);}
+.tnote-2{right:6%; top:42%; transform:rotate(4deg); text-align:right;}
+.tnote-3{left:11%; bottom:12%; transform:rotate(-3deg);}
+.tome-caption{text-align:center; max-width:640px; opacity:clamp(0, calc((var(--p) - .04) / .14), 1);}
+.tome-caption h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff; text-shadow:0 3px 18px rgba(0,0,0,.6);}
+.tome-caption p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,20px); color:#d8cfe6; max-width:54ch; margin:12px auto 0; line-height:1.45;}
+
+/* ===================== CHAPTER 7 — play it ===================== */
+.play-wrap{background:linear-gradient(180deg,#141019,#1a1730); padding:clamp(60px,10vh,120px) 22px;}
+.play-inner{max-width:var(--maxw); margin:0 auto; display:flex; flex-direction:column; align-items:center; text-align:center; gap:34px;}
+.play-head h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff;}
+.play-head p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,20px); color:#d8cfe6; max-width:52ch; margin:12px auto 0; line-height:1.45;}
+.devices{display:flex; align-items:flex-end; justify-content:center; gap:clamp(20px,4vw,50px); flex-wrap:wrap;}
+.dev.desktop{width:min(620px,84vw); background:#20182e; border-radius:12px; overflow:hidden;
+  box-shadow:0 26px 60px rgba(0,0,0,.6); border:1px solid #3a3350;}
+.dev-bar{display:flex; gap:7px; padding:11px 14px; background:#2a2340;}
+.dev-bar i{width:11px; height:11px; border-radius:50%; background:#514a6b;}
+.dev.desktop img{width:100%; height:auto; display:block;}
+.dev.phone{width:min(206px,58vw); border-radius:26px; padding:8px; background:#20182e; border:1px solid #3a3350; box-shadow:0 22px 44px rgba(0,0,0,.6);}
+.dev.phone img{width:100%; height:auto; border-radius:20px; display:block;}
+
+/* ================= CHAPTER 8 — one bar, every arena ================= */
+.arenas-wrap{background:linear-gradient(180deg,#1a1730,#141019); padding:clamp(60px,9vh,110px) 22px;}
+.arenas-inner{max-width:var(--maxw); margin:0 auto; text-align:center;}
+.arenas-head h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff;}
+.arenas-head p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,20px); color:#d8cfe6; max-width:60ch; margin:12px auto 0; line-height:1.45;}
+.arena-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:40px;}
+.arena{border-radius:14px; overflow:hidden; border:1px solid #322c4a; background:#1c1930; padding-bottom:16px;}
+.arena-art{height:150px; position:relative;}
+.arena-art.royal{background:linear-gradient(180deg, rgba(232,183,112,.45), rgba(122,63,160,.4)), url('../assets/img/bar.jpg') center/cover;}
+.arena-art.frozen{background:linear-gradient(180deg,#2a3b57,#14213a);}
+.arena-art.spell{background:linear-gradient(180deg,#3a2a52,#191033);}
+.arena-art.hog{background:linear-gradient(180deg,#3a3320,#1e1a10);}
+.arena.soon .arena-art{filter:grayscale(.25) brightness(.62);}
+.arena.soon .arena-art:after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,19,35,.15), rgba(20,19,35,.68));}
+.arena-name{display:block; font-family:'Baloo 2',cursive; font-weight:800; font-size:17px; color:#fff; margin-top:12px;}
+.arena-tag{display:block; font-family:'Baloo 2',cursive; font-size:11px; letter-spacing:.08em; text-transform:uppercase; margin-top:4px;}
+.arena.live{border-color:rgba(232,183,112,.5);}
+.arena.live .arena-tag{color:var(--amber);}
+.arena.soon .arena-tag{color:#9a93c2;}
+
+/* ---------- reduced motion: kill drift, show composed frames ---------- */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .cue-label{animation:none;}
+  .cta{transition:none;}
+  .ripplemark{animation:none;}
+  /* guarantee the pin-collapse in CSS so it never depends on JS running */
+  .pin-wrap{height:100vh !important;}
+}
+
+/* ---------- coarse responsive (full mobile pass = milestone 3) ---------- */
+@media (max-width:640px){
+  .hero-wrap{height:130vh;}
+  .reveal-wrap{height:200vh;}   /* shorter pin distance on phones (guard-rail) */
+  .chips{gap:9px;}
+  .chip{font-size:12.5px; padding:6px 11px 7px;}
+  .bb-caption{bottom:3vh;}
+  /* the Knight fits the phone; the bubble moves clear to the top-left. Full
+     portrait framing of ch2 (taller crop, re-anchored coords) is the M3 pass. */
+  .bb-char{height:min(64vh, 88vw); right:0;}
+  .bb-bubble{right:auto; left:5%; top:6%; max-width:66vw;}
+  /* ch3 rail — smaller cards + recomputed centring track */
+  .rail-track{gap:24px; transform:translateX(calc(50vw - 110px - var(--p) * 976px));}
+  .reg{width:220px;}
+  .reg-card{width:176px;}
+  .reg-line{font-size:15px;}
+  /* ch4 brew — stack the three columns */
+  .brew-stage{flex-direction:column; gap:22px;}
+  .brew-slots{flex-direction:row; width:auto;}
+  .brew-slots .bslot{width:150px;}
+  /* ch7/8 — stack devices, 2-up arenas */
+  .arena-strip{grid-template-columns:repeat(2,1fr);}
+}

@@ -17,6 +17,11 @@ window.Screens = (function () {
     el("btn-totitle").textContent = t("epilogue.totitle");
     el("btn-savequit").textContent = t("night.savequit");
     el("tomeclose").textContent = t("tome.close");
+    el("btn-nightcap-end").textContent = t("nightcap.keep");
+    el("btn-nightcap-epi").textContent = t("nightcap.keep");
+    el("nightcap-download").textContent = t("nightcap.download");
+    el("nightcap-share").textContent = t("nightcap.share");
+    el("nightcap-close").textContent = t("nightcap.close");
     var adv = document.querySelectorAll("[data-advance]");
     for (var i = 0; i < adv.length; i++) adv[i].textContent = t("advance");
   }

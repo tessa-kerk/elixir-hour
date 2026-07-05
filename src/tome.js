@@ -31,10 +31,16 @@ window.Tome = (function () {
   function close() { el("tome").classList.remove("open"); }
   function isOpen() { return el("tome").classList.contains("open"); }
 
+  /* the nav overlay hosts ALL page furniture (grid button + fletched arrows);
+     clearing it on every render is what guarantees no arrow ever lingers */
+  function navHost() { return el("tomenav"); }
+  function clearNav() { var h = navHost(); while (h.firstChild) h.removeChild(h.firstChild); }
+
   function render(tab) {
     /* arriving at the Ledger from elsewhere always opens the book on the grid */
-    if (tab === "ledger" && current !== "ledger") { ledgerNav.view = "grid"; ledgerNav.sheet = 0; }
+    if (tab === "ledger" && current !== "ledger") { ledgerNav.view = "grid"; ledgerNav.sheet = 0; ledgerNav.gridSheet = 0; }
     current = tab;
+    clearNav();                                   /* no stray nav from the previous tab/view */
     var sp = el("spread");
     if (sp) sp.hidden = true;                     /* only the ledger spread unhides it */
     var tabs = ["brew", "ledger", "herald", "song"];
@@ -57,7 +63,7 @@ window.Tome = (function () {
     var L = '<div class="tometitle">Brew Book</div>' +
       '<div class="tome-epigraph">Recipes are not bought. They are taught, confided, or left behind on napkins.</div>';
     for (var j = 0; j < known.length; j++) {
-      L += '<div class="entry' + (j === sel.brew ? " sel" : "") + '" data-i="' + j + '"><b>' + esc(known[j].name) + "</b><span>" + esc(known[j].mix.join(" + ")) + "</span></div>";
+      L += '<div class="entry' + (j === sel.brew ? " sel" : "") + '" data-i="' + j + '"><b>' + esc(known[j].name) + "</b><span>" + esc(known[j].mix.map(canonTerm).join(" + ")) + "</span></div>";
     }
     el("pageL").innerHTML = L;
     wireEntries("pageL", function (i) { sel.brew = i; renderBrew(); });
@@ -70,7 +76,7 @@ window.Tome = (function () {
       '<div class="tometitle centre">' + esc(r.name) + "</div>" +
       '<img class="tome-tankard" src="assets/ui/Tankard Icon (cutout).png" alt="">' +
       '<div class="ingdots">' + dots + "</div>" +
-      '<div class="rp-caption strong">' + esc(r.mix.join(" + ")) + "</div>" +
+      '<div class="rp-caption strong">' + esc(r.mix.map(canonTerm).join(" + ")) + "</div>" +
       '<div class="rp-caption">' + esc(r.note) + "</div>" +
       '<div class="hand-note">✎ ' + esc(r.taught) + "</div>";
   }
@@ -93,31 +99,82 @@ window.Tome = (function () {
      card page-flips to a full two-page character spread. No scrollbars
      anywhere — content that outgrows the spread turns to the next sheet via
      a hand-drawn arrow. */
-  var ledgerNav = { view: "grid", who: 0, sheet: 0 };
+  var ledgerNav = { view: "grid", who: 0, sheet: 0, gridSheet: 0 };
+  /* Ledger grid layout (GDD §11 LOCKED 06/07 — regression guard): met cards
+     fill a FIXED 3-column grid on the LEFT page first (uniform cells, top of
+     the page down), THEN the right page, in join order. Pagination to a second
+     sheet exists but stays invisible until the spread's real capacity (both
+     pages) is exceeded — so the current five cards render IDENTICALLY to the
+     signed-off single-page layout (all on the left, right page blank), and new
+     characters slot into the next free cell without ever reflowing the earlier
+     ones. 3 cols × 3 rows per page. */
+  var GRID_LEFT_CAP = 9, GRID_RIGHT_CAP = 9, GRID_SPREAD_CAP = 18;
 
   function renderLedger() {
     if (ledgerNav.view === "spread") renderLedgerSpread();
     else renderLedgerGrid();
   }
 
+  function gridCardHTML(c, idx) {
+    var met = Object.prototype.hasOwnProperty.call(Game.state.unlocks.ledger, c.who);
+    return '<div class="cardthumb' + (met ? "" : " locked") + '" data-i="' + idx + '">' +
+           cardClipHTML(c, 86, "cardclip") + "<small>" + (met ? esc(c.who) : "—") + "</small></div>";
+  }
+
   function renderLedgerGrid() {
     el("spread").hidden = true;
-    var oldNav = el("spread").querySelectorAll(".hand-nav");
-    for (var oo = 0; oo < oldNav.length; oo++) oldNav[oo].parentNode.removeChild(oldNav[oo]);
-    var L = '<div class="tometitle">Regulars’ Ledger</div>' +
-      '<div class="tome-epigraph">Cards land in the ledger as tokens of trust — earned, never asked for.</div>' +
-      '<div id="cardgrid">';
-    for (var i = 0; i < window.LEDGER.length; i++) {
-      var c = window.LEDGER[i];
-      /* met = the key EXISTS (the note may legitimately be empty) */
-      var met = Object.prototype.hasOwnProperty.call(Game.state.unlocks.ledger, c.who);
-      L += '<div class="cardthumb' + (met ? "" : " locked") + '" data-i="' + i + '">' +
-           cardClipHTML(c, 86, "cardclip") + "<small>" + (met ? esc(c.who) : "—") + "</small></div>";
-    }
+    clearNav();
+    var all = window.LEDGER;
+    var nSheets = Math.max(1, Math.ceil(all.length / GRID_SPREAD_CAP));
+    if (ledgerNav.gridSheet >= nSheets) ledgerNav.gridSheet = nSheets - 1;
+    if (ledgerNav.gridSheet < 0) ledgerNav.gridSheet = 0;
+    var start = ledgerNav.gridSheet * GRID_SPREAD_CAP;
+    var sheetCards = all.slice(start, start + GRID_SPREAD_CAP);
+    var leftCards = sheetCards.slice(0, GRID_LEFT_CAP);          /* LEFT page fills first */
+    var rightCards = sheetCards.slice(GRID_LEFT_CAP);            /* then spills onto the right */
+
+    var head = '<div class="tometitle">Regulars’ Ledger</div>' +
+      (ledgerNav.gridSheet === 0 ? '<div class="tome-epigraph">Cards land in the ledger as tokens of trust — earned, never asked for.</div>' : '');
+    var L = head + '<div class="cardgrid">';
+    for (var i = 0; i < leftCards.length; i++) L += gridCardHTML(leftCards[i], start + i);
     L += "</div>";
     el("pageL").innerHTML = L;
-    el("pageR").innerHTML = "";                    /* a blank facing page */
-    var thumbs = el("pageL").querySelectorAll(".cardthumb");
+
+    if (rightCards.length) {
+      var R = '<div class="cardgrid facing">';
+      for (var j = 0; j < rightCards.length; j++) R += gridCardHTML(rightCards[j], start + GRID_LEFT_CAP + j);
+      R += "</div>";
+      el("pageR").innerHTML = R;
+      /* align the right grid's first row with the left grid's first row (drop
+         it below where the header sits on the left page) */
+      var lg = el("pageL").querySelector(".cardgrid");
+      var rg = el("pageR").querySelector(".cardgrid");
+      if (lg && rg) rg.style.paddingTop = lg.offsetTop + "px";
+    } else {
+      el("pageR").innerHTML = "";                                /* blank facing page (signed-off 5-card layout) */
+    }
+    wireGridThumbs("pageL");
+    wireGridThumbs("pageR");
+
+    /* grid pagination — fletched prev/next only when a neighbouring sheet exists */
+    if (ledgerNav.gridSheet > 0) {
+      var gp = handNavEl("prev"); gp.classList.add("prev");
+      gp.addEventListener("click", function () {
+        flipTo(function () { ledgerNav.gridSheet--; renderLedgerGrid(); }, "rev");
+      });
+      navHost().appendChild(gp);
+    }
+    if (ledgerNav.gridSheet < nSheets - 1) {
+      var gn = handNavEl("next"); gn.classList.add("next");
+      gn.addEventListener("click", function () {
+        flipTo(function () { ledgerNav.gridSheet++; renderLedgerGrid(); }, "fwd");
+      });
+      navHost().appendChild(gn);
+    }
+  }
+
+  function wireGridThumbs(pageId) {
+    var thumbs = el(pageId).querySelectorAll(".cardthumb");
     for (var t = 0; t < thumbs.length; t++) {
       (function (node) {
         node.addEventListener("click", function () {
@@ -181,22 +238,22 @@ window.Tome = (function () {
     if (ledgerNav.sheet >= nSheets) ledgerNav.sheet = nSheets - 1;
     flow.style.transform = "translateX(" + (-ledgerNav.sheet * 2 * (colW + gap)) + "px)";
 
-    /* nav — game UI, pinned to the spread corners */
-    var oldNav = spread.querySelectorAll(".hand-nav");
-    for (var o = 0; o < oldNav.length; o++) oldNav[o].parentNode.removeChild(oldNav[o]);
-    var back = handNavEl("back");
-    back.classList.add("back");
+    /* nav (GDD §11 final): the fletched arrow is RESERVED for page-turns —
+       prev/next, and only when that sheet exists (prev never on sheet 0).
+       Back-to-grid is a DISTINCT round grid button, never a second arrow. */
+    clearNav();
+    var back = gridBtnEl();
     back.addEventListener("click", function () {
       flipTo(function () { closeSpread(); renderLedgerGrid(); }, "rev");
     });
-    spread.appendChild(back);
+    navHost().appendChild(back);
     if (ledgerNav.sheet > 0) {
       var prev = handNavEl("prev");
       prev.classList.add("prev");
       prev.addEventListener("click", function () {
         flipTo(function () { ledgerNav.sheet--; renderLedgerSpread(); }, "rev");
       });
-      spread.appendChild(prev);
+      navHost().appendChild(prev);
     }
     if (ledgerNav.sheet < nSheets - 1) {
       var next = handNavEl("next");
@@ -204,7 +261,7 @@ window.Tome = (function () {
       next.addEventListener("click", function () {
         flipTo(function () { ledgerNav.sheet++; renderLedgerSpread(); }, "fwd");
       });
-      spread.appendChild(next);
+      navHost().appendChild(next);
     }
   }
 
@@ -291,14 +348,28 @@ window.Tome = (function () {
     return Math.max(1, Math.min(3, n));
   }
 
-  /* Page navigation is GAME UI, not Sage's hand (GDD §11): the ornate
-     fletched-arrow icon (Art/UI). It points left as drawn — the next-page
-     arrow flips it horizontally. */
+  /* Page-TURN navigation only (GDD §11): the ornate fletched-arrow icon
+     (Art/UI). It points left as drawn — the next-page arrow flips it. This
+     icon is RESERVED for turning to a prev/next sheet, on both the character
+     spread and the paginated grid — never for jumping back to the grid. */
   function handNavEl(kind, title) {
     var d = document.createElement("div");
     d.className = "hand-nav";
     if (title) d.title = title;
     d.innerHTML = '<img src="assets/ui/Nav Arrow (icon).png" alt=""' + (kind === "next" ? ' class="flip"' : "") + ">";
+    return d;
+  }
+
+  /* Back-to-grid is a DISTINCT affordance (GDD §11, locked art): the Card
+     Select icon — a fanned hand of sage-green cards with gold character
+     embossing — top-left on the left page's paper, sitting directly on the
+     paper with a soft contact shadow and a hover/press lift. Never the fletched
+     page-turn arrow, never Sage's green hand. */
+  function gridBtnEl() {
+    var d = document.createElement("div");
+    d.className = "grid-btn";
+    d.title = "Back to the regulars";
+    d.innerHTML = '<img src="assets/ui/Card Select (icon).png" alt="Back to the regulars">';
     return d;
   }
 
@@ -308,6 +379,7 @@ window.Tome = (function () {
      covers; everything lifts together the moment the leaf lands. dir is
      "fwd" (turning onward) or "rev" (turning back). */
   function flipTo(cb, dir) {
+    if (window.Sound) Sound.sfx("page-turn");
     var f = el("pageflip");
     f.classList.remove("go", "fwd", "rev");
     f.classList.add(dir === "rev" ? "rev" : "fwd");
@@ -410,6 +482,7 @@ window.Tome = (function () {
           var s = window.SONGBOOK[i];
           if (!songUnlocked(s)) return;
           Prefs.set({ track: s.name });
+          if (window.Sound) Sound.setTrack(s.name);   /* switch the bar's tune */
           renderSong();
         });
       })(rows[t]);

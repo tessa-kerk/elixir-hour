@@ -111,6 +111,19 @@ window.Dialogue = (function () {
     Game.advance();
   }
 
+  /* log a named brew against the current Night for the Night Cap (GDD §11);
+     deduped per (night, recipe) so replay-after-reload can't inflate it. The
+     consequential brew calls this NEVER — its recipe would leak the outcome. */
+  function recordPour(recipe) {
+    if (!recipe) return;
+    var log = Game.state.poured;
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].night === Game.state.night && log[i].recipe === recipe) return;
+    }
+    log.push({ night: Game.state.night, recipe: recipe });
+    Save.store(Game.snapshot());
+  }
+
   function pourMatches(spec, result) {
     var wantMix = (spec.mix || []).slice().sort().join("+");
     var gotMix = result.mix.filter(Boolean).sort().join("+");
@@ -145,6 +158,7 @@ window.Dialogue = (function () {
       ok = pourMatches(gate, result);
     }
     if (ok) {
+      recordPour(result.recipe);   /* Night Cap drinks list — named brews only (GDD §11) */
       gate = null;
       Brew.onPour = null;
       Brew.reset();

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1C1B3A">
+<title>Elixir Hour — a cosy live-ops companion for Clash Royale</title>
+<meta name="description" content="Coffee Talk, in the Clash Royale universe. A cosy bar on the neutral ground between two warring kingdoms, where the fighters come to drink and talk once the arena closes.">
+<meta property="og:title" content="Elixir Hour">
+<meta property="og:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
+<meta property="og:type" content="website">
+<!-- Link-preview image = a pre-rendered Night Cap scroll (GDD §12 share-quality
+     bar). FLAG: set the ABSOLUTE og:url + og:image URLs on deploy (swap the
+     canonical URL everywhere at once). -->
+<meta property="og:image" content="assets/img/night-cap-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1500">
+<meta property="og:image:alt" content="An Elixir Hour Night Cap — a keepsake scroll of the night's regulars, the drinks poured and a quote.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Elixir Hour">
+<meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
+<meta name="twitter:image" content="assets/img/night-cap-share.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Progressive enhancement: the scroll engine adds html.js once it wires up, so
+     if the JS fails to load the pins collapse to composed frames (see scroll.js
+     + the html:not(.js) fallback in site.css). -->
+<link rel="preload" as="image" href="assets/img/bar.jpg">
+<link rel="preload" as="image" href="assets/img/logo.png">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+<!-- ======================= CHAPTER 1 — HERO (pinned) ======================= -->
+<section class="pin-wrap hero-wrap" data-scene data-static="0" aria-label="Elixir Hour">
+  <div class="pin hero">
+    <img class="hero-bar" src="assets/img/bar.jpg" alt="" aria-hidden="true">
+    <div class="hero-scrim"></div>
+    <canvas class="hero-fx" id="hero-fx" aria-hidden="true"></canvas>
+
+    <div class="hero-content">
+      <img class="hero-logo" src="assets/img/logo.png" alt="Elixir Hour" width="1000" height="534">
+      <h1 class="hero-logline">Coffee Talk, in the Clash Royale universe.</h1>
+      <p class="hero-sub">A cosy bar on the neutral ground between two warring kingdoms — where the fighters come to drink and talk once the arena closes.</p>
+      <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
+      <ul class="chips">
+        <!-- Product facts only (brief §0 product-first rule) — the making-of
+             story lives in the case study + credits, not the hero. -->
+        <li class="chip">3 playable Nights · 7 languages</li>
+        <li class="chip">Plays free in your browser — nothing to install</li>
+        <li class="chip">A new Edition with every season</li>
+      </ul>
+    </div>
+
+    <div class="scrollcue">
+      <img class="cue-tankard" src="assets/img/tankard.png" alt="" aria-hidden="true">
+      <span class="cue-label">Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============= CHAPTER 2 — "the bar builds itself" (pinned) ============= -->
+<section class="pin-wrap reveal-wrap" data-scene data-static="1" aria-label="The bar builds itself">
+  <div class="pin bar-build">
+    <div class="bb-stage">
+      <img class="bb-bar" src="assets/img/bar.jpg" alt="Sage's bar at night" loading="lazy" decoding="async">
+      <div class="bb-night"></div>
+      <div class="bb-glow bb-tap"></div>
+      <div class="bb-glow bb-lan bb-lan1"></div>
+      <div class="bb-glow bb-lan bb-lan2"></div>
+      <div class="bb-glow bb-lan bb-lan3"></div>
+
+      <div class="margin-note note-lanterns">the lanterns make it a bar</div>
+      <!-- arrow drawn in the painting's own 16:9 coords so its head always lands
+           on the leftmost lantern (bb-lan1) at any viewport width -->
+      <svg class="note-arrow" viewBox="0 0 1000 562" preserveAspectRatio="none" aria-hidden="true">
+        <path class="na-line" d="M138 54 C 145 72, 149 86, 150 103"/>
+        <path class="na-head" d="M143 96 L150 104 L157 95"/>
+      </svg>
+    </div>
+
+    <!-- foreground: the Knight stands at the right, anchored to the section's
+         bottom edge (feet to the frame), clear of the bar's props -->
+    <img class="bb-char" src="assets/img/knight-arrival.png" alt="" loading="lazy" decoding="async">
+    <div class="bb-bubble">
+      <span class="bb-speaker">The Knight</span>
+      <span class="bb-line">Evening. You're new here, then.</span>
+    </div>
+
+    <div class="bb-caption">
+      <span class="eyebrow">Chapter two</span>
+      <h2>The bar builds itself</h2>
+      <p>The arena closes. The lanterns come up. The fighters come in, and you're the one behind the taps.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 3 — meet the regulars (rail) ================= -->
+<section class="pin-wrap rail-wrap" data-scene data-static="0.5" aria-label="Meet the regulars">
+  <div class="pin rail">
+    <div class="rail-head">
+      <span class="eyebrow">Chapter three</span>
+      <h2>Meet the regulars</h2>
+    </div>
+    <div class="rail-track">
+      <figure class="reg" style="--pi:0; --c:#8fb0d8">
+        <img class="reg-card" src="assets/img/cards/Knight.png" alt="The Knight" loading="lazy" decoding="async">
+        <figcaption class="reg-meta">
+          <span class="reg-name">The Knight</span>
+          <span class="reg-line">“I'm here most nights the arena's open. And on the nights it's shut, I turn up anyway.”</span>
+        </figcaption>
+      </figure>
+      <figure class="reg" style="--pi:0.25; --c:#e0a35a">
+        <img class="reg-card" src="assets/img/cards/Hog.png" alt="The Hog Rider" loading="lazy" decoding="async">
+        <figcaption class="reg-meta">
+          <span class="reg-name">The Hog Rider</span>
+          <span class="reg-line">“A drink ought to have a bit of personality.”</span>
+        </figcaption>
+      </figure>
+      <figure class="reg" style="--pi:0.5; --c:#c78ce0">
+        <img class="reg-card" src="assets/img/cards/Wizard.png" alt="The Wizard" loading="lazy" decoding="async">
+        <figcaption class="reg-meta">
+          <span class="reg-name">The Wizard</span>
+          <span class="reg-line">“Subtlety's a lost art these days.”</span>
+        </figcaption>
+      </figure>
+      <figure class="reg" style="--pi:0.75; --c:#e58076">
+        <img class="reg-card" src="assets/img/cards/Princess.png" alt="The Princess" loading="lazy" decoding="async">
+        <figcaption class="reg-meta">
+          <span class="reg-name">The Princess</span>
+          <span class="reg-line">“I know most things before most people do.”</span>
+        </figcaption>
+      </figure>
+      <figure class="reg" style="--pi:1; --c:#cf94e2">
+        <img class="reg-card" src="assets/img/cards/Pekka.png" alt="P.E.K.K.A" loading="lazy" decoding="async">
+        <figcaption class="reg-meta">
+          <span class="reg-name">P.E.K.K.A</span>
+          <span class="reg-line">“A butterfly just… lands. Doesn't ask. Doesn't judge.”</span>
+        </figcaption>
+      </figure>
+    </div>
+    <p class="rail-hint" aria-hidden="true">five regulars, and you learn every one</p>
+  </div>
+</section>
+
+<!-- ==================== CHAPTER 4 — the brew (pinned) ==================== -->
+<section class="pin-wrap brew-wrap" data-scene data-static="1" aria-label="The brew">
+  <div class="pin brew">
+    <div class="brew-head">
+      <span class="eyebrow">Chapter four</span>
+      <h2>Read the mood. Pour to match.</h2>
+    </div>
+    <div class="brew-stage">
+      <div class="brew-slots">
+        <div class="bslot base"><small>Base</small><b>Elixir</b><i class="bdot" style="background:var(--elixir)"></i></div>
+        <div class="bslot mix"><small>Mixer</small><b>Heal</b><i class="bdot" style="background:#4e9a51"></i></div>
+      </div>
+      <div class="tankard">
+        <div class="tk-liquid"></div>
+        <img src="assets/img/tankard.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+        <div class="tk-tick">✓</div>
+      </div>
+      <div class="brew-meters">
+        <div class="mrow" style="--m:.55"><label>Warmth</label><div class="mbar"><i></i></div></div>
+        <div class="mrow" style="--m:0"><label>Kick</label><div class="mbar"><i></i></div></div>
+        <div class="mrow" style="--m:0"><label>Chill</label><div class="mbar"><i></i></div></div>
+        <div class="mrow" style="--m:0"><label>Bite</label><div class="mbar"><i></i></div></div>
+        <div class="dose"><span>Gentle</span><div class="dtrack"><i class="dpip"></i></div><span>Strong</span></div>
+        <div class="recipe-name">The Usual</div>
+      </div>
+    </div>
+    <div class="brew-caption"><p>No wrong drinks. One that matters.</p></div>
+  </div>
+</section>
+
+<!-- =============== CHAPTER 5 — you brew tomorrow's news =============== -->
+<section class="pin-wrap herald-wrap" data-scene data-static="1" aria-label="You brew tomorrow's news">
+  <div class="pin herald">
+    <div class="herald-caption">
+      <span class="eyebrow">Chapter five</span>
+      <h2>You brew tomorrow's news</h2>
+      <p>One cup you pour ripples into the next morning's Herald. It's one line in one headline, but it means the game remembers you — Coffee Talk forgets every drink the moment it's served.</p>
+    </div>
+    <article class="broadsheet">
+      <p class="bs-mast">The Arena Herald</p>
+      <div class="bs-ed">Ed. XLVII · the strip on the border</div>
+      <p class="bs-head" style="--i:0">Crown Championship in Three Days</p>
+      <p class="bs-story">
+        <span class="bs-l" style="--i:1">Blue and Red to settle it under the King's own eye.</span>
+        <span class="bs-l" style="--i:2">The greatest bout of the year draws near, and every fighter in the realm feels it — some with hunger, some with dread,</span>
+        <span class="bs-l bs-ripple" style="--i:3">and a rare few with nothing but thirst.<i class="ripplemark" aria-hidden="true">⚗</i></span>
+      </p>
+      <div class="bs-note">↑ this line? you poured it.</div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== CHAPTER 6 — the Tome ==================== -->
+<section class="pin-wrap tome-wrap" data-scene data-static="1" aria-label="The Tome">
+  <div class="pin tome-sec">
+    <div class="tome-caption">
+      <span class="eyebrow">Chapter six</span>
+      <h2>The world fills in as you talk</h2>
+      <p>Every regular gets a page in the Tome — a printed bio with Sage's own notes scribbled in the margin. Richer than any wiki, because it's personal. Content as friendship, not a checklist.</p>
+    </div>
+    <div class="tome-book">
+      <img src="assets/img/tome.jpg" alt="The Tome — the bar's book of regulars, recipes and the Arena Herald" loading="lazy" decoding="async">
+      <span class="tnote tnote-1" style="--i:0">the anchor. been fighting a long time.</span>
+      <span class="tnote tnote-2" style="--i:1">she notices everything.</span>
+      <span class="tnote tnote-3" style="--i:2">gentle. no spark, ever.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CHAPTER 7 — play it ==================== -->
+<section class="play-wrap" aria-label="Play it">
+  <div class="play-inner">
+    <div class="play-head">
+      <span class="eyebrow">Chapter seven</span>
+      <h2>Play it now</h2>
+      <p>Three Nights, seven languages. It plays in your browser and saves your night — pick up where you left off.</p>
+    </div>
+    <div class="devices">
+      <div class="dev desktop">
+        <div class="dev-bar"><i></i><i></i><i></i></div>
+        <img src="assets/shots/serve.jpg" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
+      </div>
+      <div class="dev phone">
+        <img src="assets/shots/serve-portrait.jpg" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
+      </div>
+    </div>
+    <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
+  </div>
+</section>
+
+<!-- ============== CHAPTER 8 — one bar, every arena ============== -->
+<section class="arenas-wrap" aria-label="One bar, every arena">
+  <div class="arenas-inner">
+    <div class="arenas-head">
+      <span class="eyebrow">Chapter eight</span>
+      <h2>One bar, every arena</h2>
+      <p>Built once — Sage, the bar, the brew, the engine. Re-skinned per edition: a new arena, a cast themed to that locale, a story tied to whatever's live. Make the format, not the asset.</p>
+    </div>
+    <div class="arena-strip">
+      <div class="arena live">
+        <div class="arena-art royal"></div>
+        <span class="arena-name">Royal Arena</span>
+        <span class="arena-tag">Edition one — open now</span>
+      </div>
+      <div class="arena soon">
+        <div class="arena-art frozen"></div>
+        <span class="arena-name">Frozen Peak</span>
+        <span class="arena-tag">a future edition</span>
+      </div>
+      <div class="arena soon">
+        <div class="arena-art spell"></div>
+        <span class="arena-name">Spell Valley</span>
+        <span class="arena-tag">a future edition</span>
+      </div>
+      <div class="arena soon">
+        <div class="arena-art hog"></div>
+        <span class="arena-name">Hog Mountain</span>
+        <span class="arena-tag">a future edition</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 9 — FOOTER ======================= -->
+<footer class="foot">
+  <div class="foot-inner">
+    <h2>Same time tomorrow?</h2>
+    <a class="cta" href="../index.html">▶&nbsp; Play Elixir Hour</a>
+    <div class="foot-links">
+      <a href="https://www.tessa-kerk.com">Portfolio</a>
+      <a href="https://linkedin.com/in/tessa-kerk">LinkedIn</a>
+      <a href="../index.html">Play the game</a>
+    </div>
+    <p class="disclaimer">An original, speculative fan concept by Tessa Kerk. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are an affectionate homage to Clash canon. Built with AI throughout: writing, art and code.</p>
+    <p class="byline">made by Tessa Kerk</p>
+  </div>
+</footer>
+
+<script src="js/particles.js"></script>
+<script src="js/scroll.js"></script>
+</body>
+</html>

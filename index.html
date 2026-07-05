@@ -3,7 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1C1B3A">
 <title>Elixir Hour</title>
+<meta name="description" content="Coffee Talk, in the Clash Royale universe. A cosy bar on the neutral ground between two warring kingdoms, where the fighters come to drink and talk once the arena closes.">
+<!-- Link-preview / share plumbing (GDD §12 share-quality bar): a pasted link
+     should look as good as the game. FLAG: set the ABSOLUTE og:url + og:image
+     URLs when the landing page deploys (swap the canonical URL everywhere). -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Elixir Hour">
+<meta property="og:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
+<meta property="og:image" content="assets/share/night-cap-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1500">
+<meta property="og:image:alt" content="An Elixir Hour Night Cap — a keepsake scroll of the night's regulars, the drinks poured and a quote.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Elixir Hour">
+<meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
+<meta name="twitter:image" content="assets/share/night-cap-share.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/main.css">
 </head>
@@ -53,6 +71,7 @@
       </div>
       <div id="serve-shadow"></div>
       <img id="serve-char" src="" alt="">
+      <div class="scene-tint"></div>
       <div id="serve-bubble" class="bubble">
         <div id="serve-speaker" class="speaker"></div>
         <div id="serve-line" class="line"></div>
@@ -97,6 +116,7 @@
         <div id="g-counter"></div>
       </div>
       <div id="group-row"></div>
+      <div class="scene-tint"></div>
       <div id="group-bubble" class="bubble">
         <div class="speaker"></div>
         <div class="line"></div>
@@ -108,6 +128,7 @@
     <div class="screen" id="screen-duo">
       <div class="duo-half left"><img src="" alt=""></div>
       <div class="duo-half right"><img src="" alt=""></div>
+      <div class="scene-tint"></div>
       <div id="duo-box">
         <span class="speaker"></span>
         <div class="line"></div>
@@ -118,6 +139,7 @@
     <div class="screen" id="screen-nightend">
       <div class="placeholder"><b id="nightend-title"></b>
         <button class="btn small primary" id="btn-nextnight"></button>
+        <button class="btn small sage" id="btn-nightcap-end"></button>
         <button class="btn small" id="btn-savequit"></button></div>
     </div>
 
@@ -135,7 +157,10 @@
           <p id="epi-story2"></p>
         </div>
         <div id="epi-final"></div>
-        <button class="btn small" id="btn-totitle"></button>
+        <div class="epi-actions">
+          <button class="btn small sage" id="btn-nightcap-epi"></button>
+          <button class="btn small" id="btn-totitle"></button>
+        </div>
       </div>
     </div>
 
@@ -161,13 +186,17 @@
       <div id="spread" hidden>
         <div id="spreadvp"><div id="spreadflow"></div></div>
       </div>
+      <!-- nav furniture overlay: spans the paper box, always present so grid
+           AND spread share one placement + one cleanup (no lingering arrows).
+           The fletched arrow is page-turn only; back-to-grid is a round button. -->
+      <div id="tomenav"></div>
       <div id="pageflip">
         <div class="backdrop"></div>
         <div class="sweep"></div>
         <div class="leaf">
           <div class="paper">
             <div class="face front"><div class="curlfx"></div></div>
-            <div class="face back"><div class="curlfx"></div></div>
+            <div class="face back"><div class="edgemask"></div><div class="curlfx"></div></div>
           </div>
         </div>
       </div>
@@ -183,6 +212,20 @@
         <div class="setrow"><label id="set-sfx-label"></label><button class="btn small toggle" id="tgl-sfx"></button></div>
         <div class="setrow"><span></span><button class="btn small sage" id="btn-about"></button></div>
         <button class="btn small primary" id="btn-set-back"></button>
+      </div>
+    </div>
+
+    <!-- NIGHT CAP (GDD §11) — the shareable end-of-Night postcard, composed
+         on a canvas from shipped art. Download PNG / Web Share where available. -->
+    <div id="nightcap" class="overlay">
+      <div class="nc-panel">
+        <h2 id="nightcap-heading"></h2>
+        <div class="nc-preview"><canvas id="nightcap-canvas" width="1200" height="1500"></canvas></div>
+        <div class="nc-actions">
+          <button class="btn small primary" id="nightcap-download"></button>
+          <button class="btn small" id="nightcap-share" hidden></button>
+          <button class="btn small" id="nightcap-close"></button>
+        </div>
       </div>
     </div>
 
@@ -214,6 +257,8 @@
 <script src="src/dialogue.js"></script>
 <script src="src/state.js"></script>
 <script src="src/tome.js"></script>
+<script src="src/nightcap.js"></script>
+<script src="src/audio.js"></script>
 <script src="src/settings.js"></script>
 <script src="src/boot.js"></script>
 </body>

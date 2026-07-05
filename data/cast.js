@@ -22,7 +22,7 @@ window.SPELLS = {
 window.RECIPES = [
   { name: "The Usual",        base: "Elixir",      mix: ["Heal"],         dose: 1 },
   { name: "The Strong Stuff", base: "Dark Elixir", mix: ["Rage"] },
-  { name: "The Showstopper",  base: "Elixir",      mix: ["Rage", "Zap"] },
+  { name: "The Showstopper",  base: "Elixir",      mix: ["Rage", "Zap"],  dose: 2 },
   { name: "The Bittersweet",  base: "Elixir",      mix: ["Poison"] },
   { name: "The Long Look",    base: "Elixir",      mix: ["Mirror"] },
   { name: "The Easy One",     base: "Elixir",      mix: ["Heal"],         dose: 2 },

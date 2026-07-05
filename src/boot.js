@@ -6,6 +6,7 @@
   document.documentElement.lang = window.LANG;
   Screens.fillStatic();
   Settings.refresh();
+  if (window.Sound) Sound.refresh();   /* wire the audio system to the saved prefs + Songbook pick */
 
   document.getElementById("btn-start").addEventListener("click", function () { Game.newGame(); });
   document.getElementById("btn-continue").addEventListener("click", function () { Game.continueGame(); });
@@ -16,6 +17,12 @@
   document.getElementById("btn-totitle").addEventListener("click", function () { Game.show("title"); });
   document.getElementById("tomeclose").addEventListener("click", Game.closeTome);
 
+  /* Night Cap (GDD §11): compose the current Night's share card */
+  function openNightCap() { NightCap.open(Game.state.night); }
+  document.getElementById("btn-nightcap-end").addEventListener("click", openNightCap);
+  document.getElementById("btn-nightcap-epi").addEventListener("click", openNightCap);
+  NightCap.wire();
+
   var adv = document.querySelectorAll("[data-advance]");
   for (var i = 0; i < adv.length; i++) {
     adv[i].addEventListener("click", function () { Game.advance(); });
@@ -23,7 +30,8 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
-      if (Settings.aboutIsOpen()) Settings.closeAbout();
+      if (NightCap.isOpen()) NightCap.close();
+      else if (Settings.aboutIsOpen()) Settings.closeAbout();
       else if (Settings.isOpen()) Settings.close();
       else Game.closeTome();
     }

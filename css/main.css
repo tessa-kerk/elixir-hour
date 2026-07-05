@@ -163,6 +163,27 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:37.5%; width:78%;}  /* ab
 .brewpanel:nth-child(2) .fill{animation-delay:.7s;} .brewpanel:nth-child(3) .fill{animation-delay:1.4s;}
 @keyframes brewreveal{from{opacity:1;} to{opacity:0;}}
 
+/* ---------- per-Night light shift (GDD §8) ----------
+   A subtle per-Night lighting change done by tinting the scene
+   programmatically (never regenerated art): warm gold (Night 1) →
+   deepening dusk blue (Night 2) → late-night candlelight + purple
+   tap-glow (Night 3). The .scene-tint overlay soft-lights the scene AND
+   the character (cohesive lighting) but sits UNDER the UI (panel, bubbles,
+   choices) so text stays readable. The mood is set by #stage.night{N},
+   driven from Game.state.night. */
+.scene-tint{position:absolute; inset:0; pointer-events:none; z-index:4;
+  background:var(--night-tint, transparent); mix-blend-mode:soft-light;
+  transition:background .7s ease;}
+#stage.night1{--night-tint:transparent;}
+#stage.night2{--night-tint:rgba(58,104,188,0.62);}   /* dusk — the window cools to blue */
+#stage.night3{--night-tint:rgba(52,32,88,0.82);}     /* late night — purple candlelight */
+/* Night 2: the window (the outside) cools further; the interior stays warm */
+#stage.night2 #ms-window,#stage.night2 #ms-hint-blue,#stage.night2 #ms-hint-red{
+  filter:brightness(0.92) saturate(1.2) hue-rotate(-6deg);}
+/* Night 3: candlelight — dim the wall a touch and deepen the tap glow */
+#stage.night3 #ms-wall,#stage.night3 #g-wall{filter:brightness(0.84) saturate(1.06);}
+#stage.night3 #ms-tap{box-shadow:0 0 42px 13px rgba(178,106,224,.62), inset 0 -10px 14px rgba(122,63,160,.7);}
+
 /* ---------- PORTRAIT REFLOW (GDD §13: stacked serve screen) ---------- */
 body.portrait #ms-wall{height:46%;}
 body.portrait #ms-window{left:5%; width:34%; top:8%; height:56%;}
@@ -288,7 +309,13 @@ body.portrait #epi-sheet{width:88%; padding:26px 24px;}
    carries the text onto the right page (GDD §11 reading order and balance) */
 #spread{position:absolute; left:18.5%; top:15%; width:62.5%; height:68%; z-index:33; color:var(--ink);}
 #spread[hidden]{display:none;}
-#spreadvp{position:absolute; inset:0; overflow:hidden;}
+/* the text viewport RESERVES a bottom band so flowed text and Sage's notes
+   can never reach the bottom-corner arrows (the back arrow sits above the
+   viewport entirely) — GDD §11 final round: arrows and content never share
+   space. Portrait's cream panel reserves a top band too (its page furniture
+   sits inside the panel corners). */
+#spreadvp{position:absolute; left:0; right:0; top:0; bottom:5%; overflow:hidden;}
+body.portrait #spreadvp{top:5%; bottom:5%;}
 #spreadflow{height:100%; column-fill:auto; transition:transform .3s ease;}
 #spreadflow .spread-head{padding:30px 14px 14px;}
 #spreadflow .ledger-bio{padding:0 58px 12px; font-size:15.5px; line-height:1.5; width:auto; margin:0;}
@@ -302,17 +329,40 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
   break-inside:avoid; -webkit-column-break-inside:avoid;}
 .nameplate{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:29px; color:var(--ink); line-height:1.05;}
 
-/* page navigation is UI, not Sage's hand: the ornate fletched-arrow icon
-   (points left as drawn; the next arrow flips it). The green hand-drawn
-   style belongs only to the note→phrase arrows. */
-.hand-nav{position:absolute; width:68px; height:21px; cursor:pointer; z-index:34; opacity:.85;}
-.hand-nav.back{left:4px; top:6px;}
-.hand-nav.prev{left:4px; bottom:6px;}
-.hand-nav.next{right:4px; bottom:6px;}
+/* All page furniture lives in one overlay spanning the paper box (same rect
+   as #spread) — grid AND spread share it, and it's cleared on every render so
+   nothing lingers. It's above the pages (z-34) but below the flip (z-36) and
+   the close button (z-35). */
+#tomenav{position:absolute; left:18.5%; top:15%; width:62.5%; height:68%; z-index:34; pointer-events:none;}
+#tomenav > *{pointer-events:auto;}
+body.portrait #tomenav{left:4%; top:11%; width:92%; height:86%;}
+
+/* Page-TURN arrows (GDD §11): the ornate fletched icon, RESERVED for turning
+   to a prev/next sheet — on the character spread AND the paginated grid. They
+   sit ON the flat paper (measured box x 11.1–84.9%, y 7.7–87.6%), clear of the
+   page-edge stack, gutter and leather: prev = LEFT page bottom-left, next =
+   RIGHT page bottom-right (offsets are % of #tomenav). They sit below the text
+   viewport's reserved band, so an arrow can never share space with content. */
+.hand-nav{position:absolute; width:66px; height:20px; cursor:pointer; opacity:.9;}
+.hand-nav.prev{left:1.4%; bottom:-3.4%;}     /* stage ~19.4%, bottom ~85.3% */
+.hand-nav.next{right:1.4%; bottom:-3.4%;}    /* stage ~80.1%, bottom ~85.3% */
+body.portrait .hand-nav.prev{left:1.5%; bottom:1%;}
+body.portrait .hand-nav.next{right:1.5%; bottom:1%;}
 .hand-nav img{height:100%; width:auto; display:block; filter:drop-shadow(0 1px 2px rgba(60,40,20,.35));}
 .hand-nav img.flip{transform:scaleX(-1);}
 .hand-nav.next img{margin-left:auto;}
 .hand-nav:hover{opacity:1;}
+
+/* Back-to-grid: the locked Card Select icon (fanned sage cards, gold emboss),
+   directly on the left page's paper top-left with a soft contact shadow and a
+   hover/press lift — detailed landscape art, ~68px tall, clear of the stack and
+   above the character card. Never a page-turn, never green. */
+.grid-btn{position:absolute; left:-4.9%; top:-8.6%; height:68px; cursor:pointer;}
+.grid-btn img{height:100%; width:auto; display:block; transition:transform .12s ease, filter .12s ease;
+  filter:drop-shadow(0 4px 5px rgba(40,25,12,.42));}
+.grid-btn:hover img{transform:translateY(-2px) scale(1.035); filter:drop-shadow(0 7px 8px rgba(40,25,12,.46));}
+.grid-btn:active img{transform:translateY(0) scale(.97); filter:drop-shadow(0 2px 4px rgba(40,25,12,.4));}
+body.portrait .grid-btn{left:1.5%; top:1%; height:56px;}
 
 /* ---------- the 3D page-turn (GDD §11, round 4) ----------
    ONE leaf turns; the book stays put. The full-bleed BACKDROP is the entire
@@ -331,8 +381,16 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
    seen through. Paper softness: the .paper wrapper lags a few degrees
    behind the hinge (the free edge trails, then settles flat), the FREE
    edge's corners round mid-flight, and a sheen band travels the face. */
+/* The perspective eye sits on the spine AND level with the LEAF'S TOP EDGE
+   (round 5): a point level with the origin never moves vertically under
+   projection, and every other leaf point is below it, so NO corner of the
+   turning leaf can rise above the page-block top at ANY angle — the
+   leather band above the pages stays covered-or-untouched on every frame
+   of both turn types (they share this one geometry). The longer lens keeps
+   the downward growth of the free edge inside the art's bottom band. */
 #pageflip{position:absolute; inset:0; z-index:36; display:none; pointer-events:none;
-  perspective:2800px; perspective-origin:49.82% 47%;}
+  perspective:4200px; perspective-origin:49.82% 7.2%;}
+body.portrait #pageflip{perspective-origin:50% 4%;}
 #pageflip .backdrop{position:absolute; inset:0;
   background-image:url("../assets/ui/Tome Spread.png"); background-size:100% 100%;}
 #pageflip .leaf{position:absolute; top:7.2%; height:81%; transform-style:preserve-3d;}
@@ -388,6 +446,17 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
   45%{border-top-left-radius:26px 52px; border-bottom-left-radius:26px 52px;}
   60%{border-top-left-radius:22px 44px; border-bottom-left-radius:22px 44px;}
   100%{border-radius:0;}}
+/* The REV leaf's incoming (back) face is sliced from the right-page region,
+   whose far edge runs into the painted ribbon tabs — without a mask the
+   turning sheet carries little ribbon chips mid-arc. The mask paints that
+   far strip as plain page-edge parchment while the sheet flies, then fades
+   just before touchdown so the landed frame is still pixel-identical to
+   the art beneath. */
+#pageflip .edgemask{position:absolute; top:0; bottom:0; right:0; width:9.4%; display:none;
+  background:linear-gradient(90deg, rgba(220,201,164,0) 0%, #dcc9a4 22%, #d3bf99 62%, #bda684 100%);}
+#pageflip.rev .face.back .edgemask{display:block;}
+#pageflip.rev.go .face.back .edgemask{animation:edgefade .62s linear forwards;}
+@keyframes edgefade{0%{opacity:1;} 86%{opacity:1;} 97%{opacity:0;} 100%{opacity:0;}}
 /* the moving bend: a sheen + shade band travelling along the visible face */
 #pageflip .curlfx{position:absolute; top:-2%; height:104%; width:74%; left:110%; opacity:0;
   background:linear-gradient(100deg, rgba(60,40,20,0) 0%, rgba(60,40,20,.16) 30%,
@@ -430,7 +499,12 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
 .entry.locked:hover{background:none;}
 /* UNIFORM card height (GDD §15): cards clip to their measured content box —
    the selection outline hugs the card itself, never transparent padding */
-#cardgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:4px 8px; justify-items:center; align-items:end;}
+/* Ledger grid (GDD §11 LOCKED): a FIXED 3-column grid, uniform cells, top-aligned
+   rows, consistent gutters — the signed-off single-page layout. The left page
+   fills first (header + grid); the right page's grid only appears once the left
+   is full, aligned to the left grid's first row via a JS-set padding-top. */
+.cardgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:4px 8px; justify-items:center; align-items:start;}
+.cardgrid.facing{padding-top:0;}   /* alignment set in JS to match the left grid's header offset */
 .cardthumb{cursor:pointer; position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center;}
 .cardclip{position:relative; overflow:hidden; border-radius:5px;}
 .cardclip img{position:absolute; width:auto; display:block;}
@@ -500,6 +574,17 @@ body.portrait #pageflip{left:0; top:0; width:100%; height:100%;}
 .toggle{min-width:110px;}
 #about .panel p{font-size:14px; line-height:1.55; font-weight:600; margin:10px 0;}
 #btn-set-back,#btn-about-back{margin-top:14px;}
+
+/* ---------- NIGHT CAP overlay (GDD §11): the share-card preview ---------- */
+.nc-panel{background:linear-gradient(175deg,#f7efdc,var(--cream)); border:3px solid var(--gold);
+  border-radius:16px; padding:14px 18px 16px; box-shadow:0 24px 60px rgba(0,0,0,.7);
+  display:flex; flex-direction:column; align-items:center; gap:12px; max-height:96%;}
+.nc-panel h2{font-family:'Baloo 2',cursive; font-size:19px; letter-spacing:.03em; color:var(--charcoal); margin:0;}
+.nc-preview{line-height:0;}
+.nc-preview canvas{height:524px; width:auto; border-radius:8px; box-shadow:0 8px 22px rgba(0,0,0,.42);}
+.nc-actions{display:flex; gap:10px;}
+.epi-actions{display:flex; gap:12px; justify-content:center;}
+body.portrait .nc-preview canvas{height:64vh;}
 
 /* ---------- DEV BAR (outside the stage; ?dev=1 or Ctrl+D) ---------- */
 #dev{position:fixed; top:10px; right:12px; background:rgba(20,16,25,.92); border:1px solid #3c3350;

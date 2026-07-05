@@ -26,3 +26,6 @@ You are building **Elixir Hour**, a cosy conversation game — "Coffee Talk, in 
 - Commit after each runnable milestone and **push to GitHub**.
 - Keep an **About/Credits screen** with the "Not affiliated with or endorsed by Supercell — original fan concept by Tessa Kerk" notice and the AI-translation disclaimer.
 - Ask before big architectural changes.
+
+## Regression surfaces (non-negotiable — added 06-07-2026)
+**Anything Tessa has signed off is a REGRESSION SURFACE.** When you refactor a shared system — **layout, nav, save, rendering, the Tome, the Night Cap, any exportable/screenshottable surface** — re-render the signed-off states and **diff them against their existing captures BEFORE committing**. Any visual change to an approved surface gets **flagged for approval, never shipped silently**. **"It wasn't broken" is a spec** — a change that "improves" an approved layout without being asked is a regression, not an upgrade. (This rule was written because the 12-card grid pagination silently replaced the signed-off 5-card Ledger grid.)

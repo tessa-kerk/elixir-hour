@@ -48,6 +48,11 @@
 window.NIGHTS = [
   {
     night: 1,
+    title: "Opening Time",
+    /* Night Cap (GDD §11): ONE spoiler-safe quote per Night, curated here —
+       Tessa approves the list. Never a plot beat, never the consequential brew
+       or its outcome. FLAGGED for approval (see PLAN.md). */
+    nightcap: { quote: { text: "That's the usual. It's steady, nothing clever about it, and that's the point.", who: "Knight" } },
     beats: [
 
       /* ---- Cold open ---- */
@@ -145,7 +150,7 @@ window.NIGHTS = [
           { who: "Wizard", line: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark." },
           { who: "Knight", line: "*(into his tankard)* Oh, here we go." },
           { who: "Wizard", line: "I heard that, you know." },
-          { brew: { base: "Elixir", mix: ["Rage", "Zap"], recipe: "The Showstopper",
+          { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
                     nudge: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark." } },
           { cue: "art", text: "Wizard catches it and raises it high — a flourish that's half magic trick, half plea." },
           { who: "Wizard", line: "*(to a crowd that is three people)* …and for my next— *(the spark fizzles early, with a small, sad pop)* …ah. Hm. That one was supposed to last a good deal longer than that." },
@@ -193,6 +198,8 @@ window.NIGHTS = [
   },
   {
     night: 2,
+    title: "The Draw",
+    nightcap: { quote: { text: "A butterfly just… lands. Doesn't ask. Doesn't judge.", who: "P.E.K.K.A" } },
     beats: [
 
       /* ---- Interstitial — the morning paper: the draw, the decree ---- */
@@ -321,12 +328,12 @@ window.NIGHTS = [
           { choice: "How does Sage answer?", options: [
             { label: "\"Then let's put you back together. Give us the showstopper — double Rage, a Zap.\"", tone: "puff", reply: [
               { who: "Wizard", expr: "Boastful Grin", line: "*(a flicker of the old light, grateful for the lifeline)* …Yes. Yes, alright. The showstopper. Let's remind the room who taught the rest of them to spark." },
-              { brew: { base: "Elixir", mix: ["Rage", "Zap"], recipe: "The Showstopper",
+              { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
                         nudge: "…Yes. Yes, alright. The showstopper. Let's remind the room who taught the rest of them to spark." } },
             ] },
             { label: "\"You don't need to be on the card. You're the one they all copied.\"", tone: "see", reply: [
               { who: "Wizard", line: "*(caught off guard; the grand voice drops to something bare)* The one they… copied. *(he turns that over like it's fragile)* Nobody's ever put it quite that way. *(quietly)* Say it again, would you. I want to be sure I heard it." },
-              { brew: { any: [ { base: "Elixir", mix: ["Rage", "Zap"] }, { base: "Elixir", mix: ["Heal"], dose: 1 } ],
+              { brew: { any: [ { base: "Elixir", mix: ["Rage", "Zap"], dose: 2 }, { base: "Elixir", mix: ["Heal"], dose: 1 } ],
                         nudge: "*(he waits — the player's read: the loud Showstopper, or the quiet Usual)*" } },
             ] },
             { label: "\"Sit. I'll pour. You don't have to be anything in here.\"", tone: "room", reply: [
@@ -359,6 +366,10 @@ window.NIGHTS = [
   },
   {
     night: 3,
+    title: "Last Call Before the Crown",
+    /* Wizard's quote — deliberately NOT the Knight/consequential beat; no
+       Championship outcome, no plot spoiler. FLAGGED for approval. */
+    nightcap: { quote: { text: "It turns out the good stuff was the simplest drink all along.", who: "Wizard" } },
     beats: [
 
       /* ---- Interstitial — the decree lands ---- */

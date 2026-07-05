@@ -51,7 +51,7 @@ window.Settings = (function () {
     sel.add(new Option(window.LANGS[i].native, window.LANGS[i].code));
   }
   sel.addEventListener("change", function () { applyLanguage(sel.value); });
-  el("tgl-music").addEventListener("click", function () { Prefs.set({ music: !Prefs.get().music }); refresh(); });
+  el("tgl-music").addEventListener("click", function () { Prefs.set({ music: !Prefs.get().music }); refresh(); if (window.Sound) Sound.applyMusicPref(); });
   el("tgl-sfx").addEventListener("click", function () { Prefs.set({ sfx: !Prefs.get().sfx }); refresh(); });
   el("btn-about").addEventListener("click", openAbout);
   el("btn-about-back").addEventListener("click", closeAbout);

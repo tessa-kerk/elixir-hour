@@ -59,11 +59,11 @@ window.Brew = (function () {
     }
     var hit = matchRecipe();
     el("recipename").textContent = hit ? hit.name + " ✓" : t("brew.unnamed");
-    el("base-name").textContent = state.base;
+    el("base-name").textContent = canonTerm(state.base);   /* canon term (GDD §13) */
     el("base-dot").style.background = BASE_DOT[state.base];
     for (var n = 1; n <= 2; n++) {
       var m = state.mix[n - 1];
-      el("mix" + n + "-name").textContent = m || t("brew.none");
+      el("mix" + n + "-name").textContent = m ? canonTerm(m) : t("brew.none");
       el("mix" + n + "-dot").style.background = m ? window.SPELLS[m].c : "transparent";
     }
   }
@@ -90,6 +90,7 @@ window.Brew = (function () {
     if (brewing) return;
     onDone = onDone || window.Brew.onPour;   /* the dialogue engine's brew gate */
     brewing = true;
+    if (window.Sound) Sound.sfx("brew-fizz");
     var panel = el("panel-frame"), strip = el("brewstrip");
     panel.classList.add("brewing");
     strip.classList.add("on");
@@ -103,6 +104,7 @@ window.Brew = (function () {
       panel.classList.remove("brewing");
       strip.classList.remove("on");
       brewing = false;
+      if (window.Sound) Sound.sfx("mug-clink");   /* the served drink lands */
       if (typeof onDone === "function") onDone(snapshot());
     }, 2400);
   }
@@ -140,7 +142,7 @@ window.Brew = (function () {
     for (var i = 0; i < options.length; i++) {
       (function (name) {
         var d = document.createElement("div");
-        d.textContent = name || t("brew.none");
+        d.textContent = name ? canonTerm(name) : t("brew.none");
         d.addEventListener("click", function (ev) {
           ev.stopPropagation();
           pick(n, name);
