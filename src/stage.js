@@ -9,17 +9,18 @@ window.Stage = (function () {
 
   /* Two-layer composite constants (GDD §12): ONE counter-line Y and ONE
      horizontal anchor for the whole cast. Characters anchor by the BOTTOM OF
-     THE TORSO (per-sprite torsoBase fraction, measured by the keying pipeline)
-     to the counter line — never by hands or lowest pixel. Landscape: counter
-     at 71.9% (the baked master-scene counter top, §15), cast centred in the
-     left zone. Portrait: scene band sits in the top half, counter at 46%.
-     (Measured against the locked master scene, Serve Screen - Master Scene V1.) */
+     THE CONTACT PLANE (elbow underside / tankard base — one plane in the source
+     renders) to the counter line, per character (§12). Landscape: counter at
+     63.0% (Master Scene V3's deep counter top, §15 — V2's 66.7% band was too
+     shallow for Princess/P.E.K.K.A's low-held tankards). Portrait: the scene
+     band sits in the top 64%, so the counter maps to 0.63×0.64 = 40.3%.
+     (Measured against the locked master scene, Serve Screen - Master Scene V3.) */
   /* charH leaves deliberate headroom above the tallest head/horns so the
      dialogue bubble never overlaps the character (bubble sits bottom-anchored
      just above figure top = counterY - charH; see Screens.renderServe). */
   var COMPOSITE = {
-    landscape: { counterY: 0.719 * LAND.H, anchorX: 0.21 * LAND.W, charH: 0.58 * LAND.H },
-    portrait:  { counterY: 0.46 * PORT.H,  anchorX: 0.50 * PORT.W, charH: 0.36 * PORT.H },
+    landscape: { counterY: 0.63 * LAND.H,  anchorX: 0.21 * LAND.W, charH: 0.58 * LAND.H },
+    portrait:  { counterY: 0.403 * PORT.H, anchorX: 0.50 * PORT.W, charH: 0.36 * PORT.H },
   };
 
   var stage = document.getElementById("stage");

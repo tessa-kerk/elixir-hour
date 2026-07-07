@@ -191,19 +191,45 @@ window.Brew = (function () {
     }
   }
 
-  /* wire up */
-  el("slot-base").addEventListener("click", cycleBase);
-  el("slot-mix1").addEventListener("click", function (ev) { ev.stopPropagation(); closePickers(); el("picker1").style.display = "block"; });
-  el("slot-mix2").addEventListener("click", function (ev) { ev.stopPropagation(); closePickers(); el("picker2").style.display = "block"; });
+  /* Brew gating (GDD §7, locked round 5). The panel is LOCKED outside a brew
+     beat — dimmed and non-responsive — so a player can't brew early (which used
+     to ✓ then silently wipe the mix), and "am I meant to brew now?" is never
+     ambiguous. It unlocks with a settle when the customer actually orders; a mix
+     in progress is never silently reset (reset only runs mid-gate). */
+  var locked = true;
+  var onBlocked = null;          /* dialogue sets the gentle "let them finish" response */
+  function blocked() { if (onBlocked) onBlocked(); }
+  function lock() { locked = true; var p = el("panel-frame"); if (p) { p.classList.add("locked"); p.classList.remove("brew-open"); } }
+  function unlock() {
+    locked = false;
+    var p = el("panel-frame"); if (!p) return;
+    p.classList.remove("locked");
+    p.classList.add("brew-open", "settle");
+    void p.offsetWidth;          /* restart the settle animation each order */
+    p.classList.remove("settle"); void p.offsetWidth; p.classList.add("settle");
+  }
+
+  /* wire up — every interaction is refused while locked (§7). The panel stays
+     dimmed-but-clickable (no pointer-events:none) so a tap is never a dead click:
+     the individual controls no-op, and one panel-level handler plays the gentle
+     "let them finish" line. */
+  el("slot-base").addEventListener("click", function () { if (locked) return; cycleBase(); });
+  el("slot-mix1").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; closePickers(); el("picker1").style.display = "block"; });
+  el("slot-mix2").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; closePickers(); el("picker2").style.display = "block"; });
   document.addEventListener("click", closePickers);
-  el("dose").addEventListener("input", function () { state.dose = +this.value; updateDoseLabel(); update(); });
-  el("brew-reset").addEventListener("click", reset);
-  el("brew-pour").addEventListener("click", function () { pour(); });
+  el("dose").addEventListener("input", function () { if (locked) { this.value = state.dose; return; } state.dose = +this.value; updateDoseLabel(); update(); });
+  el("brew-reset").addEventListener("click", function () { if (locked) return; reset(); });
+  el("brew-pour").addEventListener("click", function () { if (locked) return; pour(); });
+  el("panel-frame").addEventListener("click", function () { if (locked) blocked(); });   /* any tap on the locked panel → the gentle line */
+
+  lock();   /* default state: locked until a customer orders */
 
   return {
     update: update, reset: reset, pour: pour, pick: pick, cycleBase: cycleBase,
     refreshText: refreshText, snapshot: snapshot, matchRecipe: matchRecipe, totals: totals,
     setOrder: function (fn) { activeOrder = fn || null; update(); },   /* dialogue arms/clears the gate order (GDD §7) */
+    lock: lock, unlock: unlock, isLocked: function () { return locked; },
+    setBlocked: function (fn) { onBlocked = fn; },
     state: state,
   };
 })();

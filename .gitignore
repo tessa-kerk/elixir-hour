@@ -18,3 +18,5 @@ dist/
 # Local scratch
 *.local.*
 _scratch/
+tools/__pycache__/
+__pycache__/

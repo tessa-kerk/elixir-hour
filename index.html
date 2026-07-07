@@ -20,14 +20,21 @@
 <meta name="twitter:title" content="Elixir Hour">
 <meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
 <meta name="twitter:image" content="assets/share/night-cap-share.png">
-<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Favicon set (the Elixir Drop, §UI). Browser tabs get the transparent drop;
+     home-screen icons (apple-touch / manifest) get it on a dark glow plate so
+     iOS/Android don't render the transparency as black. Versioned so a rebrand
+     isn't stuck behind the aggressive favicon cache. -->
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=22">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=22">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=22">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=22">
+<link rel="manifest" href="manifest.webmanifest?v=22">
 <!-- Cache-bust: every local script/stylesheet carries ?v=<BUILD>. BUMP THIS
-     TOKEN ON EVERY BUILD (find-replace all "?v=9") so a refresh always gets the
+     TOKEN ON EVERY BUILD (find-replace all "?v=22") so a refresh always gets the
      current code — file:// and heuristic caches served stale JS to a real
      player once (P0 06-07) and stalled progression. -->
-<link rel="stylesheet" href="css/fonts.css?v=9">
-<link rel="stylesheet" href="css/main.css?v=9">
+<link rel="stylesheet" href="css/fonts.css?v=22">
+<link rel="stylesheet" href="css/main.css?v=22">
 </head>
 <body>
 <div id="viewport">
@@ -65,11 +72,15 @@
          mixing panel overlay bottom-right. The master scene here is a CSS
          placeholder until the locked scene art lands (Milestone 8). -->
     <div class="screen" id="screen-serve">
+      <!-- Solo serve (§12 new canon, round 9): the whole screen is Tessa's pre-baked,
+           hand-grounded scene (character + counter + brew wall in ONE image). Two
+           stacked layers cross-fade on an expression swap; the backgrounds are pixel-
+           identical so only the character dissolves, the bar stays rock-steady. No
+           runtime compositing — no cutout, no anchors, no scale tables, no shadows. -->
       <div id="ms">
-        <img id="ms-img" src="assets/scenes/Serve Screen - Master Scene V1.webp?v=9" alt="">
+        <img id="ms-img" class="scene-layer" alt="">
+        <img id="ms-img2" class="scene-layer" alt="">
       </div>
-      <div id="serve-shadow"></div>
-      <img id="serve-char" src="" alt="">
       <div class="scene-tint"></div>
       <div id="serve-bubble" class="bubble">
         <div id="serve-speaker" class="speaker"></div>
@@ -83,7 +94,17 @@
       </div>
       <div id="serve-choices"></div>
       <div id="panel-frame">
-        <div id="panel-info" title=""></div>
+        <!-- Order Strip (§7): during a brew beat shows the customer's order in
+             their own words; the (i) opens the Brew Book. Hidden when locked. -->
+        <div id="order-strip">
+          <div id="order-text"></div>
+          <div id="panel-info" title=""></div>
+        </div>
+        <!-- §7 tap-for-full: the complete request, shown above the panel (over the
+             scene) when a trimmed Order Strip is tapped. Never in the flex flow, so
+             it can't reflow the panel and re-open the Pour-overflow P0. -->
+        <div id="order-full" aria-hidden="true"></div>
+        <div class="panel-cols">
         <div class="slotcol">
           <div class="slot" id="slot-base"><small id="lbl-base"></small><b id="base-name"></b><span class="dot" id="base-dot"></span></div>
           <div class="slot" id="slot-mix1"><small class="lbl-mixer"></small><b id="mix1-name"></b><span class="dot" id="mix1-dot"></span>
@@ -103,6 +124,7 @@
           <button class="pbtn" id="brew-reset"></button>
           <button class="pbtn pour" id="brew-pour"></button>
         </div>
+        </div><!-- /.panel-cols -->
         <div class="dose">
           <span id="lbl-gentle"></span>
           <div class="dose-track">
@@ -125,8 +147,7 @@
          row is placed programmatically (src/screens.js renderGroup). -->
     <div class="screen" id="screen-group">
       <div id="g-ms">
-        <div id="g-wall"></div>
-        <div id="g-counter"></div>
+        <img id="g-img" src="assets/scenes/Group Scene V2.webp?v=22" alt="">
       </div>
       <div id="group-row"></div>
       <div class="scene-tint"></div>
@@ -136,11 +157,20 @@
       </div>
     </div>
 
-    <!-- SPLIT DUOLOGUE — Layout 5 (GDD §11): two customers conversing on a
-         diagonal split canvas, bottom-centre name-box in the speaker's colour. -->
+    <!-- TWO-SHOT — Layout 5 (GDD §11, round 9): two customers conversing INSIDE the
+         bar. The left character IS a pre-baked serve scene (backdrop: their grounded
+         figure + the room + counter); the right character is a grounded cutout shifted
+         onto the right of the same counter (identical background → the wood seam
+         vanishes). The diagonal split is a lighting treatment over the composed scene,
+         dimming the silent half — never flat panels. Name-box in the speaker's colour. -->
     <div class="screen" id="screen-duo">
-      <div class="duo-half left"><img src="" alt=""></div>
-      <div class="duo-half right"><img src="" alt=""></div>
+      <div id="duo-scene">
+        <img id="duo-bg" class="scene-layer" alt="">
+        <img id="duo-bg2" class="scene-layer" alt="">
+        <img id="duo-right" class="duo-cut" alt="">
+        <img id="duo-right2" class="duo-cut" alt="">
+      </div>
+      <div id="duo-split" aria-hidden="true"></div>
       <div class="scene-tint"></div>
       <div id="duo-box">
         <span class="speaker"></span>
@@ -258,27 +288,50 @@
          console-only note (P0 06-07). -->
     <div id="toast"></div>
 
+    <!-- persistent play-screen HUD (§11, locked 07/07): menu top-right (opens a
+         pause tray), Tome button bottom-right (pulses once when something new
+         lands). Shown only on serve/group/duo; hidden on title/interstitials. -->
+    <button id="hud-menu" class="hud-btn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <button id="hud-tome" class="hud-btn tome" aria-label="The Tome"><img src="assets/ui/Tome Icon (cutout).webp?v=22" alt=""></button>
+    <div id="autosave-quill" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-3 0-9 3-12 9l-4 7 7-4c6-3 9-9 9-12z"/><path d="M8.5 16.5l-2 2"/></svg><span id="autosave-word"></span></div>
+    <div id="hint-chip"></div>
+
+    <!-- MENU TRAY (§11 pause): Resume / The Tome / Settings / Save & Quit -->
+    <div id="menu-tray" class="overlay">
+      <div class="panel">
+        <h2 id="menu-title"></h2>
+        <button class="btn small primary" id="menu-resume"></button>
+        <button class="btn small" id="menu-tome"></button>
+        <button class="btn small" id="menu-settings"></button>
+        <button class="btn small" id="menu-savequit"></button>
+        <p id="menu-note"></p>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <div id="dev" hidden></div>
 
 <!-- ?v=<BUILD> on every script — BUMP the token on every build (see head note) -->
-<script src="strings/strings.js?v=9"></script>
-<script src="data/nights.js?v=9"></script>
-<script src="data/cast.js?v=9"></script>
-<script src="data/tome.js?v=9"></script>
-<script src="src/stage.js?v=9"></script>
-<script src="src/save.js?v=9"></script>
-<script src="src/particles.js?v=9"></script>
-<script src="src/screens.js?v=9"></script>
-<script src="src/brew.js?v=9"></script>
-<script src="src/dialogue.js?v=9"></script>
-<script src="src/state.js?v=9"></script>
-<script src="src/tome.js?v=9"></script>
-<script src="src/nightcap.js?v=9"></script>
-<script src="src/audio.js?v=9"></script>
-<script src="src/settings.js?v=9"></script>
-<script src="src/boot.js?v=9"></script>
+<script src="strings/strings.js?v=22"></script>
+<script src="data/nights.js?v=22"></script>
+<script src="data/cast.js?v=22"></script>
+<script src="data/tome.js?v=22"></script>
+<script src="src/stage.js?v=22"></script>
+<script src="src/save.js?v=22"></script>
+<script src="src/particles.js?v=22"></script>
+<script src="src/screens.js?v=22"></script>
+<script src="src/brew.js?v=22"></script>
+<script src="src/dialogue.js?v=22"></script>
+<script src="src/state.js?v=22"></script>
+<script src="src/tome.js?v=22"></script>
+<script src="src/nightcap.js?v=22"></script>
+<script src="src/audio.js?v=22"></script>
+<script src="src/settings.js?v=22"></script>
+<script src="src/hud.js?v=22"></script>
+<script src="src/boot.js?v=22"></script>
 </body>
 </html>

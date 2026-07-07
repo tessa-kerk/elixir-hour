@@ -17,6 +17,20 @@
   document.getElementById("btn-totitle").addEventListener("click", function () { Game.show("title"); });
   document.getElementById("tomeclose").addEventListener("click", Game.closeTome);
 
+  /* in-game menu + Tome HUD (GDD §11) */
+  function isPlayScreen() {
+    var a = document.querySelector(".screen.active");
+    var id = a ? a.id : "";
+    return id === "screen-serve" || id === "screen-group" || id === "screen-duo";
+  }
+  function tomeOpen() { var t = document.getElementById("tome"); return !!(t && t.classList.contains("open")); }
+  document.getElementById("hud-menu").addEventListener("click", function () { HUD.toggleTray(); });
+  document.getElementById("hud-tome").addEventListener("click", Game.openTome);
+  document.getElementById("menu-resume").addEventListener("click", function () { HUD.closeTray(); });
+  document.getElementById("menu-tome").addEventListener("click", function () { HUD.closeTray(); Game.openTome(); });
+  document.getElementById("menu-settings").addEventListener("click", function () { HUD.closeTray(); Settings.open(); });
+  document.getElementById("menu-savequit").addEventListener("click", function () { HUD.closeTray(); Game.saveQuit(); });
+
   /* Night Cap (GDD §11): compose the current Night's share card */
   function openNightCap() { NightCap.open(Game.state.night); }
   document.getElementById("btn-nightcap-end").addEventListener("click", openNightCap);
@@ -29,11 +43,18 @@
   }
 
   document.addEventListener("keydown", function (e) {
+    var typing = e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
     if (e.key === "Escape") {
       if (NightCap.isOpen()) NightCap.close();
       else if (Settings.aboutIsOpen()) Settings.closeAbout();
       else if (Settings.isOpen()) Settings.close();
-      else Game.closeTome();
+      else if (tomeOpen()) Game.closeTome();
+      else if (HUD.isTrayOpen()) HUD.closeTray();
+      else if (isPlayScreen()) HUD.openTray();          /* Esc pauses when nothing else is open */
+    }
+    if ((e.key === "t" || e.key === "T") && !e.ctrlKey && !e.metaKey && !typing) {
+      /* T opens the Tome from any play screen (GDD §11) */
+      if (isPlayScreen() && !tomeOpen() && !HUD.isTrayOpen() && !Settings.isOpen() && !NightCap.isOpen()) Game.openTome();
     }
     if ((e.key === "d" || e.key === "D") && e.ctrlKey) { e.preventDefault(); toggleDev(); }
   });

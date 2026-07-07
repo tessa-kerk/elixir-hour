@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1C1B3A">
+<title>Elixir Hour — the case study</title>
+<meta name="description" content="Coffee Talk, in the Clash Royale universe — the case study behind Elixir Hour: the strategic idea, how it was made solo with AI, and how it would run at Supercell.">
+<link rel="canonical" href="https://elixirhour.tessa-kerk.com/case-study/">
+<meta property="og:title" content="Elixir Hour — the case study">
+<meta property="og:description" content="Coffee Talk, in the Clash Royale universe — the case study behind Elixir Hour: the strategic idea, how it was made solo with AI, and how it would run at Supercell.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://elixirhour.tessa-kerk.com/case-study/">
+<meta property="og:site_name" content="Elixir Hour">
+<!-- reuse the landing OG hero for now; relative path, the deploy zip absolutises it -->
+<meta property="og:image" content="../assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Elixir Hour — the Knight at Sage's bar counter with a glowing elixir tankard, the game's logo behind.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Elixir Hour — the case study">
+<meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe — the case study behind Elixir Hour: the strategic idea, how it was made solo with AI, and how it would run at Supercell.">
+<meta name="twitter:image" content="../assets/img/og-share.jpg">
+<link rel="icon" type="image/png" sizes="48x48" href="../favicon-48.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" as="image" href="img/shot-hero.webp">
+<link rel="stylesheet" href="case-study.css">
+</head>
+<body>
+<main class="cs">
+  <header class="cs-header">
+    <span class="cs-kicker">Case study</span>
+<h1>Elixir Hour</h1>
+    <p class="cs-sub">Coffee Talk, in the Clash Royale universe. A cosy bar on the neutral ground between two warring kingdoms, where the fighters come to drink and talk once the arena closes.</p>
+<div class="cs-rule" aria-hidden="true"></div>
+  </header>
+
+<figure class="cs-fig">
+  <img src="img/shot-hero.webp" width="1100" height="619" alt="The serve screen — read the fighter, brew the drink, and the conversation opens." loading="lazy" decoding="async">
+  <figcaption>The serve screen — read the fighter, brew the drink, and the conversation opens.</figcaption>
+</figure>
+
+<div class="cs-chips"><span class="cs-chip"><strong>Built solo with AI in [N] days</strong></span><span class="cs-chip"><strong>3 playable Nights, 7 languages</strong></span><span class="cs-chip"><strong>My second Supercell format, after the BrawlHouse</strong></span></div>
+
+<p class="cs-cta"><a class="cta" href="/play/">▶ Play the first three Nights</a></p>
+
+<h2>The brief I set myself</h2>
+
+<p>After the BrawlHouse, my Brawl Stars piece, I wanted to prove the thinking travels. That was a mystery/ARG; this is the opposite genre on a different game: cosy, character-led, no puzzle to crack, set in Clash Royale.</p>
+
+<p>What I really build is formats: the kind you make once and keep building on. The BrawlHouse is a house the whole Brawl Stars roster can live in — swap a brawler in for a launch, write the lore that fits the moment, and the frame holds. Elixir Hour carries that instinct into a new world and a new genre. So the test wasn't "can I make a small game". It was "can I design a format a team could actually run, and build enough of it that you can play the thing, not just read a deck about it".</p>
+
+<h2>The idea</h2>
+
+<p>Live games have a rhythm problem. Between updates the calendar goes flat, and so does the conversation. Players don't stop caring in those weeks; they stop having a reason to show up. That gap is where creator and community programs earn their keep, and it usually gets filled with a countdown, a meme, or a "what do you want to see next" post.</p>
+
+<p>Clash Royale has something better sitting unused. People love the cast. Clash-A-Rama built years of affection for the Knight, the Hog Rider, the Princess, all of them, as characters with lives and jokes and grievances. Nobody serves that between fights. The arena is all they get.</p>
+
+<p>So: a cosy companion game where you meet the roster off the battlefield. You play Sage, keeper of a bar that serves Elixir on the strip of no-man's-land between the Blue and Red kingdoms. A fighter comes in after their duel, you read their mood, you brew and serve the right drink, and the conversation opens. No combat, no fail state, no rush. You learn the Knight is tired of always being sent in first. The Wizard is the original wizard, forgotten once the flashier ones showed up. P.E.K.K.A, the armoured mountain they aim at whatever you're most afraid of, just wants to be seen as a person.</p>
+
+<figure class="cs-fig">
+  <img src="img/shot-ledger.webp" width="1286" height="717" alt="A regular's page in the Tome — a printed bio with Sage's notes in the margin." loading="lazy" decoding="async">
+  <figcaption>A regular's page in the Tome — a printed bio with Sage's notes in the margin.</figcaption>
+</figure>
+
+<p>Three things make it more than Coffee Talk in a new coat of paint.</p>
+
+<p><strong>It stands on its own, and it's a live-ops companion.</strong> The three Nights are a complete little game with their own story; no live campaign is needed to make sense of them. The extra layer is the in-game newspaper, the Arena Herald, which mirrors what's actually happening in live Clash Royale: real seasons and events, retold as bar gossip. Only a game attached to a live game can do that.</p>
+
+<p><strong>You brew tomorrow's news.</strong> One drink you pour, the Knight's, on the last Night, ripples into the next morning's Herald. Serve him right and he wins his bout at dawn; serve him something loud or bitter and he loses. It's one line in one headline, but it means the game remembers you. Coffee Talk forgets every drink the moment it's served.</p>
+
+<p><strong>The world unlocks through relationships, not menus.</strong> The Knight teaches you his usual. P.E.K.K.A shares a tune from her phonograph. Each character's page in the Ledger fills in as you get to know them, with Sage's own notes scribbled in the margin. Content as friendship, not a checklist.</p>
+
+<p>And underneath, the point: built once, you have Sage, the bar, the brew mechanic, the engine. Swapped per edition, you have a new arena, a cast themed to that locale, and a story tied to whatever campaign is live. Make the format, not the asset.</p>
+
+<h2>How it was made</h2>
+
+<p>I built this solo, with AI, and I want to be honest about how, because the method is the transferable part.</p>
+
+<p><strong>Canon first.</strong> Before any writing I researched the source properly: how Coffee Talk actually works, verified from the studio's own devlogs, and Clash lore, which is deliberately loose. There's no official story to contradict, but there's a mountain of card art, arena design and Clash-A-Rama to stay true to. Every character detail traces back to something real, from the Knight's moustache to P.E.K.K.A going still at the window when a butterfly lands.</p>
+
+<div class="cs-annot cs-annot-1">
+  <aside class="cs-note" aria-hidden="true"><span class="margin-note">this case study got the same treatment, for the record.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M112 10 C 74 6, 30 16, 10 44"/><path class="na-head" d="M8 30 L 9 45 L 24 40"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 84 66" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M12 8 C 34 6, 58 20, 66 56"/><path class="na-head" d="M52 48 L 67 60 L 73 43"/></svg></aside>
+  <p><strong>Writing that doesn't read as AI.</strong> This was the hard craft. Cosy games live or die on dialogue, and AI dialogue has a smell. So I wrote to a set of rules and held the line on them: distinct voices you can tell apart with the name hidden, subtext over stating the feeling, in-world language always. The characters are people, never game pieces; nobody gets "deployed". Each Night's script took around <span class="cs-target">ten rounds of back-and-forth</span>, me reading every line and sending it back until it sounded like a person.</p>
+</div>
+
+<p><strong>Prompt discipline for the art.</strong> A consistent look across a whole cast is the thing that usually breaks. I locked a single style off one anchor character, the polished Clash of Clans 3D render with no black outlines, then held every new asset to it. Name every detail in words, because the model drops the small ones. Check the writing against the art, so the Knight in the script has exactly what the Knight in the render has. A no-mercy zoom check on every output before it counted as done.</p>
+
+<p><strong>Governance, with a coding agent doing the building.</strong> The game was built in Claude Code from a single design document I kept as the source of truth, in a public repo. When a build decision changed the design, the document got updated in the same pass, so the plan and the build never drifted apart. That's the part that felt most like the actual job: not doing every task myself, but keeping one clear canon and making sure everything the "team" produced stayed true to it.</p>
+
+<figure class="cs-fig">
+  <img src="img/shot-brew.webp" width="1532" height="480" alt="The brew: a base, two mixers, four meters, and the ✓ when the drink fits the mood." loading="lazy" decoding="async">
+  <figcaption>The brew: a base, two mixers, four meters, and the ✓ when the drink fits the mood.</figcaption>
+</figure>
+
+<div class="cs-annot cs-annot-2">
+  <aside class="cs-note" aria-hidden="true"><span class="margin-note">the page-flip nearly finished me. three days to make a bit of paper turn like paper. worth it.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M112 10 C 74 6, 30 16, 10 44"/><path class="na-head" d="M8 30 L 9 45 L 24 40"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 84 66" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M12 8 C 34 6, 58 20, 66 56"/><path class="na-head" d="M52 48 L 67 60 L 73 43"/></svg></aside>
+  <p>The war stories are real. <span class="cs-target">Getting a page in the Tome to turn like an actual leaf of paper, curling and bowing on the way over instead of sliding like a slide deck, took far longer than it had any right to.</span></p>
+</div>
+
+<h2>What it's for</h2>
+
+<p>The game is the proof. The format is the pitch, and it isn't a pitch for any single team.</p>
+
+<p>Start with the audience. Clash Royale is a strategy game: you think, you fight, you win or lose. Elixir Hour is the other kind of evening entirely, slow and warm with no one to beat. Putting those two genres in the same universe is a real question, not a given. But plenty of us play everything; I'll grind a match of Dota 2 and then play Pokopia the same night. A cosy companion gives the game a second reason to open the app, one that has nothing to do with your ladder rank. Clash-A-Rama proved people fall for these characters when you give them room to be people, but it ended, and the big character moments come and go with limited-time campaigns. This gives that warmth somewhere permanent to live.</p>
+
+<p>Then the creator angle, built into the game. At the end of every Night you get a Night Cap: a parchment share card with the Night's title and the real date, who came in, the drinks you poured, and one spoiler-safe line. One tap to save and share. Every player share is a small ad, and every streamer gets a tidy episode-ending moment instead of an awkward fade. Around that: resident regulars voiced or cameo'd by creators, recipe-card UGC, and streaming beats written to be spoiler-safe on purpose.</p>
+
+<figure class="cs-fig">
+  <img src="img/shot-nightcap.webp" width="1000" height="1250" alt="A Night Cap — the share card the game composes at the end of every Night." loading="lazy" decoding="async">
+  <figcaption>A Night Cap — the share card the game composes at the end of every Night.</figcaption>
+</figure>
+
+<p>Next, the live-ops calendar. At a launch or a new season, it's the companion: the Herald picks up what's actually happening in the game and retells it as bar gossip within a day. Between launches, the base game carries itself, with new Nights and new lore that don't need a campaign to hang on. There's always a reason to come back. What you'd watch: between-update session frequency, share and UGC rate, creator adoption, sentiment lift, honest about what a first edition can and can't tell you.</p>
+
+<p>That range is what makes it worth building. Creators get the Night Cap and beats written to be streamed. Live-ops gets the trough filled. Marketing gets an owned channel. The IP side gets what Clash-A-Rama used to give the cast: a permanent home between the big moments, and a cheap read on which characters land. The story is authored, but the optional layer around it is measurable: which Ledger pages players re-open, which tune they leave playing, whose Night Caps get shared. Localisation is in the plumbing from day one. The pieces fit together instead of each solving for one corner.</p>
+
+<p>The claim I care about most is that this repeats, and I've made it true rather than promised it. There's a live "Today's Edition" in the Herald reporting the current Clash Royale season as bar gossip, refreshed from a small file when the season changes, with an evergreen fallback so a live companion never looks abandoned. Edition 1 is set in one arena; the next edition adds Nights in another, same cast, same engine, one new venue, one new story. Edition 1 took a production. Edition 2 took a weekend. That's the format.</p>
+
+<h2>Limits, and what's next</h2>
+
+<p>This is a vertical slice, and I'd rather name what a real production would change than oversell it. It's a web build; the ambition is native mobile, where this kind of game's audience actually is (Coffee Talk came to iOS and Android in March 2026, which tells you the format sells there). English is hand-written; the other six languages are AI-translated with an honest in-product note, and a real launch would have real localisation. The music comes once the build is finished, and a real launch would want an original score. None of that is hidden in the build.</p>
+
+<h2>Credits</h2>
+
+<p>Made by Tessa Kerk as an original, speculative fan concept. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are drawn in the spirit of Clash canon and Clash-A-Rama as affectionate homage. Built with AI throughout: writing, art and code, with a coding agent (Claude Code) doing the build from my design document. The AI toolchain is named openly, nothing hidden.</p>
+
+<footer class="cs-foot">
+  <div class="cs-foot-btns"><a class="cta" href="/play/">▶ Play Elixir Hour</a><a class="cta sage" href="https://brawlhouse.tessa-kerk.com/">The BrawlHouse, the first format</a></div>
+  <p class="cs-foot-links"><a href="https://www.tessa-kerk.com">tessa-kerk.com</a> · <a href="https://linkedin.com/in/tessa-kerk">LinkedIn</a></p>
+</footer>
+</main>
+</body>
+</html>

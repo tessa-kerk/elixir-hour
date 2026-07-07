@@ -1,0 +1,176 @@
+/* ===========================================================================
+   Elixir Hour — case study. Same §0 visual system as the landing page:
+   night ground, a centred parchment reading column, the game's type stack,
+   Sage's green marginalia. Static (reduced-motion safe by default). Includes a
+   print stylesheet — Ctrl+P is the PDF export path.
+   =========================================================================== */
+@font-face{font-family:'Baloo 2';font-weight:600 800;font-display:swap;src:url('../assets/fonts/Baloo2-600.woff2') format('woff2');}
+@font-face{font-family:'Nunito';font-weight:600 800;font-display:swap;src:url('../assets/fonts/Nunito-600.woff2') format('woff2');}
+/* declare the 600 file at 600 only, so the run-in <strong> lead-ins (700)
+   synthesise a real bolder weight rather than matching the 600 glyphs */
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600.woff2') format('woff2');}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-display:swap;src:url('../assets/fonts/CormorantGaramond-600i.woff2') format('woff2');}
+@font-face{font-family:'Caveat';font-weight:700;font-display:swap;src:url('../assets/fonts/Caveat-700.woff2') format('woff2');}
+
+:root{
+  --sage:#9CAF88; --sage-deep:#6B7F5C; --sage-pale:#C7D3B5;
+  --elixir:#7A3FA0; --glow:#B26AE0;
+  --amber:#E8B770; --cream:#F4ECDD; --charcoal:#241F1B; --gold:#c9a55a;
+  --night:#1C1B3A;
+  --ink:#3a2e22; --ink-soft:#6b5a42;      /* body + captions on cream */
+  --paper:#F4ECDD; --paper-edge:#cbbd9c;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--night);
+  font-family:'Cormorant Garamond',Georgia,serif; color:var(--ink);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+/* warm-inside / cool-night ambience behind the page (cheap fixed layer) */
+body::before{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(60% 40% at 18% 6%, rgba(232,183,112,.05), transparent 60%),
+    radial-gradient(55% 45% at 85% 26%, rgba(178,106,224,.07), transparent 62%),
+    linear-gradient(180deg,#201c3d,#141019 62%);}
+img{max-width:100%; display:block;}
+a{color:var(--elixir);}
+:focus-visible{outline:3px solid var(--amber); outline-offset:3px; border-radius:6px;}
+
+/* ---------------- the parchment reading column ---------------- */
+.cs{
+  --pad: clamp(24px,5vw,54px);
+  position:relative;
+  max-width:760px; margin:clamp(26px,6vh,72px) auto clamp(40px,8vh,96px);
+  background:linear-gradient(178deg,#f7efdc,#eadcbf);
+  border:1px solid var(--paper-edge); border-radius:8px;
+  padding:clamp(30px,5vw,58px) var(--pad) clamp(36px,6vw,64px);
+  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 2px 0 rgba(255,255,255,.5) inset;
+}
+
+/* header */
+.cs-kicker{display:block; font-family:'Baloo 2',cursive; font-weight:700; font-size:13px;
+  letter-spacing:.30em; text-transform:uppercase; color:var(--elixir); margin-bottom:12px;}
+.cs h1{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(38px,7vw,62px);
+  line-height:1.0; color:#2a2118; letter-spacing:.01em;}
+.cs-sub{font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic;
+  font-size:clamp(19px,2.6vw,24px); line-height:1.4; color:#4a3a28; margin-top:14px; max-width:44ch;}
+.cs-rule{height:0; border-top:3px double #8a7a5e; margin:22px 0 4px;}
+
+/* stat chips — small Herald clippings, on cream */
+.cs-chips{display:flex; flex-wrap:wrap; gap:10px; margin:26px 0 4px;}
+.cs-chip{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:14.5px; color:#3a2e22;
+  background:linear-gradient(175deg,#efe3c8,#e4d4b2); border:1px solid #cbbd9c; border-top:3px double #9a8a6a;
+  border-radius:3px; padding:8px 14px 9px; box-shadow:0 6px 14px rgba(0,0,0,.14);}
+.cs-chip strong{font-weight:700;}
+.cs-chip:nth-child(1){transform:rotate(-1deg);}
+.cs-chip:nth-child(3){transform:rotate(.8deg);}
+
+/* CTAs — reuse the game's button (purple primary; sage for externals) */
+.cta{display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+  font-family:'Baloo 2',cursive; font-size:18px; letter-spacing:.03em; color:#fff;
+  padding:13px 26px; border-radius:14px;
+  background:linear-gradient(180deg,var(--glow),var(--elixir)); box-shadow:0 5px 0 #572c73, 0 12px 26px rgba(122,63,160,.36);
+  transition:transform .12s ease, box-shadow .12s ease;}
+.cta:hover{transform:translateY(-1px); box-shadow:0 6px 0 #572c73, 0 16px 30px rgba(122,63,160,.46);}
+.cta:active{transform:translateY(4px); box-shadow:0 1px 0 #572c73;}
+.cta.sage{background:linear-gradient(180deg,#a9c096,#9CAF88); color:#241F1B; border:1px solid #6B7F5C;
+  box-shadow:0 5px 0 #6B7F5C, 0 12px 26px rgba(107,127,92,.32);}
+.cta.sage:hover{background:linear-gradient(180deg,#9CAF88,#8a9f77); box-shadow:0 6px 0 #6B7F5C, 0 16px 30px rgba(107,127,92,.4);}
+.cta.sage:active{box-shadow:0 1px 0 #6B7F5C;}
+.cs-cta{margin:26px 0 4px;}
+
+/* ---------------- body typography ---------------- */
+.cs h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(24px,3.6vw,34px);
+  color:#2a2118; line-height:1.08; margin:clamp(34px,5vw,52px) 0 14px; letter-spacing:.01em;}
+.cs > p{font-size:clamp(18px,2.2vw,20.5px); line-height:1.6; margin:0 0 18px; color:var(--ink); max-width:66ch;}
+.cs > p strong, .cs-annot p strong{font-weight:800; color:#241a10; font-synthesis:weight;}
+.cs-annot p{font-size:clamp(18px,2.2vw,20.5px); line-height:1.6; margin:0 0 18px; color:var(--ink); max-width:66ch;}
+.cs a{color:var(--elixir); text-decoration:underline; text-underline-offset:2px; text-decoration-thickness:1px;}
+.cs a.cta{text-decoration:none;}
+/* green underline on a phrase a margin note points at */
+.cs-target{text-decoration:underline; text-decoration-color:var(--sage-deep);
+  text-decoration-thickness:2px; text-underline-offset:3px;}
+
+/* ---------------- figures (thin gilt frame) ---------------- */
+.cs-fig{margin:clamp(24px,4vw,38px) 0;}
+.cs-fig img{width:100%; height:auto; border-radius:4px; border:3px solid var(--gold);
+  box-shadow:0 16px 40px rgba(0,0,0,.35); background:#20182e;}
+.cs-fig figcaption{font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px;
+  color:var(--ink-soft); margin-top:10px; text-align:center; font-style:normal;}
+
+/* ---------------- Sage's margin notes ----------------
+   DEFAULT (narrow: <1120px): the note sits in the parchment flow, directly
+   ABOVE its target, with a down arrow onto the target phrase. */
+.cs-annot{position:relative;}
+.cs-note{display:block; width:max-content; max-width:min(90%,340px); margin:6px 0 -2px;
+  transform:rotate(-2deg); transform-origin:left center;}
+.cs-note .margin-note{position:static; transform:none; display:inline; font-family:'Caveat',cursive;
+  font-weight:700; color:var(--sage-deep); font-size:clamp(21px,3vw,25px); line-height:1.05;}
+.cs-arrow{color:var(--sage-deep); overflow:visible; pointer-events:none;}
+.cs-arrow .na-line, .cs-arrow .na-head{fill:none; stroke:currentColor; stroke-width:2.4;
+  stroke-linecap:round; stroke-linejoin:round;}
+.cs-arrow-d{display:none;}                                    /* desktop arrow hidden on narrow */
+.cs-arrow-m{position:absolute; left:18%; top:78%; width:60px; height:48px;}
+
+/* DESKTOP (≥1120px): note floats out into the right night margin, angled, with
+   a hand-drawn arrow flowing left, into the column, onto the underlined phrase. */
+@media (min-width:1120px){
+  .cs-note{position:absolute; left:100%; top:0;
+    margin:0 0 0 calc(var(--pad) + 1.6rem); width:170px; max-width:170px; transform:rotate(-2.5deg);}
+  .cs-note .margin-note{color:var(--sage-pale); font-size:23px; filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));}
+  .cs-arrow{color:var(--sage-pale); filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));}
+  .cs-arrow-m{display:none;}
+  .cs-arrow-d{display:block; position:absolute; right:80%; top:64%; width:118px; height:58px;}
+  /* note 2's target is a wide 3-line sentence starting at the top — the default
+     arrow lands on it. note 1's phrase is a short one mid-paragraph and to the
+     left, so drop that note toward its line and give the arrow a longer reach
+     down-left, so it lands ON the underlined phrase (§0 rule). */
+  .cs-annot-1 .cs-note{top:28px;}
+  .cs-annot-1 .cs-arrow-d{right:37%; top:62%; width:560px; height:118px;}
+}
+
+/* ---------------- footer ---------------- */
+.cs-foot{margin-top:clamp(34px,5vw,52px); padding-top:26px; border-top:3px double #8a7a5e;}
+.cs-foot-btns{display:flex; flex-wrap:wrap; gap:14px;}
+.cs-foot-links{margin-top:20px; font-family:'Nunito',sans-serif; font-weight:600; font-size:14.5px; color:var(--ink-soft);}
+.cs-foot-links a{color:var(--elixir); text-decoration:underline; text-underline-offset:2px;}
+
+/* ---------------- reduced motion ---------------- */
+@media (prefers-reduced-motion:reduce){ .cta{transition:none;} }
+
+/* ---------------- narrow phones ---------------- */
+@media (max-width:420px){
+  .cs{margin-left:10px; margin-right:10px;}
+  .cs-chip{font-size:13.5px;}
+}
+
+/* ===========================================================================
+   PRINT — the PDF export path. Ctrl/Cmd+P → a clean A4 document.
+   Buttons/nav hidden, parchment becomes white with dark text, margin notes stay
+   green (moved inline), figures scale to page width, URLs shown after links.
+   =========================================================================== */
+@media print{
+  @page{size:A4; margin:18mm 16mm;}
+  html,body{background:#fff !important; color:#000;}
+  body::before{display:none !important;}
+  .cs{max-width:none; margin:0; padding:0; border:0; border-radius:0;
+    background:#fff !important; box-shadow:none;}
+  .cs h1,.cs h2,.cs-sub{color:#000;}
+  .cs > p, .cs-annot p{color:#111; max-width:none;}
+  .cs-kicker{color:#000;}
+  /* hide the interactive CTAs + the footer buttons; keep the text links */
+  .cta, .cs-cta, .cs-foot-btns{display:none !important;}
+  .cs-chip{box-shadow:none; background:#f3ecdd; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  /* margin notes: back inline, above their target, still green */
+  .cs-note{position:static !important; transform:rotate(-1.5deg); width:auto; max-width:none; margin:4px 0;}
+  .cs-note .margin-note{color:#5a7047 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  .cs-arrow-d{display:none !important;} .cs-arrow-m{display:inline-block !important; position:static; margin-left:4px;}
+  .cs-target{text-decoration-color:#5a7047;}
+  .cs-fig{break-inside:avoid;} .cs-fig img{border-color:#b9a05a; box-shadow:none; width:100%;}
+  .cs-fig figcaption{color:#444;}
+  .cs h2{break-after:avoid;}
+  /* show URLs after real links (not the buttons, which are hidden) */
+  .cs-foot-links a[href]:after, .cs a[href^="http"]:after{content:" (" attr(href) ")"; font-size:.8em; color:#555; word-break:break-all;}
+}

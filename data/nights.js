@@ -96,21 +96,23 @@ window.NIGHTS = [
           { who: "Knight", line: "Start with the Elixir, just the base for now. That stuff's the whole kingdom in a cup, literally. Everyone around here runs on it — some of us are pretty much made of this stuff, if you go back far enough." },
           { who: "Knight", line: "Now put in a drop of Heal — just the one, mind you. Two drops is for a bad day, and this isn't one of those." },
           { brew: { base: "Elixir", mix: ["Heal"], dose: 1, recipe: "The Usual",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    /* wrong-pour line — approved 07-07 (GDD §7: the rejection hints the right cup, in voice) */
                     wrong: "Kind of you — but that's not the usual. One drop of Heal, just the one. Two's for a bad day, and this isn't one.",
-                    nudge: "Now put in a drop of Heal — just the one, mind you. Two drops is for a bad day, and this isn't one of those." } },
+                    nudge: "Now put in a drop of Heal — just the one, mind you. Two drops is for a bad day, and this isn't one of those.",
+                    orderShort: "A drop of Heal — just the one, mind you…" } },
           { who: "Knight", line: "There you go. That's the usual. It's steady, nothing clever about it, and that's the point." },
           { cue: "art", text: "Knight lifts it, the purple glow catching his face." },
           { who: "Knight", line: "*(after a slow sip)* …Yeah. Careful, though — the first one's always right by accident. Don't let it go to your head." },
           { unlock: { recipe: "The Usual" } },
+          { who: "Sage", line: "*(she writes it in the Tome)* …and that one's noted down for good." },
           { who: "Sage", line: "You've clearly done this a while." },
           { who: "Knight", line: "Sat on this stool? Years. Out in the arena? A good deal longer — I was one of the first fighters they ever sent out there. My fee's cheap, I'm dependable, and I get the job done. *(a dry tug at the moustache)* The moustache didn't hurt, either. If you believe the old story, it's the only reason they ever knighted me at all." },
           { who: "Sage", line: "Can I ask you something a bit daft?" },
           { who: "Knight", line: "Go on. That's usually the only kind worth asking." },
           { who: "Sage", line: "The two sides — Blue, Red, this whole war going on out there. What's it actually about?" },
-          { who: "Knight", line: "*(a long breath; he's answered this before, but not tonight, not for a newcomer)* The truth? You could ask ten of us and get ten different answers. But if you go back far enough, it comes down to two kings — brothers, if you can believe that — who've been at each other's throats for a few hundred years. Over the arena. Over crowns and towers. Over who gets the Elixir. Over something one of them said at supper once, most likely. *(a tired half-smile)* And the rest of us just clock in, clash, and clock out again." },
+          { who: "Knight", expr: "Weary & Wistful", line: "*(a long breath; he's answered this before, but not tonight, not for a newcomer)* The truth? You could ask ten of us and get ten different answers. But if you go back far enough, it comes down to two kings — brothers, if you can believe that — who've been at each other's throats for a few hundred years. Over the arena. Over crowns and towers. Over who gets the Elixir. Over something one of them said at supper once, most likely. *(a tired half-smile)* And the rest of us just clock in, clash, and clock out again." },
           { who: "Sage", line: "And this place? Where does it fit?" },
-          { who: "Knight", line: "Oh, this place is the clocking-out part. It sits right on the border strip, see, so it doesn't belong to either side — which is exactly why it works. It's about the only place in the whole kingdom where a Blue and a Red can sit this close together and not a single fight breaks out." },
+          { who: "Knight", expr: "Warm & Content", line: "Oh, this place is the clocking-out part. It sits right on the border strip, see, so it doesn't belong to either side — which is exactly why it works. It's about the only place in the whole kingdom where a Blue and a Red can sit this close together and not a single fight breaks out." },
           { n: "He says it like it's the most ordinary thing in the world. It clearly isn't." },
           { unlock: { ledger: "Knight", note: "The anchor. Been fighting a long time." } },
         ],
@@ -127,13 +129,14 @@ window.NIGHTS = [
           { who: "Knight", line: "*(not looking up from his drink)* You didn't ask." },
           { who: "Hog Rider", line: "*(slamming onto a stool)* Alright, then, here's the rules for you, newcomer. Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it. Number two, you put a Rage in there for me, because a drink ought to have a bit of personality. And number three —" },
           { who: "Sage", line: "Wait, there's a three?" },
-          { who: "Hog Rider", line: "There's always a three! I'll think of it. You pour first." },
+          { who: "Hog Rider", expr: "Warm Grin", line: "There's always a three! I'll think of it. You pour first." },
           { brew: { base: "Dark Elixir", mix: ["Rage"], recipe: "The Strong Stuff",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
                     wrong: "HA! Wrong cup, keeper! The STRONG stuff — Dark Elixir, and don't you be shy with it!",
-                    nudge: "Alright, then, here's the rules for you, newcomer. Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it. Number two, you put a Rage in there for me, because a drink ought to have a bit of personality. And number three —" } },
+                    nudge: "Alright, then, here's the rules for you, newcomer. Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it. Number two, you put a Rage in there for me, because a drink ought to have a bit of personality. And number three —",
+                    orderShort: "Number one, I drink the strong stuff — that's Dark Elixir… Number two, you put a Rage in there for me." } },
           { cue: "art", text: "Hog Rider takes it in one hand, grinning." },
-          { who: "Hog Rider", line: "*(after an enormous gulp)* HA! Now see, THAT is a drink that's been to a battle and back. You lot honestly don't know what you're missing, sat there being all quiet—" },
+          { who: "Hog Rider", expr: "Big Laugh", line: "*(after an enormous gulp)* HA! Now see, THAT is a drink that's been to a battle and back. You lot honestly don't know what you're missing, sat there being all quiet—" },
           { who: "Knight", line: "There's only two of us." },
           { who: "Hog Rider", line: "—being all quiet, the both of you! *(delighted with himself)* Anyway — I've left the Hog tied up out front, and we're not speaking, him and me. Long story. He knows what he did." },
           { n: "He carries on like that for a while. He's very easy to be around, and you notice he never once looks at the door." },
@@ -142,7 +145,7 @@ window.NIGHTS = [
             { label: "\"You can stay as long as you keep tipping.\"", tone: "playing" },
             { label: "Say nothing. Just file it away.", tone: "silent" },
           ] },
-          { who: "Hog Rider", line: "*(if Sage pushes, only the smallest flicker — then straight back to loud)* Me? Nah, nah. I've got places to be, loads of 'em. This one's just the best of the bunch, that's all it is. *(bigger grin)* Anyway — go on, another!" },
+          { who: "Hog Rider", expr: "Quiet & Wistful", line: "*(if Sage pushes, only the smallest flicker — then straight back to loud)* Me? Nah, nah. I've got places to be, loads of 'em. This one's just the best of the bunch, that's all it is. *(bigger grin)* Anyway — go on, another!" },
           { unlock: { recipe: "The Strong Stuff" } },
           { unlock: { ledger: "Hog Rider", note: "Loud. Always the last to leave." } },
         ],
@@ -160,24 +163,25 @@ window.NIGHTS = [
           { who: "Knight", line: "*(into his tankard)* Oh, here we go." },
           { who: "Wizard", line: "I heard that, you know." },
           { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
                     wrong: "Mm. Drinkable. But I ordered a performance — double Rage, a Zap. Where's the spark?",
-                    nudge: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark." } },
+                    nudge: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark.",
+                    orderShort: "Elixir, a shot of Rage — no, make that two — and then a Zap to finish…" } },
           { cue: "art", text: "Wizard catches it and raises it high — a flourish that's half magic trick, half plea." },
-          { who: "Wizard", line: "*(to a crowd that is three people)* …and for my next— *(the spark fizzles early, with a small, sad pop)* …ah. Hm. That one was supposed to last a good deal longer than that." },
+          { who: "Wizard", expr: "Deflated", line: "*(to a crowd that is three people)* …and for my next— *(the spark fizzles early, with a small, sad pop)* …ah. Hm. That one was supposed to last a good deal longer than that." },
           { n: "A beat. You can watch him deciding whether or not to laugh it off." },
           { choice: "How does Sage handle it?", options: [
             { label: "\"Go on, do it again — I properly missed it.\"", tone: "kind", reply: [
-              { who: "Wizard", line: "*(brightening, absurdly grateful for so small a thing)* You— yes. Yes, alright! An appreciative audience, at last. You've no idea how rare that is 'round here. Watch, watch, I'll get the timing right this time—" },
+              { who: "Wizard", expr: "Boastful Grin", line: "*(brightening, absurdly grateful for so small a thing)* You— yes. Yes, alright! An appreciative audience, at last. You've no idea how rare that is 'round here. Watch, watch, I'll get the timing right this time—" },
             ] },
             { label: "\"Honestly, the fizzle's the best bit. Very you.\"", tone: "tease", reply: [
-              { who: "Wizard", line: "*(a wounded little laugh, but a real one)* …\"Very me,\" she says. Well. I'll take it, I suppose. I've been called worse by better." },
+              { who: "Wizard", expr: "Warm Smile", line: "*(a wounded little laugh, but a real one)* …\"Very me,\" she says. Well. I'll take it, I suppose. I've been called worse by better." },
             ] },
             { label: "\"No, that was genuinely good.\"", tone: "sincere", reply: [
-              { who: "Wizard", line: "*(caught completely off guard; the grin slips into something unpractised)* Oh. Well, I— yes. It was, wasn't it. *(he genuinely doesn't know what to do with a straight compliment)*" },
+              { who: "Wizard", expr: "Warm Smile", line: "*(caught completely off guard; the grin slips into something unpractised)* Oh. Well, I— yes. It was, wasn't it. *(he genuinely doesn't know what to do with a straight compliment)*" },
             ] },
           ] },
-          { who: "Wizard", line: "*(recovering, grand again)* The others, you understand — the Electro Wizard, the Ice Wizard, every last one of them pretending to be flashier than me — they'd have brought the whole roof down just to make a point. But subtlety, keeper! Subtlety's a lost art these days." },
+          { who: "Wizard", expr: "Boastful Grin", line: "*(recovering, grand again)* The others, you understand — the Electro Wizard, the Ice Wizard, every last one of them pretending to be flashier than me — they'd have brought the whole roof down just to make a point. But subtlety, keeper! Subtlety's a lost art these days." },
           { who: "Knight", line: "*(quiet, to Sage, almost fond)* He's not a bad guy, you know. He's got real skill in him — he just reckons everyone has to see him pull off the big, flashy stuff to believe it. They don't." },
           { unlock: { recipe: "The Showstopper" } },
           { unlock: { ledger: "Wizard", note: "Performs. Desperate to be taken seriously." } },
@@ -194,7 +198,7 @@ window.NIGHTS = [
           { cue: "art", text: "golden light going amber, the window cooling at its edges." },
           { who: "Knight", line: "*(making no move to leave)* You did alright tonight. For your first night, anyway." },
           { who: "Sage", line: "They're not what I expected. None of them, really." },
-          { who: "Knight", line: "No, they never are. *(he's looking past Sage now, out the window, at the banner strung over the arena gates — three words, too far to read, though he knows them by heart)* …Three days." },
+          { who: "Knight", expr: "Weary & Wistful", line: "No, they never are. *(he's looking past Sage now, out the window, at the banner strung over the arena gates — three words, too far to read, though he knows them by heart)* …Three days." },
           { who: "Sage", line: "Three days till what?" },
           { who: "Knight", line: "*(standing, setting the empty tankard down with care)* Oh, you'll hear about it. Everyone will. *(at the door, without turning back)* Get yourself some sleep, keeper. It gets a lot busier from here." },
           { cue: "sfx", text: "the door. Quiet. That one tap, still hissing." },
@@ -241,8 +245,8 @@ window.NIGHTS = [
           { who: "Sage", line: "Can I get you something?" },
           { who: "Princess", line: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little." },
           { brew: { base: "Elixir", mix: ["Poison"], recipe: "The Bittersweet",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
-                    wrong: "A sweet try. Mine's the one that bites back, remember.",
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
+                    wrong: "Nice try. Mine's the one that bites back, remember — the one with the Poison in it.",
                     nudge: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little." } },
           { cue: "art", text: "Princess takes it without looking at it, still reading the room." },
           { who: "Princess", line: "*(after a measured sip)* Mm. Just enough bite. Most people either lose their nerve with the Poison, or they panic and drown the whole thing. You did neither." },
@@ -294,9 +298,10 @@ window.NIGHTS = [
           { who: "Sage", line: "Let me get you something. What's good, for a night like this?" },
           { who: "P.E.K.K.A", line: "Something warm. And gentle — no spark in it, please. I've had enough sharp things pointed at me for one lifetime." },
           { brew: { base: "Elixir", mix: ["Heal"], recipe: "The Gentle One",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval (the Zap flinch below still takes priority) */
-                    wrong: "…it is a nice cup. It is not mine. Warm, please. Gentle.",
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice; the Zap flinch below still takes priority) */
+                    wrong: "…it is a nice cup, but it is not mine. Warm, please. Gentle.",
                     nudge: "Something warm. And gentle — no spark in it, please. I've had enough sharp things pointed at me for one lifetime.",
+                    orderShort: "Something warm. And gentle — no spark in it, please…",
                     wrongIf: [{ has: "Zap", n: "P.E.K.K.A flinches, the helmet dipping. A small, wrong beat. Sage can pour it again." }] } },
           { cue: "art", text: "she cups it in both gauntlets, careful, like it might break." },
           { who: "P.E.K.K.A", line: "*(after a moment)* …Thank you. For not making it loud." },
@@ -317,9 +322,10 @@ window.NIGHTS = [
           { cue: "art", text: "the door. KNIGHT — Weary & Wistful. He's seen the draw. It's on him tonight." },
           { who: "Knight", line: "Evening, keeper. *(he doesn't take his usual stool at the middle of the bar; he settles off to one end instead)* Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it. I feel like looking backwards for a bit." },
           { brew: { base: "Elixir", mix: ["Mirror"], recipe: "The Long Look",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
-                    wrong: "Not that one tonight. Tonight it's the one with Mirror in it — the long look.",
-                    nudge: "Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it. I feel like looking backwards for a bit." } },
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
+                    wrong: "Not that one tonight. Tonight it's the one with Mirror in it — the long look, not my usual.",
+                    nudge: "Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it. I feel like looking backwards for a bit.",
+                    orderShort: "An Elixir, and a splash of Mirror — not the usual tonight…" } },
           { cue: "art", text: "the surface of the drink shimmers, doubling the lamplight." },
           { who: "Knight", line: "There was a time this all meant something, you know. The clash of it. You'd win, and it *mattered*, and you'd feel it for a week. *(he turns the shimmering drink in his hand)* Now I've a bout at dawn like every other dawn, and I can't for the life of me remember what I'm meant to be fighting *for*." },
           { who: "Sage", line: "You could just… not. Can't you?" },
@@ -359,7 +365,7 @@ window.NIGHTS = [
                         nudge: "*(no performance, no audience — the quiet Usual)*" } },
             ] },
           ] },
-          { who: "Wizard", line: "*(whichever; a truer note under the grandeur now)* You're a better keeper than this place deserves. *(a beat)* Don't tell anyone I said anything sincere. It'll ruin me." },
+          { who: "Wizard", expr: "Warm Smile", line: "*(whichever; a truer note under the grandeur now)* You're a better keeper than this place deserves. *(a beat)* Don't tell anyone I said anything sincere. It'll ruin me." },
           { unlock: { ledger: "Wizard", note: "Forty years of fire, and not one card to show for it. The boast is the bandage.", stage: 2 } },
         ],
       },
@@ -425,9 +431,10 @@ window.NIGHTS = [
           ] },
           { who: "Hog Rider", line: "*(whichever — something in him settles)* …Yeah. *(a breath)* Yeah, alright. Do us a favour — none of the strong stuff tonight. No Dark Elixir, no Rage. I don't need winding up. Just… something easy." },
           { brew: { base: "Elixir", mix: ["Heal"], recipe: "The Easy One",
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
-                    wrong: "Nah — light one tonight, remember? The easy one. …Don't make it weird.",
-                    nudge: "Do us a favour — none of the strong stuff tonight. No Dark Elixir, no Rage. I don't need winding up. Just… something easy." } },
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
+                    wrong: "Nah — light one tonight, remember? The easy one, just the normal Elixir. …Don't make it weird.",
+                    nudge: "Do us a favour — none of the strong stuff tonight. No Dark Elixir, no Rage. I don't need winding up. Just… something easy.",
+                    orderShort: "None of the strong stuff tonight — no Dark Elixir, no Rage. Just… something easy." } },
           { cue: "art", text: "he holds it in both hands, no toast, no showing off." },
           { who: "Hog Rider", expr: "Warm Grin", line: "*(after a sip — and then the real one)* You know what? This'll do. This'll do just fine. *(a proper smile, small and true)* Might bring the Hog next time. If he apologises." },
           { unlock: { recipe: "The Easy One" } },
@@ -486,7 +493,8 @@ window.NIGHTS = [
           { who: "Sage", line: "No showstopper tonight?" },
           { who: "Wizard", line: "No. No tricks. *(quietly)* Make me whatever you'd make him. The Knight. The plain, steady one that nobody writes songs about. *(a beat)* I think I'd like to know what that feels like — being simple, for an evening." },
           { brew: { base: "Elixir", mix: ["Heal"], dose: 1, recipe: "The Usual",
-                    nudge: "Make me whatever you'd make him. The Knight. The plain, steady one that nobody writes songs about." } },
+                    nudge: "Make me whatever you'd make him. The Knight. The plain, steady one that nobody writes songs about.",
+                    orderShort: "Make me whatever you'd make the Knight — the plain, steady one…" } },
           { who: "Wizard", expr: "Warm Smile", line: "…Oh. *(genuine surprise)* That's rather nice, isn't it. Quiet. *(he looks at Sage)* Forty years chasing the loud version of everything. And it turns out the good stuff was the simplest drink all along. *(then, mock-stern)* If you quote me on that, I'll deny every word." },
           { unlock: { ledger: "Wizard", note: "Doesn't need the card tonight. Learned the plain cup was the good one all along.", stage: 3 } },
         ],
@@ -513,9 +521,10 @@ window.NIGHTS = [
           ] },
           { who: "Princess", line: "No Poison tonight. *(she surprises herself saying it)* Something kind, for a change. I won't tell anyone if you don't." },
           { brew: { base: "Elixir", mix: ["Heal"],
-                    /* DRAFT wrong-pour line — pending Tessa's word-by-word approval */
-                    wrong: "Tonight I'll take the kind one. Just this once — don't write it down.",
-                    nudge: "No Poison tonight. Something kind, for a change. I won't tell anyone if you don't." } },
+                    /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
+                    wrong: "Tonight I'll take the kind one, no Poison. Just this once — don't write it down.",
+                    nudge: "No Poison tonight. Something kind, for a change. I won't tell anyone if you don't.",
+                    orderShort: "No Poison tonight. Something kind, for a change…" } },
           { who: "Princess", line: "*(after a sip; she doesn't make a joke of it)* …That's the one, isn't it. That's the drink you give someone you're not trying to keep at arm's length. *(she meets Sage's eye)* Thank you." },
           { unlock: { ledger: "Princess", note: "Lonely at the top and finally said so. Put the Poison down for one night.", stage: 3 } },
         ],
@@ -534,6 +543,15 @@ window.NIGHTS = [
           { who: "Sage", line: "Not soft. Just human. What'll steady you?" },
           { who: "Knight", line: "You know the answer to that better than anyone by now. Pour me the right one, keeper. Send me into the morning the way I ought to go." },
           { brew: { consequence: true, right: { base: "Elixir", mix: ["Heal"], dose: 1 },
+                    /* §7 (round-7 fix): this gate USED to hide its Order Strip — with no
+                       nudge, orderText() was "" → order-empty → display:none. Tessa's rule:
+                       the strip stays for every gate, most of all this one. His own spoken
+                       request is the reminder (verbatim, from his line just above) — it names
+                       no recipe, so "know it by heart" holds and no §8 outcome leaks. The ✓ is
+                       still suppressed (Brew.setOrder(consequence?…:…), untouched). Wording is
+                       Tessa's to re-trim. */
+                    nudge: "You know the answer to that better than anyone by now. Pour me the right one, keeper. Send me into the morning the way I ought to go.",
+                    orderShort: "Pour me the right one, keeper — the way I ought to go…",
                     onRight: [
                       { cue: "art", text: "he drinks slow, the shoulders drop, the eyes clear." },
                       { who: "Knight", line: "…There it is. That's the one. *(settled, sure)* Steady hands, clear head. That's how you walk into a Championship. Thank you, keeper." },

@@ -163,13 +163,25 @@ html.reduce .cue-label{animation:none;}
 /* the Knight (full body) stands ON the floorboards near the stool — positioned
    in the painting's own coords (inside .bb-stage), clear of the taps + mugs. The
    entry slide is a % of his own height so it stays proportional. */
-.bb-char{position:absolute; left:76%; bottom:5%; height:63%; width:auto; transform-origin:50% 100%;
+.bb-char{position:absolute; left:76%; bottom:2%; height:63%; width:auto; transform-origin:50% 100%;
   transform:translateX(-50%) translateY(calc((1 - var(--char)) * 12%)) scale(calc(.99 + var(--char) * .01));
   opacity:var(--char); filter:drop-shadow(-4px 12px 16px rgba(0,0,0,.5));
   z-index:4; pointer-events:none;}
+/* grounding: two dark contact cores, one per boot, sized + placed from the
+   artwork's MEASURED sole midpoints/widths (alpha scan, no hand-tuned x). Each
+   ellipse centres on its sole line so the boot (z4) sits on it (z3); near-black,
+   ~0.5 centre opacity, soft blur. Tailspin fallback: no soft spread. */
+.bb-sole{position:absolute; z-index:3; pointer-events:none;
+  transform:translateX(-50%) scaleX(var(--char)); opacity:var(--char);
+  background:radial-gradient(ellipse at center, rgba(10,7,4,.55), rgba(10,7,4,.22) 55%, transparent 80%);
+  filter:blur(2px);}
+/* measured: left boot midx .386 w .195 -> x 73.3% w 5.1%; right (forward) boot
+   midx .781 w .246 -> x 82.7% w 6.4%; sole-bottoms at 2.33% / 2.82% of stage */
+.bb-sole-l{left:73.3%; bottom:0.97%; width:5.1%; height:2.72%;}
+.bb-sole-r{left:82.7%; bottom:1.11%; width:6.4%; height:3.41%;}
 
 /* the Knight's speech bubble pops just above his head, tail down-centre */
-.bb-bubble{position:absolute; left:76%; top:16%; max-width:min(230px, 34%); z-index:5;
+.bb-bubble{position:absolute; left:76%; top:18%; max-width:min(230px, 34%); z-index:5;
   background:var(--cream); color:var(--charcoal); border-radius:14px; padding:9px 15px 11px;
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.45));
   opacity:var(--bubble); transform:translateX(-50%) translateY(calc((1 - var(--bubble)) * 10px)) scale(calc(.82 + var(--bubble) * .18));
@@ -348,6 +360,7 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
   opacity:clamp(0, calc(var(--p) / .22), 1);
   transform:translateY(calc((1 - clamp(0, calc(var(--p) / .22), 1)) * 16px));}
 .ledger-frame{border-radius:10px; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.6);}
+.ledger-frame picture{display:block;}
 .ledger-img{display:block; width:100%; height:auto;}
 .tome-caption{text-align:center; max-width:640px; opacity:clamp(0, calc((var(--p) - .04) / .14), 1);}
 .tome-caption h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff; text-shadow:0 3px 18px rgba(0,0,0,.6);}
@@ -376,7 +389,7 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
 .arena{border-radius:14px; overflow:hidden; border:1px solid #322c4a; background:#1c1930; padding-bottom:16px;}
 .arena-art{height:150px; position:relative; overflow:hidden;}
 .arena-art img{width:100%; height:100%; object-fit:cover; display:block;}
-.arena-art.royal{background:linear-gradient(180deg, rgba(232,183,112,.4), rgba(122,63,160,.32)), url('../assets/img/bar.jpg') center/cover;}
+.arena-art.royal{background:linear-gradient(180deg, rgba(232,183,112,.4), rgba(122,63,160,.32)), url('../assets/img/bar.webp') center/cover;}
 /* future editions: show the real teaser art, gently dimmed + a legibility wash
    so they read as "coming" next to the lit Royal Arena */
 .arena.soon .arena-art{filter:brightness(.82) saturate(.92);}
@@ -386,6 +399,47 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
 .arena.live{border-color:rgba(232,183,112,.5);}
 .arena.live .arena-tag{color:var(--amber);}
 .arena.soon .arena-tag{color:#9a93c2;}
+
+/* ============ CHAPTER 9 — "Behind the bar" (maker voice, brief §2) ============
+   A cream parchment panel on the night ground — the page's one register switch
+   from game voice to maker voice. Ships hidden behind the js/flags.js gate until
+   the case study + deck are live. Static composition → reduced-motion safe. */
+.behind-wrap{background:linear-gradient(180deg,#141019,#191531); padding:clamp(56px,9vh,104px) 22px;}
+.behind-wrap[hidden]{display:none;}
+.behind-inner{max-width:720px; margin:0 auto;}
+.behind-panel{position:relative; background:linear-gradient(175deg,#f7efdc,#e9dcc0); color:var(--charcoal);
+  border:1px solid #cbbd9c; border-top:4px double #8a7a5e; border-radius:10px;
+  padding:clamp(28px,5vw,44px) clamp(24px,5vw,46px); box-shadow:0 26px 60px rgba(0,0,0,.55);
+  transform:rotate(-.5deg);}
+.behind-panel .eyebrow{color:var(--elixir);}      /* purple reads on cream */
+.behind-panel h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,40px);
+  color:#2a2118; line-height:1.05; margin-bottom:14px;}
+.behind-lede{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(17px,2.1vw,21px);
+  line-height:1.5; color:#3a2e22; max-width:60ch;}
+/* the CTAs: primary reuses the game's purple button; the secondary (deck) goes
+   SAGE — a core palette colour the page barely uses. charcoal on #9CAF88 clears
+   ~7.8:1 contrast, legible at small sizes. */
+.behind-ctas{display:flex; flex-wrap:wrap; gap:14px; margin-top:6px; position:relative;}
+.cta.sage{background:linear-gradient(180deg,#a9c096,#9CAF88); color:#241F1B; border:1px solid #6B7F5C;
+  box-shadow:0 5px 0 #6B7F5C, 0 12px 26px rgba(107,127,92,.34);}
+.cta.sage:hover{background:linear-gradient(180deg,#9CAF88,#8a9f77); box-shadow:0 6px 0 #6B7F5C, 0 16px 30px rgba(107,127,92,.42);}
+.cta.sage:active{box-shadow:0 1px 0 #6B7F5C;}
+.behind-more{margin-top:20px; font-family:'Nunito',sans-serif; font-weight:600; font-size:14.5px; color:#6b5a42;}
+.behind-more a{color:var(--elixir); text-decoration:underline; text-underline-offset:2px;}
+.behind-more a:hover{color:#5b2f7a;}
+.behind-more .more-arrow{color:var(--elixir); text-decoration:none; margin-left:1px;}
+/* Sage's one green margin note; its arrow LEAVES the text and lands ON the
+   case-study button (§0 rule). The arrow is absolutely positioned so it reaches
+   down onto the button in both the desktop row and the stacked mobile layout —
+   the case-study button is always the first CTA, directly below the note. */
+.behind-note{position:relative; z-index:2; width:max-content; max-width:82%;
+  margin:24px 0 2px; transform:rotate(-2deg); transform-origin:left center;}
+.behind-note .margin-note{position:static; transform:none; z-index:auto; color:var(--sage-deep);
+  font-size:clamp(20px,2.4vw,24px); filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));}
+.behind-arrow{position:absolute; left:60%; top:62%; width:64px; height:56px;
+  color:var(--sage-deep); overflow:visible; pointer-events:none;}
+.behind-arrow .na-line, .behind-arrow .na-head{fill:none; stroke:currentColor; stroke-width:2.6;
+  stroke-linecap:round; stroke-linejoin:round;}
 
 /* ---------- reduced motion: kill drift, show composed frames ---------- */
 @media (prefers-reduced-motion: reduce){
@@ -404,22 +458,70 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
   .reveal-wrap{height:200vh;}   /* shorter pin distance on phones (guard-rail) */
   .chips{gap:9px;}
   .chip{font-size:12.5px; padding:6px 11px 7px;}
-  .bb-caption{bottom:3vh;}
-  /* the Knight stays in the painting's coords; full portrait framing of ch2
-     (taller crop, re-anchored) is the M3 mobile pass. */
+
+  /* ---- CHAPTER 2 — bespoke portrait composition (M3) ----
+     Landscape letterboxed the 16:9 painting into a thin band with dead space
+     top and bottom, and the settled bubble buried the Knight. In portrait the
+     scene becomes a TALL band (top ~60vh) that centre-crops the painting onto
+     the taps + counter + stool; the caption sits in the dark beneath it. The
+     stage stays a full 16:9 box (wider than the screen, sides clipped by the
+     pin) so every painted-feature coord the glows + arrow rely on is preserved
+     — only the foreground Knight, bubble and note get re-placed for the crop. */
+  .bar-build .bb-stage{
+    inset:auto; margin:0; top:0; left:50%;
+    width:auto; height:66vh; aspect-ratio:16/9;
+    transform:translateX(-50%);
+    overflow:hidden;   /* clips the Knight at the band's bottom edge (feet out of frame) */
+  }
+  /* the Knight — scaled up and anchored so his feet run OFF the bottom of the
+     band: he reads knee-up, a big tight figure, and the floor contact (and the
+     stool/perspective clash it caused) is simply out of frame. The band bottom
+     falls at mid-shin, between joints. No feet on screen → no ground shadow. */
+  .bar-build .bb-char{left:55%; bottom:-15%; height:88%;}
+  .bar-build .bb-sole{display:none;}
+  /* his speech bubble sits just above his (now higher) head, narrow so the line
+     wraps to two, not the six-line sliver landscape produced */
+  .bar-build .bb-bubble{left:55%; top:4%; max-width:180px;}
+  .bar-build .bb-line{font-size:14px;}
+  /* Sage's green note back inside the visible crop (landscape had it clipped at
+     the left edge); the landscape arrow points at an off-crop lantern, so it is
+     hidden and the note stands alone on mobile */
+  .bar-build .note-lanterns{left:31%; top:2.5%; max-width:44vw; font-size:19px;}
+  .bar-build .note-arrow{display:none;}
+  /* caption in the dark band beneath the scene */
+  .bb-caption{bottom:4vh;}
   /* ch3 rail — smaller uniform box + recomputed centring track (step 220+28) */
   .rail-track{gap:28px; transform:translateX(calc(50vw - 110px - var(--p) * 992px));}
   .reg{width:220px;}
   .reg-card{width:190px; height:266px;}
   .reg-meta{width:220px;}
-  /* ch4 brew — stack the three columns */
-  .brew-stage{flex-direction:column; gap:22px;}
+  /* ch4 brew — stack the three columns, and SHRINK the widget so the payoff
+     (the ✓, the "The Usual" recipe name and the caption) clears the 100vh pin
+     instead of being clipped below the fold on a phone */
+  .brew-stage{flex-direction:column; gap:15px;}
   .brew-slots{flex-direction:row; width:auto;}
   .brew-slots .bslot{width:150px;}
+  .tankard{width:140px; height:140px;}
+  .tankard img{width:118px;}
+  .tk-tick{width:36px; height:36px; line-height:36px; font-size:22px;}
+  .brew-meters{width:min(300px,84vw); gap:7px;}
+  .dose{margin-top:4px;}
+  .recipe-name{margin-top:8px;}
+  .brew-caption{bottom:4vh;}
+  /* ch5 herald — tighten so the whole broadsheet, incl. the ripple line and
+     the "↑ you poured it" hand-note, sits inside the 100vh pin on a phone */
+  .herald{gap:14px; padding:4vh 16px;}
+  .herald-caption p{font-size:15px; line-height:1.4; margin-top:8px;}
+  .broadsheet{padding:20px 22px;}
+  .bs-head{font-size:19px; margin:12px 0 8px;}
+  .bs-story{font-size:15px; line-height:1.42;}
+  .bs-note{margin-top:12px; font-size:19px;}
   /* ch7/8 — stack devices, 2-up arenas */
   .arena-strip{grid-template-columns:repeat(2,1fr);}
-  /* ch6 ledger — the landscape capture stays legible in a swipeable frame
-     (green notes readable; the page itself never scrolls sideways) */
-  .ledger-frame{overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; border-radius:8px;}
-  .ledger-img{width:auto; height:auto; min-width:640px;}
+  /* ch6 ledger — a phone gets a deliberate single-page crop (the right page: bio
+     + Sage's pinned note) via <picture>, so the page fits and reads as "one page
+     of a book" — no sideways swipe, no accidentally-cut-off spread. */
+  .ledger{width:min(500px,94vw);}
+  .ledger-frame{overflow:visible; border-radius:8px;}
+  .ledger-img{width:100%; height:auto; min-width:0; aspect-ratio:660 / 610;}
 }

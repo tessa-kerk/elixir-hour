@@ -1,0 +1,14 @@
+{
+  "name": "Elixir Hour",
+  "short_name": "Elixir Hour",
+  "description": "Coffee Talk, in the Clash Royale universe. A cosy bar on the neutral ground between two warring kingdoms.",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "theme_color": "#241a12",
+  "background_color": "#241a12",
+  "display": "standalone",
+  "orientation": "any",
+  "start_url": "index.html"
+}

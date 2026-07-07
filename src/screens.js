@@ -28,10 +28,29 @@ window.Screens = (function () {
        loaded; bumped in lockstep with the ?v= cache token (see strings.js). */
     var stamp = el("build-stamp");
     if (stamp && window.buildLabel) stamp.textContent = buildLabel();
+    /* in-game menu tray (§11) */
+    el("menu-title").textContent = t("menu.title");
+    el("menu-resume").textContent = t("menu.resume");
+    el("menu-tome").textContent = t("menu.tome");
+    el("menu-settings").textContent = t("menu.settings");
+    el("menu-savequit").textContent = t("menu.savequit");
+    el("menu-note").textContent = t("menu.note");
   }
 
+  /* the title's Continue button names where you left off — "Continue — Night 2:
+     The Draw" (GDD §11) — so a returning player knows what they're resuming. */
   function renderTitle() {
-    el("btn-continue").disabled = !Save.exists();
+    var s = Save.exists() ? Save.load() : null;
+    el("btn-continue").disabled = !s;
+    if (s) {
+      var n = typeof s.night === "number" ? s.night : 1;
+      var nd = null, ns = window.NIGHTS || [];
+      for (var i = 0; i < ns.length; i++) if (ns[i].night === n) nd = ns[i];
+      var label = t("night.label", { n: n }) + (nd && nd.title ? ": " + nd.title : "");
+      el("btn-continue").textContent = t("continue.named", { label: label });
+    } else {
+      el("btn-continue").textContent = t("title.continue");
+    }
     Particles.start();
   }
   function leaveTitle() { Particles.stop(); }
@@ -53,44 +72,35 @@ window.Screens = (function () {
      sized so the figure (top→base span) fills the cast height. A standardised
      contact-shadow ellipse sits on the counter beneath. */
   var lastServe = null;
+  var orderFullHtml = "";   /* full request behind a trimmed Order Strip line (§7 tap-for-full) */
 
-  /* Place (or clear) the customer: the two-layer composite's top layer plus
-     the ONE standardised contact shadow (GDD §12) — soft, near-black, low
-     opacity, at the counter line, behind the figure, never in front. Baked
-     render shadows are stripped by the keying pipeline. */
+  /* Solo serve customer (§12 new canon, round 9). The whole screen is one of Tessa's
+     pre-baked, hand-grounded scenes — no compositing, no anchors, no shadows. An
+     expression change swaps the whole image, cross-faded between two stacked #ms
+     layers; the backgrounds are pixel-identical so the bar stays dead still and only
+     the character dissolves. lastServe.headTopY (from the per-character head fraction)
+     anchors the speech bubble just above the face. */
+  var sceneLayers = null, sceneActive = 0;
   function setServeCustomer(who, exprName) {
-    var img = el("serve-char"), sh = el("serve-shadow");
-    if (!who || !window.CAST[who]) {
-      lastServe = null;
-      img.removeAttribute("src");
-      img.style.display = "none";
-      sh.style.display = "none";
-      return;
-    }
+    if (!sceneLayers) sceneLayers = [el("ms-img"), el("ms-img2")];
+    if (!who || !window.CAST[who]) { lastServe = null; return; }
     var c = window.CAST[who];
     var names = [];
     for (var k in c.exprs) names.push(k);
     if (!exprName || !c.exprs[exprName]) exprName = names[0];
-    var e = c.exprs[exprName];
-    lastServe = { who: who, expr: exprName };
-
-    var comp = Stage.composite();
-    var span = Math.max(e.base - e.top, 0.4);
-    var imgH = (comp.charH * (e.tall || 1)) / span;
-
-    img.style.display = "";
-    img.src = c.dir + "/" + e.file;
-    img.style.height = imgH + "px";
-    img.style.width = "auto";
-    img.style.left = comp.anchorX + "px";
-    img.style.top = (comp.counterY - imgH * e.base) + "px";
-
-    var shW = comp.charH * 0.60, shH = comp.charH * 0.065;
-    sh.style.display = "";
-    sh.style.width = shW + "px";
-    sh.style.height = shH + "px";
-    sh.style.left = comp.anchorX + "px";
-    sh.style.top = (comp.counterY - shH * 0.5) + "px";
+    var base = c.exprs[exprName];
+    lastServe = { who: who, expr: exprName, headTopY: (c.head || 0.25) * Stage.design().H };
+    crossfadeScene(window.serveScenePath(base));
+  }
+  /* fade a new scene in over the current one (~160ms via .scene-layer transition) */
+  function crossfadeScene(path) {
+    var cur = sceneLayers[sceneActive], nxt = sceneLayers[1 - sceneActive];
+    if (cur.getAttribute("src") === path) return;              /* already showing it */
+    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; return; }   /* first show: no fade */
+    nxt.style.opacity = 0;
+    nxt.onload = function () { nxt.style.opacity = 1; cur.style.opacity = 0; };
+    nxt.src = path;
+    sceneActive = 1 - sceneActive;
   }
 
   /* One dialogue line in the bubble. html is pre-formatted (escaped) by the
@@ -106,10 +116,51 @@ window.Screens = (function () {
     el("serve-line").innerHTML = html;
     bub.classList.toggle("notail", !withTail);
     bub.style.top = "auto";
-    bub.style.bottom = (Stage.design().H - (comp.counterY - comp.charH) + 14) + "px";
+    /* anchor the bubble bottom just above the speaker's head-top (#3): never
+       covers the face, and tracks the head when the cast is lowered. */
+    var headTop = (lastServe && lastServe.headTopY != null) ? lastServe.headTopY : (comp.counterY - comp.charH);
+    bub.style.bottom = (Stage.design().H - headTop + 12) + "px";
     bub.classList.add("on");
+    /* clamp (Fix 8): a long line grows the bottom-anchored bubble upward and can
+       push its top off the stage. If it would clip, pin the top just inside the
+       stage and let the bubble grow downward instead. */
+    if (bub.offsetTop < 8) { bub.style.top = "8px"; bub.style.bottom = "auto"; }
   }
   function hideServeBubble() { el("serve-bubble").classList.remove("on"); }
+  /* the Order Strip text (§7) — the customer's order in their own words, shown
+     on the strip above the mixing panel while a brew beat is live. `shortHtml`
+     is the curated trimmed line (or the full nudge when short enough); `fullHtml`
+     is the complete request. When they differ, the strip is tappable and a tap
+     opens a popover with the full request (grows UPWARD over the scene so it never
+     reflows the panel — a reflow would re-open the Pour-overflow P0). Empty text
+     (between beats / cleared on pour) hides the strip rather than showing a blank bar;
+     every live gate carries text, including the Night-3 consequence gate (round-7). */
+  function setOrderText(shortHtml, fullHtml) {
+    var e = el("order-text"); if (e) e.innerHTML = shortHtml || "";
+    orderFullHtml = (fullHtml && fullHtml !== shortHtml) ? fullHtml : "";
+    var f = el("order-full"); if (f) f.innerHTML = orderFullHtml;
+    var strip = el("order-strip");
+    if (strip) {
+      strip.classList.toggle("order-empty", !shortHtml);
+      strip.classList.toggle("has-more", !!orderFullHtml);
+    }
+    var pf = el("panel-frame"); if (pf) pf.classList.remove("order-open");   /* collapse any open popover on a new/blank order */
+  }
+  /* the face currently shown on the serve customer — the dialogue engine reads
+     it to restore a pre-choice expression after a branch-local swap (#11). */
+  function currentServeExpr() { return lastServe ? lastServe.expr : null; }
+  /* how many rendered lines a bubble's text element currently occupies — the
+     dialogue engine's paginator measures the real, laid-out element (bubble
+     already visible at its final width) so pagination works for every bubble
+     type (§11 bubble pagination). */
+  function bubbleLineCount(sel) {
+    var e = document.querySelector(sel);
+    if (!e) return 1;
+    var cs = window.getComputedStyle(e);
+    var lh = parseFloat(cs.lineHeight);
+    if (!lh || isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.4;
+    return Math.max(1, Math.round(e.offsetHeight / lh));
+  }
 
   /* Sage's own spoken bubble (Fix 4): bottom-LEFT, sage-tinted, no tail toward
      the customer — the keeper is behind the counter, not the customer above it.
@@ -179,81 +230,34 @@ window.Screens = (function () {
      screen: every cutout anchored by its measured torso-base to ONE counter
      line, one standardised contact shadow each; the row spreads across the
      counter. The bubble sits above whoever is speaking. */
-  var groupCast = {};          /* who → { img, cx, topY } */
-  var groupComp = null;
+  var groupCast = {};          /* who → { cx, topY } head anchors */
   var lastGroup = null;
 
-  function groupComposite() {
-    var D = Stage.design();
-    var portrait = document.body.classList.contains("portrait");
-    return portrait
-      ? { counterY: 0.52 * D.H, charH: 0.245 * D.H, W: D.W, H: D.H }
-      : { counterY: 0.82 * D.H, charH: 0.42 * D.H, W: D.W, H: D.H };
-  }
+  /* Round 9: the finale is Tessa's ready-made Group Scene V2 (all five hand-grounded
+     in ONE image). No per-character placement — just the image, the bubble anchored
+     above whoever speaks. Head anchors measured off the V2 art (design px, landscape). */
+  var GROUP_HEADS = {
+    "Hog Rider": { x: 134, topY: 249 },
+    "P.E.K.K.A":  { x: 359, topY: 221 },
+    "Knight":    { x: 625, topY: 227 },
+    "Wizard":    { x: 916, topY: 274 },
+    "Princess":  { x: 1134, topY: 208 },
+  };
 
   function renderGroup(b) {
     lastGroup = b;
-    var row = el("group-row");
-    row.innerHTML = "";
+    var g = el("group-row"); if (g) g.innerHTML = "";
+    el("g-img").src = "assets/scenes/Group Scene V2.webp?v=" + (window.BUILD ? window.BUILD.n : 0);
     groupCast = {};
-    groupComp = groupComposite();
-    var cast = b.cast || [];
-    for (var i = 0; i < cast.length; i++) {
-      var cx = ((i + 0.5) / cast.length) * groupComp.W;
-      placeGroupChar(cast[i].who, cast[i].expr, cx);
+    var D = Stage.design(), sx = D.W / 1280, sy = D.H / 720;
+    for (var who in GROUP_HEADS) {
+      groupCast[who] = { cx: GROUP_HEADS[who].x * sx, topY: GROUP_HEADS[who].topY * sy };
     }
     el("group-bubble").classList.remove("on");
   }
 
-  function placeGroupChar(who, exprName, cx) {
-    var c = window.CAST[who];
-    if (!c) return;
-    var names = [];
-    for (var k in c.exprs) names.push(k);
-    if (!exprName || !c.exprs[exprName]) exprName = names[0];
-    var e = c.exprs[exprName];
-    var span = Math.max(e.base - e.top, 0.4);
-    var imgH = (groupComp.charH * (e.tall || 1)) / span;
-
-    var row = el("group-row");
-    var old = groupCast[who];
-    var sh = old ? old.sh : document.createElement("div");
-    var img = old ? old.img : document.createElement("img");
-    if (!old) {
-      sh.className = "g-shadow";
-      img.className = "g-char";
-      row.appendChild(sh);
-      row.appendChild(img);
-    }
-    img.src = c.dir + "/" + e.file;
-    img.style.height = imgH + "px";
-    img.style.left = cx + "px";
-    img.style.top = (groupComp.counterY - imgH * e.base) + "px";
-    var shW = groupComp.charH * 0.60, shH = groupComp.charH * 0.065;
-    sh.style.width = shW + "px";
-    sh.style.height = shH + "px";
-    sh.style.left = cx + "px";
-    sh.style.top = (groupComp.counterY - shH * 0.5) + "px";
-    groupCast[who] = { img: img, sh: sh, cx: cx, expr: exprName,
-                       topY: groupComp.counterY - groupComp.charH * (e.tall || 1) };
-    /* end figures pull inward so nobody crops at the frame — neighbours
-       overlapping reads as a crowded bar; a cut-off face reads as a bug */
-    function clampX() {
-      var half = img.offsetWidth / 2;
-      if (!half) return;
-      var cxc = Math.max(half + groupComp.W * 0.004, Math.min(cx, groupComp.W * 0.996 - half));
-      if (Math.abs(cxc - cx) < 1) return;
-      img.style.left = cxc + "px";
-      sh.style.left = cxc + "px";
-      if (groupCast[who]) groupCast[who].cx = cxc;
-    }
-    if (img.complete) clampX(); else img.onload = clampX;
-  }
-
-  function groupExpr(who, exprName) {
-    var g = groupCast[who];
-    if (g) placeGroupChar(who, exprName, g.cx);
-  }
+  /* expressions are baked into the finale image — nothing to swap at runtime */
+  function groupExpr() {}
 
   function groupLine(who, colour, html) {
     var bub = el("group-bubble");
@@ -261,11 +265,12 @@ window.Screens = (function () {
     bub.querySelector(".speaker").style.color = colour;
     bub.querySelector(".speaker").style.display = who ? "" : "none";
     bub.querySelector(".line").innerHTML = html;
+    var D = Stage.design(), W = D.W, H = D.H;
+    var portrait = document.body.classList.contains("portrait");
     var g = who && groupCast[who];
-    var W = groupComp.W, H = groupComp.H;
-    var bw = Math.round(W * 0.34);
+    var bw = Math.round(W * (portrait ? 0.9 : 0.34));
     bub.style.width = bw + "px";
-    if (g) {
+    if (g && !portrait) {
       /* above the speaker, clamped to the stage, tail on */
       var left = Math.max(W * 0.01, Math.min(g.cx - bw / 2, W * 0.99 - bw));
       bub.style.left = left + "px";
@@ -273,9 +278,9 @@ window.Screens = (function () {
       bub.classList.remove("notail");
       bub.style.setProperty("--tailx", Math.round(g.cx - left - 9) + "px");
     } else {
-      /* Sage / narration: bottom-centre, no tail (the keeper is the camera) */
+      /* Sage / narration / portrait (heads reflow): bottom-centre name-box, no tail */
       bub.style.left = Math.round((W - bw) / 2) + "px";
-      bub.style.bottom = Math.round(H * 0.05) + "px";
+      bub.style.bottom = Math.round(H * (portrait ? 0.03 : 0.05)) + "px";
       bub.classList.add("notail");
     }
     bub.classList.add("on");
@@ -284,46 +289,49 @@ window.Screens = (function () {
   /* ---- Split duologue (Layout 5, GDD §11): two customers conversing ----
      Diagonal split canvas, one customer per panel, bottom-centre name-box
      in the speaker's colour; the silent half dims a touch. */
-  var duoCast = {};            /* who → side index (0 left, 1 right) */
+  var duoSides = {};                       /* who → 'left' | 'right' */
   var lastDuo = null;
+  var duoBg = null, duoRt = null;          /* [layerA, layerB] pairs for cross-fade */
+  var duoBgIdx = { a: 0 }, duoRtIdx = { a: 0 };
 
-  /* Chest-up framing with stature kept honest: the same tall factors and
-     measured spans as the serve composite, torso-base carried just below
-     the panel's bottom edge (landscape) or the split line (portrait). */
-  function placeDuoChar(i, who, exprName) {
+  /* cross-fade a stacked pair of layers to a new image (~160ms) */
+  function crossfadePair(pair, idx, path) {
+    var cur = pair[idx.a], nxt = pair[1 - idx.a];
+    if (cur.getAttribute("src") === path) return;
+    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; return; }
+    nxt.style.opacity = 0;
+    nxt.onload = function () { nxt.style.opacity = 1; cur.style.opacity = 0; };
+    nxt.src = path;
+    idx.a = 1 - idx.a;
+  }
+
+  /* left = the character's whole serve scene (backdrop); right = the character's
+     grounded cutout, shifted onto the right of the same counter (CSS translateX) */
+  function setDuoSide(side, who, exprName) {
     var c = window.CAST[who];
     if (!c) return;
     var names = [];
     for (var k in c.exprs) names.push(k);
     if (!exprName || !c.exprs[exprName]) exprName = names[0];
-    var e = c.exprs[exprName];
-    var D = Stage.design();
-    var portrait = document.body.classList.contains("portrait");
-    var charH = (portrait ? 0.33 : 0.56) * D.H;
-    var baseY = portrait ? (i === 0 ? 0.545 : 1.04) * D.H : 1.04 * D.H;
-    var span = Math.max(e.base - e.top, 0.4);
-    var imgH = (charH * (e.tall || 1)) / span;
-    var half = document.querySelector("#screen-duo .duo-half." + (i === 0 ? "left" : "right"));
-    var img = half.querySelector("img");
-    img.src = c.dir + "/" + e.file;
-    img.style.height = imgH + "px";
-    img.style.top = (baseY - imgH * e.base) + "px";
-    half.classList.remove("dim");
-    duoCast[who] = i;
+    var base = c.exprs[exprName];
+    if (side === "left") crossfadePair(duoBg, duoBgIdx, window.serveScenePath(base));
+    else crossfadePair(duoRt, duoRtIdx, window.cutoutPath(base));
   }
 
   function renderDuo(b) {
     lastDuo = b;
-    duoCast = {};
+    if (!duoBg) { duoBg = [el("duo-bg"), el("duo-bg2")]; duoRt = [el("duo-right"), el("duo-right2")]; }
+    duoSides = {};
     var cast = b.cast || [];
-    for (var i = 0; i < 2 && i < cast.length; i++) placeDuoChar(i, cast[i].who, cast[i].expr);
+    if (cast[0]) { duoSides[cast[0].who] = "left"; setDuoSide("left", cast[0].who, cast[0].expr); }
+    if (cast[1]) { duoSides[cast[1].who] = "right"; setDuoSide("right", cast[1].who, cast[1].expr); }
     el("duo-box").classList.remove("on");
+    el("screen-duo").classList.remove("speak-left", "speak-right");
   }
 
   function duoExpr(who, exprName) {
-    var i = duoCast[who];
-    if (i === undefined) return;
-    placeDuoChar(i, who, exprName);
+    var side = duoSides[who];
+    if (side) setDuoSide(side, who, exprName);
   }
 
   function duoLine(who, colour, html) {
@@ -332,11 +340,10 @@ window.Screens = (function () {
     box.querySelector(".speaker").style.color = colour;
     box.querySelector(".speaker").style.display = who ? "" : "none";
     box.querySelector(".line").innerHTML = html;
-    var halves = document.querySelectorAll("#screen-duo .duo-half");
-    for (var i = 0; i < halves.length; i++) halves[i].classList.remove("dim");
-    if (who && duoCast[who] !== undefined) {
-      halves[duoCast[who] === 0 ? 1 : 0].classList.add("dim");
-    }
+    var sd = el("screen-duo");
+    sd.classList.remove("speak-left", "speak-right");   /* the diagonal lighting dims the silent half */
+    var side = who && duoSides[who];
+    if (side) sd.classList.add("speak-" + side);
     box.classList.add("on");
   }
 
@@ -368,6 +375,21 @@ window.Screens = (function () {
     }
   });
 
+  /* §7 tap-for-full: a tap on a trimmed Order Strip toggles the full-request
+     popover. The (i) button keeps its own click (opens the Tome), and a tap on
+     the open popover dismisses it. */
+  (function wireOrderStrip() {
+    var strip = el("order-strip"), full = el("order-full");
+    if (strip) strip.addEventListener("click", function (ev) {
+      if (ev.target.closest("#panel-info")) return;   /* (i) → Tome, handled in boot.js */
+      if (!orderFullHtml) return;                       /* nothing more to reveal */
+      var pf = el("panel-frame"); if (pf) pf.classList.toggle("order-open");
+    });
+    if (full) full.addEventListener("click", function () {
+      var pf = el("panel-frame"); if (pf) pf.classList.remove("order-open");
+    });
+  })();
+
   return {
     fillStatic: fillStatic,
     renderTitle: renderTitle,
@@ -375,6 +397,9 @@ window.Screens = (function () {
     renderHerald: renderHerald,
     renderServe: renderServe,
     setServeCustomer: setServeCustomer,
+    currentServeExpr: currentServeExpr,
+    bubbleLineCount: bubbleLineCount,
+    setOrderText: setOrderText,
     serveLine: serveLine,
     hideServeBubble: hideServeBubble,
     sageLine: sageLine,

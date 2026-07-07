@@ -29,77 +29,93 @@ window.RECIPES = [
   { name: "The Gentle One",   base: "Elixir",      mix: ["Heal"],         dose: 3 },
 ];
 
-/* The starter five — Tessa's regenerated no-bg cutouts (2026-07-05), used
-   AS-IS (already background-removed; never re-key them). Per expression:
-   file + the calibrated anchor metadata:
-     top  — figure top as a fraction of image height (measured, alpha>128)
-     base — the COUNTER-ANCHOR fraction: where the figure meets the bar line
-            (calibrated on the cast contact sheet — the torso/hand line, NOT
-            the lowest pixel; content below it overlays the baked counter)
-     tall — on-screen size multiplier. One value per character so heads stay
-            constant across expressions (head/span ratios are constant within
-            each character). Knight's Arrival is deliberately taller: he is
-            STANDING — head matched to his seated self, not squashed to fit.
-   Princess reads petite and P.E.K.K.A huge on purpose (canon staging). */
+/* The five regulars.
+
+   RENDERING MODEL (round 9, 08-07 — supersedes ALL prior sprite/anchor/scale
+   calibration). Tessa hand-grounded the whole cast onto the scene; §12's new
+   canon closes the compositing problem at the asset level. There are no more
+   size/base/shadow/anchor tables — the engine no longer composites solo beats.
+
+     • Solo serve beats  → a pre-baked FULL scene per expression
+       `assets/scenes/serve/<base> (serve scene).webp` (character + counter +
+       brew wall in one image). All share a pixel-identical background, so an
+       expression change is a whole-image cross-fade (Screens.setServeCustomer).
+     • Multi-character (duo / any 3+) → the matching grounded cutout
+       `assets/cutouts/<base> (no bg).webp` (character + local counter/shadow,
+       room transparent), composed by the two-shot recipe (Screens.renderDuo).
+     • The Night-3 finale is its own ready-made image (Group Scene V2).
+
+   Each expression maps to its shared `<base>` filename (both the serve scene and
+   the cutout are named from it). `head` = the character's head-top as a fraction
+   of scene height (measured from the cutouts; near-constant across a character's
+   faces) — the speech bubble anchors just above it so it never covers the face. */
 window.CAST = {
   "Knight": {
-    dir: "assets/characters/Knight",
     colour: "#5f7ea8",
-    they: "He",   /* pronoun for the generic wrong-pour beat (GDD §7) */
+    they: "He",                 /* pronoun for the generic wrong-pour beat (GDD §7) */
+    head: 0.235,
     demoLine: "Don't fuss the usual tonight. Give me an Elixir, and a splash of Mirror in it.",
     exprs: {
-      "Warm & Content":  { file: "Knight - Warm & Content Served (no bg).png",  top: 0.114, base: 0.816 },
-      "Weary & Wistful": { file: "Knight - Weary & Wistful (no bg).png",        top: 0.114, base: 0.816 },
-      "Hearty Laugh":    { file: "Knight - Hearty Laugh Served (no bg).png",    top: 0.114, base: 0.816 },
-      "Arrival":         { file: "Knight - Arrival (no bg).png",                top: 0.123, base: 0.870, tall: 1.17 },
+      "Warm & Content":  "Knight - Warm & Content Served",
+      "Weary & Wistful": "Knight - Weary & Wistful",
+      "Hearty Laugh":    "Knight - Hearty Laugh Served",
+      "Arrival":         "Knight - Arrival",
     },
   },
   "Wizard": {
-    dir: "assets/characters/Wizard",
     colour: "#7A3FA0",
     they: "He",
+    head: 0.263,
     demoLine: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish.",
     exprs: {
-      "Boastful Grin": { file: "Wizard - Boastful Grin Served (no bg).png",       top: 0.132, base: 0.763 },
-      "Deflated":      { file: "Wizard - Deflated & Insecure Served (no bg).png", top: 0.131, base: 0.732 },
-      "Warm Smile":    { file: "Wizard - Warm Genuine Smile Served (no bg).png",  top: 0.132, base: 0.763 },
-      "Arrival":       { file: "Wizard - Arrival (no bg).png",                    top: 0.132, base: 0.763 },
+      "Boastful Grin": "Wizard - Boastful Grin Served",
+      "Deflated":      "Wizard - Deflated & Insecure Served",
+      "Warm Smile":    "Wizard - Warm Genuine Smile Served",
+      "Arrival":       "Wizard - Arrival",
     },
   },
   "Princess": {
-    dir: "assets/characters/Princess",
     colour: "#c4514a",
     they: "She",
+    head: 0.234,
     demoLine: "Give me an Elixir with a drop of Poison in it. I prefer a drink that bites back a little.",
     exprs: {
-      "Cool & Poised":     { file: "Princess - Cool & Poised Served (no bg).png",     top: 0.030, base: 0.840, tall: 1.06 },
-      "Sharp & Teasing":   { file: "Princess - Sharp & Teasing Served (no bg).png",   top: 0.069, base: 0.820, tall: 1.06 },
-      "Guard-Down Warmth": { file: "Princess - Guard Down Warmth Served (no bg).png", top: 0.050, base: 0.720, tall: 1.06 },
-      "Arrival":           { file: "Princess Arrival (no bg).png",                    top: 0.050, base: 0.720, tall: 1.06 },
+      "Cool & Poised":     "Princess - Cool & Poised Served",
+      "Sharp & Teasing":   "Princess - Sharp & Teasing Served",
+      "Guard-Down Warmth": "Princess - Guard Down Warmth Served",
+      "Arrival":           "Princess - Arrival",
     },
   },
   "P.E.K.K.A": {
-    dir: "assets/characters/P.E.K.K.A",
     colour: "#b05ec9",
     they: "She",
+    head: 0.283,   /* horn tips — the bubble clears the whole silhouette */
     demoLine: "Something warm. And gentle — no spark in it, please.",
     exprs: {
-      "Calm":    { file: "P.E.K.K.A - Calm Served (no bg).png",  top: 0.082, base: 0.840, tall: 1.12 },
-      "Happy":   { file: "P.E.K.K.A - Happy Served (no bg).png", top: 0.083, base: 0.840, tall: 1.12 },
-      "Shy":     { file: "P.E.K.K.A - Shy Served (no bg).png",   top: 0.066, base: 0.840, tall: 1.12 },
-      "Arrival": { file: "P.E.K.K.A - Arrival (no bg).png",      top: 0.083, base: 0.800, tall: 1.12 },
+      "Calm":    "P.E.K.K.A - Calm Served",
+      "Happy":   "P.E.K.K.A - Happy Served",
+      "Shy":     "P.E.K.K.A - Shy Served",
+      "Arrival": "P.E.K.K.A - Arrival",
     },
   },
   "Hog Rider": {
-    dir: "assets/characters/Hog Rider",
     colour: "#c07a2e",
     they: "He",
+    head: 0.273,
     demoLine: "Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it.",
     exprs: {
-      "Warm Grin":       { file: "Hog Rider - Warm Grin Served (no bg).png",       top: 0.110, base: 0.759 },
-      "Big Laugh":       { file: "Hog Rider - Big Laugh Served (no bg).png",       top: 0.110, base: 0.758 },
-      "Quiet & Wistful": { file: "Hog Rider - Quiet & Wistful Served (no bg).png", top: 0.110, base: 0.758 },
-      "Arrival":         { file: "Hog Rider - Arrival (no bg).png",                top: 0.110, base: 0.726 },
+      "Warm Grin":       "Hog Rider - Warm Grin Served",
+      "Big Laugh":       "Hog Rider - Big Laugh Served",
+      "Quiet & Wistful": "Hog Rider - Quiet & Wistful Served",
+      "Arrival":         "Hog Rider - Arrival",
     },
   },
+};
+
+/* Asset-path helpers (round 9): one base filename → its serve scene or its cutout. */
+window.serveScenePath = function (base) {
+  return "assets/scenes/serve/" + base + " (serve scene).webp?v=" + (window.BUILD ? window.BUILD.n : 0);
+};
+window.cutoutPath = function (base) {
+  return "assets/cutouts/" + base + " (no bg).webp?v=" + (window.BUILD ? window.BUILD.n : 0);
 };

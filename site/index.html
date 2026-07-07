@@ -6,27 +6,35 @@
 <meta name="theme-color" content="#1C1B3A">
 <title>Elixir Hour — a cosy live-ops companion for Clash Royale</title>
 <meta name="description" content="Coffee Talk, in the Clash Royale universe. A cosy bar on the neutral ground between two warring kingdoms, where the fighters come to drink and talk once the arena closes.">
+<!-- Canonical host: the static bundle is served at this domain (landing at /,
+     game at /play/). Absolute URLs below because Facebook/LinkedIn require them
+     for link previews; keep them in step if the domain ever moves. -->
+<link rel="canonical" href="https://elixirhour.tessa-kerk.com/">
 <meta property="og:title" content="Elixir Hour">
 <meta property="og:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
 <meta property="og:type" content="website">
-<!-- Link-preview image = a pre-rendered Night Cap scroll (GDD §12 share-quality
-     bar). FLAG: set the ABSOLUTE og:url + og:image URLs on deploy (swap the
-     canonical URL everywhere at once). -->
-<meta property="og:image" content="assets/img/night-cap-share.png">
+<meta property="og:url" content="https://elixirhour.tessa-kerk.com/">
+<meta property="og:site_name" content="Elixir Hour">
+<!-- Link-preview image = a dedicated 1200x630 landscape OG hero (master scene +
+     the Knight at the counter + the logo), so a share card fills the frame
+     instead of the portrait Night Cap floating half-empty. Relative path on
+     purpose: the deploy zip prepends the canonical host for the absolute URL
+     Facebook/LinkedIn require (see Tools/build_deploy_zip.py). -->
+<meta property="og:image" content="assets/img/og-share.jpg">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="1500">
-<meta property="og:image:alt" content="An Elixir Hour Night Cap — a keepsake scroll of the night's regulars, the drinks poured and a quote.">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Elixir Hour — the Knight leaning on Sage's bar counter with a glowing elixir tankard, the game's logo lit on the wall behind.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Elixir Hour">
 <meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe. Play the first three Nights.">
-<meta name="twitter:image" content="assets/img/night-cap-share.png">
+<meta name="twitter:image" content="assets/img/og-share.jpg">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <!-- Progressive enhancement: the scroll engine adds html.js once it wires up, so
      if the JS fails to load the pins collapse to composed frames (see scroll.js
      + the html:not(.js) fallback in site.css). -->
-<link rel="preload" as="image" href="assets/img/bar.jpg">
-<link rel="preload" as="image" href="assets/img/logo.png">
+<link rel="preload" as="image" href="assets/img/bar.webp">
+<link rel="preload" as="image" href="assets/img/logo.webp">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
@@ -34,12 +42,12 @@
 <!-- ======================= CHAPTER 1 — HERO (pinned) ======================= -->
 <section class="pin-wrap hero-wrap" data-scene data-static="0" aria-label="Elixir Hour">
   <div class="pin hero">
-    <img class="hero-bar" src="assets/img/bar.jpg" alt="" aria-hidden="true">
+    <img class="hero-bar" src="assets/img/bar.webp" alt="" aria-hidden="true">
     <div class="hero-scrim"></div>
     <canvas class="hero-fx" id="hero-fx" aria-hidden="true"></canvas>
 
     <div class="hero-content">
-      <img class="hero-logo" src="assets/img/logo.png" alt="Elixir Hour" width="1000" height="534">
+      <img class="hero-logo" src="assets/img/logo.webp" alt="Elixir Hour" width="1000" height="534">
       <h1 class="hero-logline">Coffee Talk, in the Clash Royale universe.</h1>
       <p class="hero-sub">A cosy bar on the neutral ground between two warring kingdoms — where the fighters come to drink and talk once the arena closes.</p>
       <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
@@ -53,7 +61,7 @@
     </div>
 
     <div class="scrollcue">
-      <img class="cue-tankard" src="assets/img/tankard.png" alt="" aria-hidden="true">
+      <img class="cue-tankard" src="assets/img/tankard.webp" alt="" aria-hidden="true">
       <span class="cue-label">Scroll</span>
     </div>
   </div>
@@ -63,7 +71,7 @@
 <section class="pin-wrap reveal-wrap" data-scene data-static="1" aria-label="The bar builds itself">
   <div class="pin bar-build">
     <div class="bb-stage">
-      <img class="bb-bar" src="assets/img/bar.jpg" alt="Sage's bar at night" loading="lazy" decoding="async">
+      <img class="bb-bar" src="assets/img/bar.webp" width="1600" height="900" alt="Sage's bar at night" loading="lazy" decoding="async">
       <div class="bb-night"></div>
       <div class="bb-glow bb-tap"></div>
       <div class="bb-glow bb-lan bb-lan1"></div>
@@ -78,9 +86,13 @@
         <path class="na-head" d="M143 96 L150 104 L157 95"/>
       </svg>
 
-      <!-- the Knight (full-body) stands on the floorboards near the stool,
-           clear of the taps + mugs; the bubble tracks just above his head -->
-      <img class="bb-char" src="assets/img/knight-full.png" alt="" loading="lazy" decoding="async">
+      <!-- the Knight (full-body) stands on the floorboards to the right; two dark
+           contact cores, MEASURED from the artwork's alpha (one per boot sole),
+           ground his boots. Tailspin fallback: no soft spread — two grounded
+           cores read as "standing"; a misplaced puddle never does. -->
+      <div class="bb-sole bb-sole-l"></div>
+      <div class="bb-sole bb-sole-r"></div>
+      <img class="bb-char" src="assets/img/knight-full.webp" width="770" height="1150" alt="" loading="lazy" decoding="async">
       <div class="bb-bubble">
         <span class="bb-speaker">The Knight</span>
         <span class="bb-line">Evening. You're new here, then.</span>
@@ -98,7 +110,7 @@
 <!-- ===================== BEAT — you play Sage ===================== -->
 <section class="sage-wrap" aria-label="You play Sage">
   <div class="sage-inner">
-    <img class="sage-fig" src="assets/img/sage.png" width="461" height="1000" alt="Sage, the keeper of the bar" loading="lazy" decoding="async">
+    <img class="sage-fig" src="assets/img/sage.webp" width="461" height="1000" alt="Sage, the keeper of the bar" loading="lazy" decoding="async">
     <div class="sage-copy">
       <span class="eyebrow">You play Sage</span>
       <h2>Sage keeps the taps.<br>You decide what she pours.</h2>
@@ -116,35 +128,35 @@
     </div>
     <div class="rail-track">
       <figure class="reg" style="--pi:0; --c:#8fb0d8">
-        <img class="reg-card" src="assets/img/cards/Knight.png" alt="The Knight" loading="lazy" decoding="async">
+        <img class="reg-card" src="assets/img/cards/Knight.webp" width="365" height="500" alt="The Knight" loading="lazy" decoding="async">
         <figcaption class="reg-meta">
           <span class="reg-name">The Knight</span>
           <span class="reg-line">“I'm here most nights the arena's open. And on the nights it's shut, I turn up anyway.”</span>
         </figcaption>
       </figure>
       <figure class="reg" style="--pi:0.25; --c:#e0a35a">
-        <img class="reg-card" src="assets/img/cards/Hog.png" alt="The Hog Rider" loading="lazy" decoding="async">
+        <img class="reg-card" src="assets/img/cards/Hog.webp" width="366" height="500" alt="The Hog Rider" loading="lazy" decoding="async">
         <figcaption class="reg-meta">
           <span class="reg-name">The Hog Rider</span>
           <span class="reg-line">“A drink ought to have a bit of personality.”</span>
         </figcaption>
       </figure>
       <figure class="reg" style="--pi:0.5; --c:#c78ce0">
-        <img class="reg-card" src="assets/img/cards/Wizard.png" alt="The Wizard" loading="lazy" decoding="async">
+        <img class="reg-card" src="assets/img/cards/Wizard.webp" width="365" height="500" alt="The Wizard" loading="lazy" decoding="async">
         <figcaption class="reg-meta">
           <span class="reg-name">The Wizard</span>
           <span class="reg-line">“Subtlety's a lost art these days.”</span>
         </figcaption>
       </figure>
       <figure class="reg" style="--pi:0.75; --c:#e58076">
-        <img class="reg-card" src="assets/img/cards/Princess.png" alt="The Princess" loading="lazy" decoding="async">
+        <img class="reg-card" src="assets/img/cards/Princess.webp" width="365" height="500" alt="The Princess" loading="lazy" decoding="async">
         <figcaption class="reg-meta">
           <span class="reg-name">The Princess</span>
           <span class="reg-line">“I know most things before most people do.”</span>
         </figcaption>
       </figure>
       <figure class="reg" style="--pi:1; --c:#cf94e2">
-        <img class="reg-card" src="assets/img/cards/Pekka.png" alt="P.E.K.K.A" loading="lazy" decoding="async">
+        <img class="reg-card" src="assets/img/cards/Pekka.webp" width="365" height="500" alt="P.E.K.K.A" loading="lazy" decoding="async">
         <figcaption class="reg-meta">
           <span class="reg-name">P.E.K.K.A</span>
           <span class="reg-line">“A butterfly just… lands. Doesn't ask. Doesn't judge.”</span>
@@ -169,7 +181,7 @@
       </div>
       <div class="tankard">
         <div class="tk-liquid"></div>
-        <img src="assets/img/tankard.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
+        <img src="assets/img/tankard.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
         <div class="tk-tick">✓</div>
       </div>
       <div class="brew-meters">
@@ -181,7 +193,7 @@
         <div class="recipe-name">The Usual</div>
       </div>
     </div>
-    <div class="brew-caption"><p>No wrong drinks. One that matters.</p></div>
+    <div class="brew-caption"><p>No wrong drinks. But one of them writes tomorrow's news.</p></div>
   </div>
 </section>
 
@@ -215,10 +227,16 @@
       <h2>The world fills in as you talk</h2>
       <p>Every regular gets a page in the Tome — a printed bio with Sage's own notes scribbled in the margin. Richer than any wiki, because it's personal. Content as friendship, not a checklist.</p>
     </div>
-    <!-- the real Ledger spread, captured from the game (Hog Rider, stage 3) -->
+    <!-- the real Ledger, captured from the game (Hog Rider, stage 3). Desktop shows
+         the full spread; on a phone a squeezed spread reads as accidentally cut off,
+         so a deliberate single-page crop (the right page — bio + Sage's pinned note)
+         is served via <picture> under the phone breakpoint. -->
     <div class="ledger">
       <div class="ledger-frame">
-        <img class="ledger-img" src="assets/img/ledger-hog.jpg" width="1286" height="717" alt="The Hog Rider's page in the Regulars' Ledger — his printed bio flowing across both pages, with Sage's green notes in the margins." loading="lazy" decoding="async">
+        <picture>
+          <source media="(max-width:640px)" srcset="assets/img/ledger-hog-rider-mobile.webp" width="660" height="610">
+          <img class="ledger-img" src="assets/img/ledger-hog.webp" width="1286" height="717" alt="The Hog Rider's page in the Regulars' Ledger — his printed bio with Sage's green pinned note in the margin." loading="lazy" decoding="async">
+        </picture>
       </div>
     </div>
   </div>
@@ -235,10 +253,10 @@
     <div class="devices">
       <div class="dev desktop">
         <div class="dev-bar"><i></i><i></i><i></i></div>
-        <img src="assets/shots/serve.jpg" width="1100" height="619" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
+        <img src="assets/shots/serve.webp" width="1100" height="619" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
       </div>
       <div class="dev phone">
-        <img src="assets/shots/serve-portrait.jpg" width="560" height="996" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
+        <img src="assets/shots/serve-portrait.webp" width="560" height="996" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
       </div>
     </div>
     <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
@@ -260,17 +278,17 @@
         <span class="arena-tag">Edition one — open now</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art"><img src="assets/shots/frozen.jpg" alt="Frozen Peak arena at night" loading="lazy" decoding="async"></div>
+        <div class="arena-art"><img src="assets/shots/frozen.webp" width="820" height="550" alt="Frozen Peak arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Frozen Peak</span>
         <span class="arena-tag">a future edition</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art"><img src="assets/shots/spell.jpg" alt="Spell Valley arena at night" loading="lazy" decoding="async"></div>
+        <div class="arena-art"><img src="assets/shots/spell.webp" width="820" height="550" alt="Spell Valley arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Spell Valley</span>
         <span class="arena-tag">a future edition</span>
       </div>
       <div class="arena soon">
-        <div class="arena-art"><img src="assets/shots/hog.jpg" alt="Hog Mountain arena at night" loading="lazy" decoding="async"></div>
+        <div class="arena-art"><img src="assets/shots/hog.webp" width="820" height="550" alt="Hog Mountain arena at night" loading="lazy" decoding="async"></div>
         <span class="arena-name">Hog Mountain</span>
         <span class="arena-tag">a future edition</span>
       </div>
@@ -278,7 +296,43 @@
   </div>
 </section>
 
-<!-- ======================= CHAPTER 9 — FOOTER ======================= -->
+<!-- ============ CHAPTER 9 — "Behind the bar" (maker voice) ============
+     A deliberate register switch from game voice to maker voice, on a parchment
+     panel (brief §2 ch9). Placed after the format pitch, off the Play path.
+     SHIPS HIDDEN behind the BEHIND_THE_BAR flag in js/flags.js (default OFF) so
+     the case-study + deck links are never dead on the live site — flip the flag
+     when /case-study/ and the deck PDF land.
+     Copy is Tessa's final wording (07-07). CTA labels + BrawlHouse framing per
+     the brief. Marginalia follows §0's two locked rules: the note is an add-on
+     (an ordering hint), and its arrow flows FROM the note ONTO the case-study
+     button. -->
+<section class="behind-wrap" id="behind" aria-label="Behind the bar" hidden>
+  <div class="behind-inner">
+    <div class="behind-panel">
+      <span class="eyebrow">Chapter nine</span>
+      <h2>Behind the bar</h2>
+      <p class="behind-lede">Elixir Hour is an original fan concept, not a Supercell product. I built it solo with AI — the concept, writing, art, and the code — as a working answer to a question I care about: how does a live game keep its community engaged in between updates? The game is the proof. The thinking behind it is in the case study, and the launch plan is in the deck.</p>
+
+      <div class="behind-note" aria-hidden="true">
+        <span class="margin-note">read this one first</span>
+        <!-- the arrow leaves the note and lands ON the case-study button (§0 rule);
+             positioned absolutely so it reaches down onto the button in both the
+             desktop row and the stacked mobile layout -->
+        <svg class="behind-arrow" viewBox="0 0 84 70" preserveAspectRatio="xMidYMid meet">
+          <path class="na-line" d="M10 8 C 34 6, 58 20, 66 56"/>
+          <path class="na-head" d="M52 48 L 67 60 L 73 43"/>
+        </svg>
+      </div>
+      <div class="behind-ctas">
+        <a class="cta" href="/case-study/">Read the case study</a>
+        <a class="cta sage" href="/assets/elixir-hour-gtm.pdf" download>Download the GTM deck (PDF)</a>
+      </div>
+      <p class="behind-more"><a href="https://brawlhouse.tessa-kerk.com/">The BrawlHouse — the first format</a> <span class="more-arrow" aria-hidden="true">&rarr;</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 10 — FOOTER ======================= -->
 <footer class="foot">
   <div class="foot-inner">
     <h2>Same time tomorrow?</h2>
@@ -295,5 +349,6 @@
 
 <script src="js/particles.js"></script>
 <script src="js/scroll.js"></script>
+<script src="js/flags.js"></script>
 </body>
 </html>
