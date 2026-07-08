@@ -10,14 +10,17 @@
 /* ---- BUILD STAMP (single source of truth) ----------------------------------
    ONE integer identifies the build. It appears in exactly two places:
      1. window.BUILD.n below  → rendered as the visible title-corner stamp.
-     2. The ?v=<n> cache token on every <link>/<script> in index.html.
-   THESE MUST MATCH. On every commit, bump BOTH in lockstep:
+     2. The ?v=<n> cache token on every <link>/<script> in index.html, css/main.css
+        and cap/index.html (the share page — added §R16; it loads the game's own
+        nightcap.js, so a stale copy there breaks a shared link after a redeploy).
+   THESE MUST MATCH. On every commit, bump ALL in lockstep:
      • strings.js : BUILD.n → next integer, BUILD.date → today (DD-MM).
-     • index.html : find-replace  ?v=<old>  →  ?v=<new>  (all occurrences).
+     • index.html + css/main.css + cap/index.html :
+         find-replace  ?v=<old>  →  ?v=<new>  (all occurrences).
    The stamp is how a real player (and Tessa) confirms which build loaded — the
    06-07 P0 was a stale cached build; this makes that visible at a glance. The
    optional .hash is a git short-hash pasted in AFTER commit if wanted. */
-window.BUILD = { n: 28, date: "08-07", hash: "" };
+window.BUILD = { n: 31, date: "09-07", hash: "" };
 
 /* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
 window.buildLabel = function () {
@@ -126,6 +129,9 @@ window.STRINGS = {
     "nightcap.share.copied": "Link copied.",
     "nightcap.share.copiedhand": "Send it to someone who needs to head to the bar!",
     "nightcap.share.copyfail": "Copy this link to share your night:",
+    "nightcap.download.failed": "Couldn't save your Night Cap.",
+    "nightcap.download.taint": "Saving only works from the shared link.",
+    "nightcap.download.retry": "Something went wrong — give it another go.",
     "epilogue.totitle": "Back to the title",
     "advance": "Next ▸",
     "tome.close": "✕",

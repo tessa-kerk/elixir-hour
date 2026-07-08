@@ -87,12 +87,34 @@ window.NightCap = (function () {
   /* ---- asset + font loading (same-origin → canvas stays untainted) ---- */
 
   var imgCache = {};
+
+  /* §R16 — canvas taint, measured not assumed (Chromium / WebKit / Firefox, file: + http:):
+       http(s), same-origin  → never tainted. Every shipped asset is same-origin, so the
+                               export path is clean on the deployed site. crossOrigin is a no-op.
+       file://               → Chrome and Safari taint the canvas NO MATTER WHAT, and they
+                               REFUSE to load an image at all once crossOrigin is set. Firefox
+                               neither taints nor objects.
+     So crossOrigin is only ever set for a genuinely cross-origin http(s) asset (none today —
+     this future-proofs a CDN move). NEVER set it unconditionally: on file:// it would blank
+     the whole card in two engines out of three, trading a broken download for broken art. */
+  function needsCORS(src) {
+    var p = location.protocol;
+    if (p !== "http:" && p !== "https:") return false;      /* file:, blob:, … → CORS mode is a trap */
+    try { return new URL(src, location.href).origin !== location.origin; }
+    catch (e) { return false; }
+  }
   function loadImg(src) {
     if (imgCache[src]) return imgCache[src];
     imgCache[src] = new Promise(function (res, rej) {
       var im = new Image();
+      if (needsCORS(src)) im.crossOrigin = "anonymous";
       im.onload = function () { res(im); };
-      im.onerror = function () { rej(new Error("img " + src)); };
+      im.onerror = function () {
+        /* evict, or ONE transient failure poisons the cache and the card can never
+           render again for the rest of the session (R16 review) */
+        delete imgCache[src];
+        rej(new Error("img " + src));
+      };
       im.src = src;
     });
     return imgCache[src];
@@ -370,22 +392,39 @@ window.NightCap = (function () {
       quote: nd.nightcap && nd.nightcap.quote ? nd.nightcap.quote : null,
     };
   }
-  function shareLink(data) { return "https://" + GAME_URL + "/cap#" + encodeState(data); }
+  /* §R18: over http(s), build the link from the ACTUAL origin. On the deployed site location.origin
+     IS the production domain at root, so the emitted link is byte-identical to the old
+     "https://" + GAME_URL form — but from a localhost preview it yields a pasteable localhost/cap
+     link that opens the real share page today (the live domain still serves the pre-/cap build).
+     GAME_URL stays the fallback for file:// (which has no useful origin) and remains the card's
+     printed footer branding (drawn separately at centre(...GAME_URL...), unchanged). */
+  function shareLink(data) {
+    var p = location.protocol;
+    var base = (p === "http:" || p === "https:") ? location.origin : "https://" + GAME_URL;
+    return base + "/cap#" + encodeState(data);
+  }
 
   /* ---- export / share ---- */
 
   /* the personalised end-of-run card — NOT the link-preview image (§R15) */
   function fileName() { return "elixir-hour-night-cap.png"; }
 
+  /* A tainted canvas throws SYNCHRONOUSLY from toBlob/toDataURL — hence the try around the
+     call itself, not just the callback. Never resolve a null/empty blob: that used to make a
+     failed export look like a successful no-op. (§R16) */
   function toBlob(canvas) {
     return new Promise(function (res, rej) {
-      /* toBlob's callback receives null if the UA can't create the blob —
-         fall back to the (synchronous) dataURL path rather than passing null on */
-      if (canvas.toBlob) canvas.toBlob(function (b) {
-        if (b) res(b);
-        else { try { res(dataURLtoBlob(canvas.toDataURL("image/png"))); } catch (e) { rej(e); } }
-      }, "image/png");
-      else { try { res(dataURLtoBlob(canvas.toDataURL("image/png"))); } catch (e) { rej(e); } }
+      function viaDataURL() {
+        try {
+          var b = dataURLtoBlob(canvas.toDataURL("image/png"));
+          if (b && b.size) res(b); else rej(new Error("Night Cap: empty blob"));
+        } catch (e) { rej(e); }
+      }
+      if (canvas.toBlob) {
+        try {
+          canvas.toBlob(function (b) { if (b && b.size) res(b); else viaDataURL(); }, "image/png");
+        } catch (e) { rej(e); }
+      } else viaDataURL();
     });
   }
   function dataURLtoBlob(u) {
@@ -393,17 +432,26 @@ window.NightCap = (function () {
     for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
     return new Blob([a], { type: "image/png" });
   }
+  /* the browser refused to export the pixels (tainted canvas — see needsCORS above) */
+  function isTaintError(e) {
+    return !!e && (e.name === "SecurityError" || /tainted/i.test(e.message || ""));
+  }
 
-  /* DOWNLOAD = download the card PNG only (§R15) */
+  /* DOWNLOAD = download the card PNG only (§R15). Whether the browser shows a Save-As dialog
+     or drops the file straight into Downloads is the viewer's own browser setting. (§R16) */
   function download(canvas) {
     toBlob(canvas).then(function (blob) {
-      if (!blob) return;
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
       a.href = url; a.download = fileName();
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    }).catch(function (e) { if (window.console) console.warn("Night Cap: download failed", e); });
+    }).catch(function (e) {
+      if (window.console) console.warn("Night Cap: download failed", e);
+      /* §R16: never fail silently — the old empty catch is exactly why this looked like a dead button */
+      showToast(t("nightcap.download.failed"),
+        t(isTaintError(e) ? "nightcap.download.taint" : "nightcap.download.retry"));
+    });
   }
 
   /* SHARE = share the self-contained LINK only (§R15). Mobile → native share sheet
@@ -439,21 +487,33 @@ window.NightCap = (function () {
       } catch (e) { rej(e); }
     });
   }
-  function showCopiedToast() {
+  /* one toast, two lines: a plain statement + Sage's green hand underneath (§R16 generalised
+     it from the copy-only version so the download failure can speak too) */
+  function showToast(main, hand) {
     var tEl = el("nc-toast");
     if (!tEl) return;
     tEl.textContent = "";
-    var m = document.createElement("div"); m.className = "nc-toast-main"; m.textContent = t("nightcap.share.copied");
-    var h = document.createElement("div"); h.className = "nc-toast-hand"; h.textContent = t("nightcap.share.copiedhand");
-    tEl.appendChild(m); tEl.appendChild(h);
+    var m = document.createElement("div"); m.className = "nc-toast-main"; m.textContent = main;
+    tEl.appendChild(m);
+    if (hand) { var h = document.createElement("div"); h.className = "nc-toast-hand"; h.textContent = hand; tEl.appendChild(h); }
     tEl.classList.add("on");
-    if (showCopiedToast._t) window.clearTimeout(showCopiedToast._t);
-    showCopiedToast._t = window.setTimeout(function () { tEl.classList.remove("on"); }, 3400);
+    if (showToast._t) window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(function () { tEl.classList.remove("on"); }, 4200);
   }
+  function showCopiedToast() { showToast(t("nightcap.share.copied"), t("nightcap.share.copiedhand")); }
 
   /* ---- overlay control ---- */
 
-  var current = { canvas: null, night: 1, data: null };
+  var current = { canvas: null, night: 1, data: null, ready: false };
+
+  /* Download/Share stay disabled until the card has actually finished composing — compose()
+     paints progressively, so a click mid-render used to export a half-drawn canvas (R16 review). */
+  function setReady(ok) {
+    current.ready = ok;
+    var d = el("nightcap-download"), s = el("nightcap-share");
+    if (d) d.disabled = !ok;
+    if (s) s.disabled = !ok;
+  }
 
   async function open(night) {
     var overlay = el("nightcap");
@@ -462,11 +522,20 @@ window.NightCap = (function () {
     el("nightcap-heading").textContent = t("nightcap.keep");
     var canvas = el("nightcap-canvas");
     var data = gather(night);
-    current = { canvas: canvas, night: night, data: data };
-    await ensureFonts();
-    await compose(canvas, data);
+    current = { canvas: canvas, night: night, data: data, ready: false };
+    setReady(false);
     el("nightcap-share").hidden = false;   /* §R15: Share works on both — native sheet (mobile) / copy+toast (desktop) */
     var tEl = el("nc-toast"); if (tEl) tEl.classList.remove("on");
+    try {
+      await ensureFonts();
+      await compose(canvas, data);
+      setReady(true);
+    } catch (e) {
+      /* compose() awaits several images; a 404 rejects it. Unhandled, that left a silent blank
+         card AND a live Download button exporting the half-drawn canvas (R16 review). */
+      if (window.console) console.warn("Night Cap: card failed to render", e);
+      showToast(t("nightcap.download.failed"), t("nightcap.download.retry"));
+    }
   }
 
   function close() { var o = el("nightcap"); if (o) o.classList.remove("open"); }
@@ -474,8 +543,8 @@ window.NightCap = (function () {
 
   function wire() {
     var d = el("nightcap-download"), s = el("nightcap-share"), x = el("nightcap-close");
-    if (d) d.addEventListener("click", function () { download(current.canvas); });
-    if (s) s.addEventListener("click", function () { share(current.data); });
+    if (d) d.addEventListener("click", function () { if (current.ready) download(current.canvas); });
+    if (s) s.addEventListener("click", function () { if (current.ready) share(current.data); });
     if (x) x.addEventListener("click", close);
     var ov = el("nightcap");
     if (ov) ov.addEventListener("click", function (e) { if (e.target === ov) close(); });

@@ -75,9 +75,9 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
    dim wood backdrop (lantern pool at top) → the 3D brown-paper render → the article
    over its blank lower area. The dark gradient is retired; the paper stays brightest. */
 #herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=28") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=31") center/cover no-repeat;}
 #broadsheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=28") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=31") center/100% 100% no-repeat;
   /* padding % is relative to the PARENT width (the stage), so 15% ≈ the paper's
      embossed-masthead depth — drops the article into the blank parchment below it.
      The parchment render is asymmetric, so the sides aren't equal: a touch more on
@@ -323,7 +323,7 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
 #screen-nightend .placeholder{
   background:
     radial-gradient(ellipse 56% 44% at 50% 52%, rgba(14,10,20,.76), rgba(14,10,20,.30) 66%, transparent 82%),
-    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=28") center/cover no-repeat;}
+    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=31") center/cover no-repeat;}
 
 /* ---------- GROUP — Layout 3 (GDD §11): the whole room, no mixing UI ----------
    Late-night dressing of the same master-scene placeholder: darker wall,
@@ -381,14 +381,14 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
    counter-wood backdrop as every other Herald interstitial (was a dark radial). */
 #epi-wrap{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:16px;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=28") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=31") center/cover no-repeat;}
 /* §R15: the epilogue Ed. L prints on the SAME generated 3D paper prop as every other
    full-screen Herald (was a plain CSS card, breaking the 3D look on the wrong-pour path
    Tessa hit) — same framing as #broadsheet: paper fills the sheet, the embossed masthead
    is baked in (text masthead hidden), the article sits in the blank parchment below. The
    epilogue carries more copy than a Night herald, so its type is a touch smaller to fit. */
 #epi-sheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=28") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=31") center/100% 100% no-repeat;
   padding:14.5% 12.4% 2.5% 13.6%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg);}
 #epi-masthead{display:none;}   /* the paper art carries the embossed masthead */
@@ -440,7 +440,13 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
 /* the character spread as a real book flow: two CSS columns = the two pages;
    the bio always starts on the LEFT page under the card and the browser
    carries the text onto the right page (GDD §11 reading order and balance) */
-#spread{position:absolute; left:18.5%; top:15%; width:62.5%; height:68%; z-index:33; color:var(--ink);}
+/* §R16: widened onto parchment the spread was leaving unused. The painted paper runs
+   x 11.1–84.9% with the spine at 49.82%; the old 18.5–81% box wasted ~95px of paper on the
+   left and ~50px on the right. Grown by 34px EACH SIDE (symmetric, so the flow's gutter stays
+   on the painted spine) — the left limit is the lit-paper onset at ~15.5%, not the paper edge,
+   so type never rides up onto the curved page edge. #tomenav deliberately KEEPS the old rect,
+   since its nav %s were measured against it. */
+#spread{position:absolute; left:15.844%; top:15%; width:67.813%; height:68%; z-index:33; color:var(--ink);}
 #spread[hidden]{display:none;}
 /* the text viewport RESERVES a bottom band so flowed text and Sage's notes
    can never reach the bottom-corner arrows (the back arrow sits above the
@@ -449,13 +455,27 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
    sits inside the panel corners). */
 #spreadvp{position:absolute; left:0; right:0; top:0; bottom:5%; overflow:hidden;}
 body.portrait #spreadvp{top:5%; bottom:5%;}
-#spreadflow{height:100%; column-fill:auto; transition:transform .3s ease;}
-#spreadflow .spread-head{padding:30px 14px 14px;}
-/* §R14: wider side padding → wider note margins (per the Ledger Page Mockup, whose
-   text sits at ~46% width with deep margins), so Sage's notes read comfortably AND
-   the arrows have room to run from note into phrase without cramping or clipping. */
-#spreadflow .ledger-bio{padding:0 74px 12px; font-size:15.5px; line-height:1.5; width:auto; margin:0;}
-#spreadflow .hand-note.pinned{margin:6px 74px 16px; break-inside:avoid; -webkit-column-break-inside:avoid;}
+/* position:relative so #spreadnotes resolves against the FLOW, whose left/right margins
+   (set from JS = the note lane width) inset the columns away from the viewport edges */
+#spreadflow{height:100%; column-fill:auto; position:relative; transition:transform .3s ease;}
+/* §R16: the column is narrower now that the note lanes moved outboard, so the card+nameplate
+   row is tightened to keep every name on ONE LINE IN LANDSCAPE ("Hog Rider" is the binding
+   case, 105px into the 236px column). The bio text it sits above is what got wider.
+   `.bigclip` MUST NOT shrink — it has overflow:hidden and an absolutely-positioned <img>, so its
+   flex min-width resolves to 0 and a tight row shears the card art in half rather than wrapping
+   the name. PORTRAIT's column is only 161px and no card+name ROW fits there at all, so the name
+   drops under the card. (Both caught by the R16 review — portrait was cropping every card;
+   P.E.K.K.A lost 58% of hers.) */
+#spreadflow .spread-head{padding:30px 0 14px; gap:12px;}
+#spreadflow .spread-head .bigclip{flex:0 0 auto;}
+#spreadflow .nameplate{font-size:25px;}
+body.portrait #spreadflow .spread-head{flex-direction:column; align-items:flex-start; gap:8px;}
+/* §R16 supersedes §R14's 74px side padding. The notes no longer live INSIDE the text column —
+   they sit in their own lane outboard of it (outer lanes in the flow's margins, inner lanes in
+   the gutter), so the printed body text now uses the whole column. See laneMetrics() in
+   src/tome.js: lane = NOTEW + STROKE + CLEAR + EDGE, which is what guarantees the ≥12px clearance. */
+#spreadflow .ledger-bio{padding:0 2px 12px; font-size:15.5px; line-height:1.5; width:auto; margin:0;}
+#spreadflow .hand-note.pinned{margin:6px 2px 16px; break-inside:avoid; -webkit-column-break-inside:avoid;}
 #spreadnotes{position:absolute; left:0; top:0; height:100%; pointer-events:none;}
 #spreadnotes .margin-note{position:absolute; font-size:14.5px; line-height:1.08; margin:0;}
 #spreadnotes .note-arrows{position:absolute; left:0; top:0; overflow:visible;}
@@ -681,7 +701,7 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
    Herald page widens for this tab; the article drops into the blank lower ~55%. */
 #pageR.herald-paper{
   left:49%; width:48%; top:13%; height:62%; padding:0;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=28") center top / contain no-repeat;}
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=31") center top / contain no-repeat;}
 #pageR.herald-paper .rp-caption{text-align:center; margin-top:42%; color:#5a4632;}
 #pageR.herald-paper .headline{color:#3a2a1c; text-align:center; padding:0 14%;}
 #pageR.herald-paper .story{color:#4a3826; padding:0 14%; font-size:13.5px;}

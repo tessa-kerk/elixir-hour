@@ -227,8 +227,17 @@ window.Tome = (function () {
     flow.style.transform = "none";
 
     var vpW = vp.clientWidth, pageH = vp.clientHeight;
-    var gap = Math.round(vpW * 0.19);            /* the spine/gutter */
-    var colW = Math.floor((vpW - gap) / 2);
+    /* §R16 the page's horizontal budget, per page:
+         [ lane ][ printed body text = colW ][ lane ]
+       The two OUTER lanes are the flow's left/right margins; the two INNER lanes live inside
+       the gutter, either side of the painted spine. Sage's notes sit in the lanes, never in
+       the text column — which is why the body can now use the full column width. */
+    var L = laneMetrics(vpW);
+    var gap = 2 * L.LANE + 2 * L.SPINE;          /* the spine/gutter, wide enough for two lanes */
+    var flowW = vpW - 2 * L.LANE;
+    var colW = Math.floor((flowW - gap) / 2);
+    flow.style.marginLeft = L.LANE + "px";
+    flow.style.marginRight = L.LANE + "px";
     flow.style.columnWidth = colW + "px";
     flow.style.columnGap = gap + "px";
 
@@ -247,7 +256,7 @@ window.Tome = (function () {
     overlay.id = "spreadnotes";
     overlay.innerHTML = '<svg class="note-arrows"></svg>';
     flow.appendChild(overlay);
-    layoutSpreadNotes(c, stage, flow, overlay, colW, gap, pageH);
+    layoutSpreadNotes(c, stage, flow, overlay, colW, gap, pageH, L);
 
     /* sheets: a view shows two columns; turning slides the strip */
     var stripW = flow.scrollWidth;
@@ -288,22 +297,81 @@ window.Tome = (function () {
     ledgerNav.view = "grid";
   }
 
-  /* Place Sage's notes on the overlay in strip coordinates: consecutive notes
-     alternate margins, each level with its phrase's line, arrows to the
-     underlined words. Rect maths are transform-safe (everything divides by
-     the stage scale) and column-aware via each mark's first line box. */
-  function layoutSpreadNotes(c, stage, flow, overlay, colW, gap, pageH) {
+  /* §R16 — the note lane, derived once from the viewport width.
+       LANE   = the full lane, measured outward from the body-text edge (Tessa's blue) to the
+                outer limit near the page edge (her red).
+       CLEAR  = the untouchable gutter between printed text and ANY note or connector (≥12px).
+       STROKE = the run the connector gets to draw across, between the note and CLEAR.
+       EDGE   = a sliver held back at the outer limit, so a tilted note never bleeds into the
+                viewport's clip (the tilts rotate ±2.4° and offsetHeight ignores that).
+       NOTEW  = whatever is left — the handwriting's own column.
+     Because LANE = NOTEW + STROKE + CLEAR + EDGE by construction, a note can never come closer
+     than CLEAR to the type, and the connector always has a real line to be. */
+  function laneMetrics(vpW) {
+    /* the 80px floor is what keeps PORTRAIT's notes at their old ~46px width — a bare
+       proportional lane there collapses NOTEW to 38px and Sage's hand wraps to ribbons */
+    var LANE = Math.max(80, Math.min(94, Math.round(vpW * 0.108)));
+    var CLEAR = 13;                                   /* Tessa's ~12px minimum, with a hair spare */
+    var STROKE = Math.max(14, Math.round(vpW * 0.023));
+    var EDGE = 5;
+    return { LANE: LANE, CLEAR: CLEAR, STROKE: STROKE, EDGE: EDGE,
+             NOTEW: LANE - STROKE - CLEAR - EDGE, SPINE: 10 };
+  }
+
+  /* §R17 — every glyph LINE box under `root` except the ones belonging to `skipEl` (so a
+     connector may land on its own target phrase but must stay clear of everything else —
+     other marks, plain body text, even other notes' handwriting). Coordinates come back in
+     STRIP-local space ((screen-flowRect)/scale), the same space sx/sTop/colLeft already use.
+     Text is measured as line boxes (getClientRects), not element boxes, so ragged whitespace
+     beside a short phrase stays usable — the exact technique the share page's connector uses
+     (cap.js glyphRects, §R16), lifted here rather than re-derived. */
+  function glyphLineRects(root, flowRect, scale, skipEl) {
+    var wk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var out = [], n;
+    while ((n = wk.nextNode())) {
+      if (!n.nodeValue.replace(/\s+/g, "")) continue;
+      if (skipEl && skipEl.contains(n.parentNode)) continue;
+      var rg = document.createRange(); rg.selectNodeContents(n);
+      var rs = rg.getClientRects();
+      for (var i = 0; i < rs.length; i++) {
+        if (rs[i].width < 0.5 || rs[i].height < 0.5) continue;
+        out.push({ l: (rs[i].left - flowRect.left) / scale, r: (rs[i].right - flowRect.left) / scale,
+                   t: (rs[i].top - flowRect.top) / scale, b: (rs[i].bottom - flowRect.top) / scale });
+      }
+    }
+    return out;
+  }
+
+  /* segment vs padded AABB (slab method) — same test cap.js's hitsRect runs for its one line. */
+  function segHitsRect(x1, y1, x2, y2, r, pad) {
+    var l = r.l - pad, rt = r.r + pad, tp = r.t - pad, bt = r.b + pad;
+    var dx = x2 - x1, dy = y2 - y1, t0 = 0, t1 = 1;
+    var p = [-dx, dx, -dy, dy], q = [x1 - l, rt - x1, y1 - tp, bt - y1];
+    for (var i = 0; i < 4; i++) {
+      if (p[i] === 0) { if (q[i] < 0) return false; }
+      else {
+        var t = q[i] / p[i];
+        if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; }
+        else { if (t < t0) return false; if (t < t1) t1 = t; }
+      }
+    }
+    return true;
+  }
+
+  /* Place Sage's notes on the overlay in strip coordinates: each note sits in the lane
+     nearest its phrase, level with that phrase's line, joined to it by one plain line.
+     Rect maths are transform-safe (everything divides by the stage scale) and column-aware
+     via each mark's first line box. Two passes: first place every note (unchanged from R16 —
+     positions are signed off), THEN draw every connector once all notes exist, so each line's
+     collision check sees the whole page, not just the notes placed before it. */
+  function layoutSpreadNotes(c, stage, flow, overlay, colW, gap, pageH, L) {
     var svg = overlay.querySelector("svg.note-arrows");
     var stageEl = document.getElementById("stage");
     var scale = stageEl.getBoundingClientRect().width / Stage.design().W || 1;
     var flowRect = flow.getBoundingClientRect();
-    /* §R14: the note sits in the WIDER margin (bio padding is now 74px, per the mockup),
-       at a comfortable ~54px so notes read in 2-3 lines (not a thin wrapping column) AND
-       leave a real gap to the printed text for the arrow's tail to run across. */
-    var railW = Math.max(46, Math.min(54, colW * 0.17));
-    var alt = 0;
     var lastBottom = {};
     var noteI = 0;
+    var items = [];
 
     var annots = flow.querySelectorAll(".flow-annot");
     for (var a = 0; a < annots.length; a++) {
@@ -326,40 +394,81 @@ window.Tome = (function () {
         var col = Math.max(0, Math.floor((sx + gap / 2) / (colW + gap)));
         var colLeft = col * (colW + gap);
 
-        /* the note goes in the margin NEAREST its phrase (GDD §11: an arrow
-           must never cross other text — short beats scattered) */
+        /* the note goes in the lane NEAREST its phrase (GDD §11: a line must never cross
+           other text — short beats scattered) */
         var side = ((sx + sRight) / 2 - colLeft) < colW / 2 ? "left" : "right";
         var key = col + "|" + side;
         var noteEl = document.createElement("div");
         noteEl.className = "hand-note margin-note tilt" + (noteI++ % 3);
         noteEl.textContent = note.note;
-        noteEl.style.width = railW + "px";
-        /* the note hugs the edge FACING its phrase (right-align in the left margin,
-           left-align in the right margin) so the arrow's tail starts AT the handwriting,
-           never in the ragged whitespace beside it (§R14 "tail must sit at its note"). */
+        noteEl.style.width = L.NOTEW + "px";
+        /* the note hugs the edge FACING its phrase (right-align in the left lane, left-align in
+           the right lane) so the line's tail starts AT the handwriting, never in the ragged
+           whitespace beside it (§R14 "tail must sit at its note"). */
         noteEl.style.textAlign = side === "left" ? "right" : "left";
         overlay.appendChild(noteEl);
         var top = Math.max(sTop + 2, (lastBottom[key] || -1e9) + 6);
         top = Math.min(top, pageH - noteEl.offsetHeight - 4);
+        var noteH = noteEl.offsetHeight;
         noteEl.style.top = top + "px";
-        noteEl.style.left = (side === "left" ? colLeft : colLeft + colW - railW) + "px";
-        lastBottom[key] = top + noteEl.offsetHeight;
-
-        /* §R14 direction rule: EVERY arrow flows FROM the handwritten note INTO the printed
-           phrase — never the reverse, never note→note. Tail sits at the note's INNER edge
-           (the side facing the phrase); tip stops ~8px short of the phrase. When a phrase
-           sits at the very start/end of its line there isn't room for a full arrow, so we
-           shorten by moving the TIP (never dragging the tail across the note text) — the
-           note→phrase direction is preserved and nothing clips. */
-        var innerEdge = side === "left" ? colLeft + railW : colLeft + colW - railW;
-        var x1 = innerEdge, x2 = side === "left" ? sx - 8 : sRight + 8;
-        if (side === "left") { if (x2 < x1 + 6) x2 = x1 + 6; }
-        else                 { if (x2 > x1 - 6) x2 = x1 - 6; }
-        var y1 = top + Math.min(noteEl.offsetHeight * 0.5, 13);   /* from the note's upper-middle */
-        var yEnd = sTop + sH + 3;                                  /* just under the underline */
-        placeArrow(svg, x1, y1, x2, yEnd);
+        /* the note box is pushed OUT to the lane's outer limit (Tessa's red, held back by EDGE),
+           so the whole lane between it and the body text belongs to the connector + the clearance */
+        noteEl.style.left = (side === "left" ? colLeft - L.LANE + L.EDGE
+                                             : colLeft + colW + L.CLEAR + L.STROKE) + "px";
+        lastBottom[key] = top + noteH;
+        items.push({ span: span, side: side, top: top, noteH: noteH,
+                     sx: sx, sRight: sRight, sTop: sTop, sH: sH, colLeft: colLeft });
       }
     }
+
+    /* §R17: the connector LANDS ON its underlined phrase — the ONE piece of type a line is
+       allowed, meant, to touch; the CLEAR gutter keeps it off everything else, including OTHER
+       notes' own handwriting when collision-stacking has pushed one note far from its phrase's
+       line (the P.E.K.K.A case: two marks a line apart, but the first note's height pushes the
+       second note's box well below its target). R16's fix clamped the line's endpoint to the
+       pushed-down note's OWN vertical band, so it never crossed anything — but for a note pushed
+       far from its phrase, that clamp also meant the line could never REACH the phrase, which is
+       the regression Tessa caught. The x-boundary each note's connector starts from (x1 below) is
+       identical for every note in a lane and sits exactly at every note's own right/left edge, so
+       a straight line from there can never re-enter another note's box — the only remaining risk
+       is the short final approach into the text column grazing a DIFFERENT line of body text.
+       Fixed with the same technique the share page's connector already uses (§R16 cap.js): try a
+       few start/end anchors, reject any segment that crosses text that isn't the target, keep the
+       shortest survivor.
+       §R18: the tip stops GAP px SHORT of the phrase's near edge, not on it — a real margin mark
+       reads as separate from the printed line, never welded to the underline. The phrase's own
+       underline still pairs the two, so the small gap is unambiguous. */
+    var GAP = 4;   /* px short of the phrase's near edge (native scale) — visibly separate, still paired */
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var x1 = it.side === "left" ? it.colLeft - L.CLEAR - L.STROKE : it.colLeft + colW + L.CLEAR + L.STROKE;
+      var x2 = it.side === "left" ? it.sx - GAP : it.sRight + GAP;
+      var y1cands = [it.top + Math.min(it.noteH * 0.5, 13), it.top + 4, it.top + it.noteH - 6];
+      var y2cands = [it.sTop + it.sH - 3, it.sTop + it.sH * 0.5, it.sTop + 3];
+      var blockers = glyphLineRects(flow, flowRect, scale, it.span);
+      var best = null, bestLen = Infinity;
+      for (var pass = 0; pass < 2 && !best; pass++) {
+        var pad = pass === 0 ? 4 : 1;
+        for (var yi = 0; yi < y1cands.length; yi++) {
+          for (var yj = 0; yj < y2cands.length; yj++) {
+            var yy1 = y1cands[yi], yy2 = y2cands[yj];
+            var len2 = (x2 - x1) * (x2 - x1) + (yy2 - yy1) * (yy2 - yy1);
+            if (len2 >= bestLen) continue;
+            var clear = true;
+            for (var b = 0; b < blockers.length; b++) {
+              if (segHitsRect(x1, yy1, x2, yy2, blockers[b], pad)) { clear = false; break; }
+            }
+            if (clear) { best = { y1: yy1, y2: yy2 }; bestLen = len2; }
+          }
+        }
+      }
+      if (!best) {
+        if (window.console) console.warn("Tome: no clear path for a note's line — drawing the default anyway");
+        best = { y1: y1cands[0], y2: y2cands[0] };
+      }
+      placeArrow(svg, x1, best.y1, x2, best.y2);
+    }
+
     var w = Math.max(flow.scrollWidth, colW);
     overlay.style.width = w + "px";
     svg.setAttribute("width", w);

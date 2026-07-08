@@ -22,30 +22,44 @@
 <meta name="twitter:title" content="Elixir Hour">
 <meta name="twitter:description" content="Pour your own drinks. A quiet bar on the border of the red and blue kingdoms.">
 <meta name="twitter:image" content="https://elixirhour.tessa-kerk.com/assets/share/night-cap-share.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="stylesheet" href="css/fonts.css">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=31">
+<link rel="stylesheet" href="css/fonts.css?v=31">
 <style>
   :root{ --ink:#efe9dd; --ink-soft:#c9c2d8; --purple:#7A3FA0; --purple-hi:#9a5ec4; --sage:#8faa6f; }
   *{ box-sizing:border-box; }
-  html,body{ margin:0; }
+  html,body{ margin:0; overflow-x:hidden; }   /* Sage bleeds past the content box — never scroll for it */
   body{ font-family:'Cormorant Garamond',serif; color:var(--ink); min-height:100vh;
     background:radial-gradient(120% 90% at 50% 0%, #26234c 0%, #171634 45%, #0e0c20 100%);
     display:flex; align-items:center; justify-content:center; padding:32px 20px; overflow-x:hidden; }
 
-  .cap-wrap{ width:100%; max-width:1080px; display:flex; gap:44px; align-items:center;
+  /* the gap + the pitch's max-width are tuned so Sage AND her aside get a clear lane on the
+     right — the aside must never sit over the pitch type (§R16) */
+  .cap-wrap{ width:100%; max-width:1200px; display:flex; gap:36px; align-items:center;
     position:relative; }
 
+  /* §R16 the hand-drawn connector (Sage's aside → the sentence it comments on).
+     Same pen as the Tome's margin notes: one stroke, no head, non-scaling 1.8px.
+     Colour diverges from the Tome's --sage-deep (#6B7F5C) on purpose — that is tuned
+     for cream paper and vanishes on this indigo. It matches the aside's ink instead. */
+  #cap-lines{ position:absolute; left:0; top:0; overflow:visible; pointer-events:none; }
+  #cap-lines path{ stroke:#a9c58a; stroke-width:1.8; fill:none;
+    stroke-linecap:round; stroke-linejoin:round; opacity:.75; }
+
   /* LEFT — the Night Cap card (reads first) */
-  .cap-left{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .cap-left{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:16px;
+    position:relative; }
   .cap-card canvas{ width:340px; max-width:44vw; height:auto; border-radius:10px;
     box-shadow:0 26px 60px rgba(0,0,0,.6); background:#1c1b3a; }
   .cap-dl{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px; color:#efe9dd;
     background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.22); border-radius:11px;
     padding:9px 20px; cursor:pointer; transition:background .15s, transform .12s; }
-  .cap-dl:hover{ background:rgba(255,255,255,.16); transform:translateY(-1px); }
+  .cap-dl:hover:not(:disabled){ background:rgba(255,255,255,.16); transform:translateY(-1px); }
+  /* disabled until the card has finished composing — an early click saved a truncated PNG */
+  .cap-dl:disabled{ opacity:.45; cursor:default; }
 
-  /* RIGHT — the pitch */
-  .cap-right{ flex:1 1 auto; min-width:0; max-width:440px; }
+  /* RIGHT — the pitch. Narrower than the copy needs, on purpose: it opens a clear corridor
+     between the type and Sage for the connector to run down. */
+  .cap-right{ flex:1 1 auto; min-width:0; max-width:340px; }
   .cap-wordmark{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px; letter-spacing:.34em;
     color:var(--sage); text-transform:uppercase; margin-bottom:14px; }
   .cap-headline{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:46px; line-height:1.02;
@@ -58,28 +72,69 @@
     transition:transform .12s, box-shadow .15s; }
   .cap-play:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(122,63,160,.6); }
 
-  /* SAGE in the corner + her handwritten aside */
-  .cap-sage{ position:absolute; right:-8px; bottom:-32px; width:210px; text-align:center;
-    pointer-events:none; }
-  .cap-sage img{ width:170px; height:auto; display:block; margin:0 auto;
-    filter:drop-shadow(0 10px 24px rgba(0,0,0,.5)); }
-  .cap-sage-aside{ font-family:'Caveat',cursive; font-weight:700; font-size:24px; color:#a9c58a;
-    transform:rotate(-5deg); margin:0 0 4px 40px; line-height:1.05; }
+  /* SAGE in the corner + her handwritten aside.
+     §R16: the transparent cutout, sat straight on the indigo (no box, no backdrop), scaled up
+     and CROPPED at the waist by the .cap-sage-fig window — a deliberately framed character,
+     not a small footer ornament. The crop is CSS-only; the asset is the full figure. */
+  .cap-sage{ position:absolute; right:-20px; bottom:-34px;
+    width:clamp(250px, 27vw, 330px); pointer-events:none; }
+  /* the CROP: the source is the full 550x1200 figure; this window keeps the top 67.2%
+     of it — she is cut at the waist, just below the tankard she is holding. */
+  .cap-sage-fig{ width:100%; aspect-ratio:550 / 806; overflow:hidden; }
+  /* §R17 NO drop-shadow: the crop window's overflow:hidden clipped the shadow's blur into a
+     straight-edged dark rectangle behind Sage's whole silhouette — read as a box on the indigo.
+     The cutout's alpha is clean, so she sits ALONE on the page gradient with nothing behind her. */
+  .cap-sage-fig img{ width:100%; height:auto; display:block; }
+  /* the aside sits BESIDE her head, off to the left — not stacked above her, and clear of her
+     silhouette (her hair starts ~24% into the box at head height, so the aside ends before that).
+     Offsets are % of .cap-sage so they track the clamped width.
+     Left-aligned because the sentence it comments on lies to its LEFT: the Tome's rule is that a
+     note hugs the edge FACING its phrase, so the line's tail starts at the handwriting and never
+     in the ragged whitespace beside it. */
+  .cap-sage-aside{ position:absolute; top:17%; right:90%; width:52%; text-align:left;
+    font-family:'Caveat',cursive; font-weight:700; font-size:25px; color:#a9c58a;
+    transform:rotate(-3.2deg); line-height:1.08; margin:0; }
 
   #cap-err{ display:none; font-size:20px; color:var(--ink-soft); text-align:center; max-width:460px; }
+  /* ABSOLUTE on purpose: in the flex flow it would reflow .cap-wrap when shown, silently
+     desyncing the hand-drawn connector that was measured against the old layout. */
+  #cap-dl-err{ display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    margin:8px 0 0; width:300px; text-align:center;
+    font-family:'Nunito',sans-serif; font-size:13px; line-height:1.35; color:#e6b9b0; }
 
-  /* MOBILE — stack: card on top, pitch + Sage below */
-  @media (max-width:720px){
+  /* COMPACT DESKTOP (920–1219px) — the two-way split still holds, but only if the card, the pitch
+     and Sage all give ground together. The base rules above need ~1180px: card 340 + gap 36 +
+     pitch 340 + Sage 330 + her aside's 0.42×width overhang. Below that she paints over the pitch
+     copy and the aside lands on the type — measured, at every width from 721 to 1131. (R16 review.) */
+  @media (min-width:920px) and (max-width:1219px){
+    .cap-wrap{ gap:26px; }
+    .cap-card canvas{ width:min(272px, 28vw); }
+    .cap-right{ max-width:268px; }
+    .cap-headline{ font-size:37px; }
+    .cap-body{ font-size:20px; }
+    .cap-play{ font-size:17px; padding:11px 24px; }
+    .cap-sage{ right:-14px; bottom:-30px; width:clamp(196px, 21vw, 250px); }
+    .cap-sage-aside{ top:16%; right:96%; width:46%; font-size:21px; }
+  }
+
+  /* MOBILE / TABLET (≤919px) — stack: card on top, pitch + Sage below. She stays JUST AS LARGE and
+     still waist-cropped; the aside stays beside her head (now to her right, where the room is).
+     Below ~920px no split can hold a legible pitch AND a framed Sage, so we stack instead. */
+  @media (max-width:919px){
     body{ align-items:flex-start; padding:22px 16px 40px; }
     .cap-wrap{ flex-direction:column; gap:26px; }
     .cap-card canvas{ width:min(300px, 78vw); max-width:78vw; }
     .cap-right{ max-width:520px; text-align:center; }
     .cap-headline{ font-size:38px; }
     .cap-body{ font-size:20px; }
-    .cap-sage{ position:static; width:auto; margin-top:8px; display:flex; flex-direction:column;
-      align-items:center; }
-    .cap-sage img{ width:140px; }
-    .cap-sage-aside{ margin:0 0 2px; }
+    /* She stays big and sits FLUSH to the left edge, which frees the right corridor for the
+       aside beside her head. Centred, no phone is wide enough to hold a large Sage and a
+       legible aside side by side; and the right corridor is the only one that clears the
+       centred Play button, so the connector has somewhere clean to run. */
+    .cap-sage{ position:relative; right:auto; bottom:auto; width:min(260px, 68vw);
+      margin:6px auto -26px -16px; }
+    .cap-sage-aside{ top:14%; left:calc(100% - 38px); right:auto; width:min(150px, 38vw);
+      text-align:left; font-size:22px; transform:rotate(3deg); }
   }
 </style>
 </head>
@@ -87,28 +142,33 @@
   <div class="cap-wrap">
     <div class="cap-left">
       <div class="cap-card"><canvas id="cap-canvas" width="1200" height="1500"></canvas></div>
-      <button class="cap-dl" id="cap-download">Download card</button>
+      <button class="cap-dl" id="cap-download" disabled>Download card</button>
+      <p id="cap-dl-err" role="alert"></p>
     </div>
     <div class="cap-right">
       <div class="cap-wordmark">Elixir Hour</div>
       <h1 class="cap-headline">Pour your own drinks.</h1>
-      <p class="cap-body">A quiet bar on the border of the red and blue kingdoms. Decide how your customers' nights end.</p>
+      <!-- the second sentence is wrapped so the connector has a rect to aim at
+           (the Tome measures its target the same way, via getClientRects) -->
+      <p class="cap-body">A quiet bar on the border of the red and blue kingdoms. <span id="cap-target">Decide how your customers' nights end.</span></p>
       <a class="cap-play" href="index.html">Play Elixir Hour</a>
     </div>
     <div class="cap-sage" aria-hidden="true">
       <div class="cap-sage-aside">Your drinks impact their fates!</div>
-      <img src="assets/characters/Sage Final.png" alt="">
+      <div class="cap-sage-fig"><img src="assets/characters/sage-nobg.webp" alt=""></div>
     </div>
+    <!-- Sage's hand-drawn line, placed at runtime in .cap-wrap coordinates -->
+    <svg id="cap-lines" aria-hidden="true"></svg>
   </div>
   <p id="cap-err"></p>
 
   <!-- the game's own render code + data + strings; window.LANG defaults to en for the page chrome -->
   <script>window.LANG = "en";</script>
-  <script src="strings/strings.js"></script>
-  <script src="data/nights.js"></script>
-  <script src="data/cast.js"></script>
-  <script src="data/tome.js"></script>
-  <script src="src/nightcap.js"></script>
-  <script src="cap/cap.js"></script>
+  <script src="strings/strings.js?v=31"></script>
+  <script src="data/nights.js?v=31"></script>
+  <script src="data/cast.js?v=31"></script>
+  <script src="data/tome.js?v=31"></script>
+  <script src="src/nightcap.js?v=31"></script>
+  <script src="cap/cap.js?v=31"></script>
 </body>
 </html>
