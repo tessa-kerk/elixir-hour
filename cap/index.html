@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171634">
+<!-- §R15 share page. Lives at /cap/ ; the base points one level up to the game root so
+     it REUSES the game's render code (src/nightcap.js), data and assets — no duplication.
+     The Night Cap lives in the URL fragment (client-side), so no server/DB/expiry.
+     DEPLOY NOTE: assumes the game is served at the domain root (so /cap/ = game/cap/ and
+     the ../ base resolves to the game's /assets, /src, /data, /css). -->
+<base href="../">
+<title>Elixir Hour — a Night Cap</title>
+<!-- Social meta MUST be absolute: crawlers ignore <base href> and resolve og:image against the
+     page URL (…/cap/), which would 404 the image that actually lives at the game root /assets. -->
+<meta property="og:title" content="Elixir Hour">
+<meta property="og:description" content="Pour your own drinks. A quiet bar on the border of the red and blue kingdoms.">
+<meta property="og:url" content="https://elixirhour.tessa-kerk.com/cap/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://elixirhour.tessa-kerk.com/assets/share/night-cap-share.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Elixir Hour">
+<meta name="twitter:description" content="Pour your own drinks. A quiet bar on the border of the red and blue kingdoms.">
+<meta name="twitter:image" content="https://elixirhour.tessa-kerk.com/assets/share/night-cap-share.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="stylesheet" href="css/fonts.css">
+<style>
+  :root{ --ink:#efe9dd; --ink-soft:#c9c2d8; --purple:#7A3FA0; --purple-hi:#9a5ec4; --sage:#8faa6f; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:'Cormorant Garamond',serif; color:var(--ink); min-height:100vh;
+    background:radial-gradient(120% 90% at 50% 0%, #26234c 0%, #171634 45%, #0e0c20 100%);
+    display:flex; align-items:center; justify-content:center; padding:32px 20px; overflow-x:hidden; }
+
+  .cap-wrap{ width:100%; max-width:1080px; display:flex; gap:44px; align-items:center;
+    position:relative; }
+
+  /* LEFT — the Night Cap card (reads first) */
+  .cap-left{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .cap-card canvas{ width:340px; max-width:44vw; height:auto; border-radius:10px;
+    box-shadow:0 26px 60px rgba(0,0,0,.6); background:#1c1b3a; }
+  .cap-dl{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px; color:#efe9dd;
+    background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.22); border-radius:11px;
+    padding:9px 20px; cursor:pointer; transition:background .15s, transform .12s; }
+  .cap-dl:hover{ background:rgba(255,255,255,.16); transform:translateY(-1px); }
+
+  /* RIGHT — the pitch */
+  .cap-right{ flex:1 1 auto; min-width:0; max-width:440px; }
+  .cap-wordmark{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px; letter-spacing:.34em;
+    color:var(--sage); text-transform:uppercase; margin-bottom:14px; }
+  .cap-headline{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:46px; line-height:1.02;
+    color:#f6f0e2; margin:0 0 16px; }
+  .cap-body{ font-size:23px; line-height:1.4; color:var(--ink-soft); margin:0 0 26px; font-weight:600; }
+  .cap-play{ display:inline-block; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:19px;
+    color:#fff; text-decoration:none; padding:13px 30px; border-radius:14px;
+    background:linear-gradient(180deg, var(--purple-hi), var(--purple));
+    box-shadow:0 8px 22px rgba(122,63,160,.5), inset 0 1px 0 rgba(255,255,255,.25);
+    transition:transform .12s, box-shadow .15s; }
+  .cap-play:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(122,63,160,.6); }
+
+  /* SAGE in the corner + her handwritten aside */
+  .cap-sage{ position:absolute; right:-8px; bottom:-32px; width:210px; text-align:center;
+    pointer-events:none; }
+  .cap-sage img{ width:170px; height:auto; display:block; margin:0 auto;
+    filter:drop-shadow(0 10px 24px rgba(0,0,0,.5)); }
+  .cap-sage-aside{ font-family:'Caveat',cursive; font-weight:700; font-size:24px; color:#a9c58a;
+    transform:rotate(-5deg); margin:0 0 4px 40px; line-height:1.05; }
+
+  #cap-err{ display:none; font-size:20px; color:var(--ink-soft); text-align:center; max-width:460px; }
+
+  /* MOBILE — stack: card on top, pitch + Sage below */
+  @media (max-width:720px){
+    body{ align-items:flex-start; padding:22px 16px 40px; }
+    .cap-wrap{ flex-direction:column; gap:26px; }
+    .cap-card canvas{ width:min(300px, 78vw); max-width:78vw; }
+    .cap-right{ max-width:520px; text-align:center; }
+    .cap-headline{ font-size:38px; }
+    .cap-body{ font-size:20px; }
+    .cap-sage{ position:static; width:auto; margin-top:8px; display:flex; flex-direction:column;
+      align-items:center; }
+    .cap-sage img{ width:140px; }
+    .cap-sage-aside{ margin:0 0 2px; }
+  }
+</style>
+</head>
+<body>
+  <div class="cap-wrap">
+    <div class="cap-left">
+      <div class="cap-card"><canvas id="cap-canvas" width="1200" height="1500"></canvas></div>
+      <button class="cap-dl" id="cap-download">Download card</button>
+    </div>
+    <div class="cap-right">
+      <div class="cap-wordmark">Elixir Hour</div>
+      <h1 class="cap-headline">Pour your own drinks.</h1>
+      <p class="cap-body">A quiet bar on the border of the red and blue kingdoms. Decide how your customers' nights end.</p>
+      <a class="cap-play" href="index.html">Play Elixir Hour</a>
+    </div>
+    <div class="cap-sage" aria-hidden="true">
+      <div class="cap-sage-aside">Your drinks impact their fates!</div>
+      <img src="assets/characters/Sage Final.png" alt="">
+    </div>
+  </div>
+  <p id="cap-err"></p>
+
+  <!-- the game's own render code + data + strings; window.LANG defaults to en for the page chrome -->
+  <script>window.LANG = "en";</script>
+  <script src="strings/strings.js"></script>
+  <script src="data/nights.js"></script>
+  <script src="data/cast.js"></script>
+  <script src="data/tome.js"></script>
+  <script src="src/nightcap.js"></script>
+  <script src="cap/cap.js"></script>
+</body>
+</html>

@@ -28,6 +28,23 @@ window.Tome = (function () {
     el("tome").classList.add("open");
     render(tab || current);
   }
+  /* R12 open-targets: a newly-met character opens the Ledger on its GRID (their
+     card right there to tap); a new recipe opens the Brew Book ON that page. */
+  function openLedgerGrid() {
+    ledgerNav.view = "grid"; ledgerNav.sheet = 0; ledgerNav.gridSheet = 0;
+    el("tome").classList.add("open");
+    current = null;                          /* force render() to treat this as arriving at the grid */
+    render("ledger");
+  }
+  function openRecipe(name) {
+    var known = [];
+    for (var i = 0; i < window.BREWBOOK.length; i++)
+      if (Game.state.unlocks.recipes.indexOf(window.BREWBOOK[i].name) >= 0) known.push(window.BREWBOOK[i]);
+    sel.brew = 0;
+    for (var j = 0; j < known.length; j++) if (known[j].name === name) { sel.brew = j; break; }
+    el("tome").classList.add("open");
+    render("brew");
+  }
   function close() { el("tome").classList.remove("open"); }
   function isOpen() { return el("tome").classList.contains("open"); }
 
@@ -47,6 +64,7 @@ window.Tome = (function () {
     for (var i = 0; i < tabs.length; i++) {
       el("tab-" + tabs[i]).classList.toggle("on", tabs[i] === tab);
     }
+    el("pageR").classList.remove("herald-paper");   /* R12: the Tome Herald tab is text-only — the 3D paper is reserved for the full-screen interstitial (too large for the book page, and text-only scales to any article length) */
     if (tab === "brew") renderBrew();
     if (tab === "ledger") renderLedger();
     if (tab === "herald") renderHerald();
@@ -74,7 +92,7 @@ window.Tome = (function () {
     for (var d = 0; d < r.dots.length; d++) dots += '<i style="background:' + r.dots[d] + '"></i>';
     el("pageR").innerHTML =
       '<div class="tometitle centre">' + esc(r.name) + "</div>" +
-      '<img class="tome-tankard" src="assets/ui/Tankard Icon (cutout).png" alt="">' +
+      '<img class="tome-tankard" src="assets/ui/Tankard Icon (cutout).webp" alt="">' +
       '<div class="ingdots">' + dots + "</div>" +
       '<div class="rp-caption strong">' + esc(r.mix.map(canonTerm).join(" + ")) + "</div>" +
       '<div class="rp-caption">' + esc(r.note) + "</div>" +
@@ -279,7 +297,10 @@ window.Tome = (function () {
     var stageEl = document.getElementById("stage");
     var scale = stageEl.getBoundingClientRect().width / Stage.design().W || 1;
     var flowRect = flow.getBoundingClientRect();
-    var railW = Math.max(colW * 0.19 - 4, 44);
+    /* §R14: the note sits in the WIDER margin (bio padding is now 74px, per the mockup),
+       at a comfortable ~54px so notes read in 2-3 lines (not a thin wrapping column) AND
+       leave a real gap to the printed text for the arrow's tail to run across. */
+    var railW = Math.max(46, Math.min(54, colW * 0.17));
     var alt = 0;
     var lastBottom = {};
     var noteI = 0;
@@ -313,6 +334,10 @@ window.Tome = (function () {
         noteEl.className = "hand-note margin-note tilt" + (noteI++ % 3);
         noteEl.textContent = note.note;
         noteEl.style.width = railW + "px";
+        /* the note hugs the edge FACING its phrase (right-align in the left margin,
+           left-align in the right margin) so the arrow's tail starts AT the handwriting,
+           never in the ragged whitespace beside it (§R14 "tail must sit at its note"). */
+        noteEl.style.textAlign = side === "left" ? "right" : "left";
         overlay.appendChild(noteEl);
         var top = Math.max(sTop + 2, (lastBottom[key] || -1e9) + 6);
         top = Math.min(top, pageH - noteEl.offsetHeight - 4);
@@ -320,13 +345,19 @@ window.Tome = (function () {
         noteEl.style.left = (side === "left" ? colLeft : colLeft + colW - railW) + "px";
         lastBottom[key] = top + noteEl.offsetHeight;
 
-        /* short arrow to the NEAREST edge of the phrase, routed through the
-           inter-line gap BELOW the line so it never crosses other words */
-        var x1 = side === "left" ? colLeft + railW - 2 : colLeft + colW - railW + 2;
-        var x2 = side === "left" ? sx - 2 : sRight + 2;
-        var yEnd = sTop + sH + 2;                  /* just under the underline */
-        var bow = (yEnd + 5) - ((top + 10) + yEnd) / 2;   /* control point sits in the gap */
-        drawArrow(svg, x1, top + 10, x2, yEnd, bow);
+        /* §R14 direction rule: EVERY arrow flows FROM the handwritten note INTO the printed
+           phrase — never the reverse, never note→note. Tail sits at the note's INNER edge
+           (the side facing the phrase); tip stops ~8px short of the phrase. When a phrase
+           sits at the very start/end of its line there isn't room for a full arrow, so we
+           shorten by moving the TIP (never dragging the tail across the note text) — the
+           note→phrase direction is preserved and nothing clips. */
+        var innerEdge = side === "left" ? colLeft + railW : colLeft + colW - railW;
+        var x1 = innerEdge, x2 = side === "left" ? sx - 8 : sRight + 8;
+        if (side === "left") { if (x2 < x1 + 6) x2 = x1 + 6; }
+        else                 { if (x2 > x1 - 6) x2 = x1 - 6; }
+        var y1 = top + Math.min(noteEl.offsetHeight * 0.5, 13);   /* from the note's upper-middle */
+        var yEnd = sTop + sH + 3;                                  /* just under the underline */
+        placeArrow(svg, x1, y1, x2, yEnd);
       }
     }
     var w = Math.max(flow.scrollWidth, colW);
@@ -356,7 +387,7 @@ window.Tome = (function () {
     var d = document.createElement("div");
     d.className = "hand-nav";
     if (title) d.title = title;
-    d.innerHTML = '<img src="assets/ui/Nav Arrow (icon).png" alt=""' + (kind === "next" ? ' class="flip"' : "") + ">";
+    d.innerHTML = '<img src="assets/ui/Nav Arrow (icon).webp" alt=""' + (kind === "next" ? ' class="flip"' : "") + ">";
     return d;
   }
 
@@ -369,7 +400,7 @@ window.Tome = (function () {
     var d = document.createElement("div");
     d.className = "grid-btn";
     d.title = "Back to the regulars";
-    d.innerHTML = '<img src="assets/ui/Card Select (icon).png" alt="Back to the regulars">';
+    d.innerHTML = '<img src="assets/ui/Card Select (icon).webp" alt="Back to the regulars">';
     return d;
   }
 
@@ -400,19 +431,33 @@ window.Tome = (function () {
   function normText(s) { return String(s).toLowerCase().replace(/\s+/g, " ").trim(); }
 
 
-  /* a gently curved, hand-drawn-feel arrow with a small open head */
-  function drawArrow(svg, x1, y1, x2, y2, bow) {
-    var mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + (bow || -8);
+  /* §R15 — NO ARROWHEAD (Tessa's final call after four rounds of head/tail bugs):
+     each annotation is ONE hand-drawn line only — a single green stroke with a gentle
+     organic curve, running from the note to the printed phrase. No head, no tick, no
+     fork = nothing left to misalign. The phrase stays underlined (that marks it), so
+     direction is never ambiguous and the note→phrase rule is retired. Three shaft
+     curves (straight / bow-down / bow-up) placed by a rigid translate+rotate+scale;
+     the belly always dips into the inter-line gap so it never crosses other words. */
+  var ARROW_SHAFTS = {
+    straight: "M0 0 L100 0",
+    down:     "M0 0 Q48 16 100 3",
+    up:       "M0 0 Q48 -16 100 -3",
+  };
+  function placeArrow(svg, x1, y1, x2, y2) {
+    var dx = x2 - x1, dy = y2 - y1;
+    var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+    /* belly falls BELOW the line (down curve rightward, up curve leftward which after
+       its ~180° rotation also bows down); a STEEP line (|dy|>18) goes straight — no C-bow. */
+    var kind = Math.abs(dy) > 18 ? "straight" : (dx >= 0 ? "down" : "up");
+    var g = document.createElementNS(SVGNS, "g");
+    g.setAttribute("transform", "translate(" + x1.toFixed(1) + " " + y1.toFixed(1) +
+      ") rotate(" + ang.toFixed(2) + ") scale(" + (dist / 100).toFixed(4) + ")");
     var p = document.createElementNS(SVGNS, "path");
-    p.setAttribute("d", "M" + x1 + " " + y1 + " Q" + mx + " " + my + " " + x2 + " " + y2);
-    svg.appendChild(p);
-    var ang = Math.atan2(y2 - my, x2 - mx) + Math.PI;
-    for (var k = -1; k <= 1; k += 2) {
-      var a = ang + k * 0.5;
-      var h = document.createElementNS(SVGNS, "path");
-      h.setAttribute("d", "M" + x2 + " " + y2 + " L" + (x2 + Math.cos(a) * 7) + " " + (y2 + Math.sin(a) * 7));
-      svg.appendChild(h);
-    }
+    p.setAttribute("d", ARROW_SHAFTS[kind]);
+    p.setAttribute("vector-effect", "non-scaling-stroke");   /* keep the 1.8px stroke constant despite the scale */
+    g.appendChild(p);
+    svg.appendChild(g);
   }
 
   /* ---- Arena Herald: unlocked back editions; ripple marker ---- */
@@ -441,14 +486,14 @@ window.Tome = (function () {
     }
     if (h.story2) story += "<br><br>" + esc(h.story2);
     el("pageR").innerHTML =
-      '<div class="masthead">The Arena Herald</div>' +
+      /* text-only (R12): edition line → headline → story, on the plain page */
       '<div class="rp-caption">' + esc(h.ed) + "</div>" +
       '<div class="headline">' + esc(h.head) + "</div>" +
       '<div class="story">' + story + "</div>" +
       (h.ripple ? '<div class="ripple">⚗ Traced to a quiet brew poured at a certain bar the night before.</div>' : "");
   }
 
-  /* ---- Bard's Songbook: pick the bar's tune (audio lands in M7) ----
+  /* ---- Bard's Songbook: pick the bar's tune (wired to Sound, round 11) ----
      Progression-gated (GDD §11): a locked track is a greyed row revealing
      NOTHING — no title, no description — so later Nights aren't spoiled. */
   function songUnlocked(s) {
@@ -488,7 +533,7 @@ window.Tome = (function () {
       })(rows[t]);
     }
     el("pageR").innerHTML =
-      '<div id="phonowrap"><div id="phonoglow"></div><img src="assets/ui/Songbook Phonograph (cutout).png" alt=""></div>' +
+      '<div id="phonowrap"><div id="phonoglow"></div><img src="assets/ui/Songbook Phonograph (cutout).webp" alt=""></div>' +
       '<div class="plaque">Now playing — “' + esc(picked) + '”</div>';
   }
 
@@ -509,5 +554,18 @@ window.Tome = (function () {
     })(id, tabIds[id]);
   }
 
-  return { open: open, close: close, isOpen: isOpen, render: render };
+  /* §R15 auto-hiding scrollbar: flag #pageL "scrolling" while it scrolls (fades the
+     slim bar in), clear it ~700ms after the last scroll (fades it back out). */
+  (function () {
+    var pl = el("pageL");
+    if (!pl) return;
+    var to = null;
+    pl.addEventListener("scroll", function () {
+      pl.classList.add("scrolling");
+      if (to) window.clearTimeout(to);
+      to = window.setTimeout(function () { pl.classList.remove("scrolling"); }, 700);
+    });
+  })();
+
+  return { open: open, openLedgerGrid: openLedgerGrid, openRecipe: openRecipe, close: close, isOpen: isOpen, render: render };
 })();

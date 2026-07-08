@@ -41,15 +41,34 @@ window.Screens = (function () {
      The Draw" (GDD §11) — so a returning player knows what they're resuming. */
   function renderTitle() {
     var s = Save.exists() ? Save.load() : null;
+    var completed = window.Game && Game.isCompleted && Game.isCompleted();
+    var tomeBtn = el("btn-tome-title");
     el("btn-continue").disabled = !s;
-    if (s) {
-      var n = typeof s.night === "number" ? s.night : 1;
-      var nd = null, ns = window.NIGHTS || [];
-      for (var i = 0; i < ns.length; i++) if (ns[i].night === n) nd = ns[i];
-      var label = t("night.label", { n: n }) + (nd && nd.title ? ": " + nd.title : "");
-      el("btn-continue").textContent = t("continue.named", { label: label });
+    if (completed) {
+      /* §11 (round 10): a finished game — Continue into a re-shown Herald is a dead
+         end. Continue becomes Play Again (fresh save, confirmed on click) and the
+         finished Tome opens directly from its own button. */
+      /* two lines so no word orphans (§11): "Play Again" over a smaller "from Night 1" */
+      el("btn-continue").innerHTML = '<span class="btn-main">' + t("title.playagain.main") +
+        '</span><span class="btn-sub">' + t("title.playagain.sub") + "</span>";
+      el("btn-continue").classList.add("two-line");
+      if (tomeBtn) { tomeBtn.hidden = false; tomeBtn.textContent = t("title.opentome"); }
     } else {
-      el("btn-continue").textContent = t("title.continue");
+      if (tomeBtn) tomeBtn.hidden = true;
+      if (s) {
+        var n = typeof s.night === "number" ? s.night : 1;
+        var nd = null, ns = window.NIGHTS || [];
+        for (var i = 0; i < ns.length; i++) if (ns[i].night === n) nd = ns[i];
+        var label = t("night.label", { n: n }) + (nd && nd.title ? ": " + nd.title : "");
+        /* two lines like Play Again (§R14): "Continue" (Baloo 2) over a smaller
+           "Night N: Title" (Nunito) — no orphaned words in any language. */
+        el("btn-continue").innerHTML = '<span class="btn-main">' + t("title.continue") +
+          '</span><span class="btn-sub">' + label + "</span>";
+        el("btn-continue").classList.add("two-line");
+      } else {
+        el("btn-continue").classList.remove("two-line");
+        el("btn-continue").textContent = t("title.continue");
+      }
     }
     Particles.start();
   }
@@ -81,9 +100,10 @@ window.Screens = (function () {
      the character dissolves. lastServe.headTopY (from the per-character head fraction)
      anchors the speech bubble just above the face. */
   var sceneLayers = null, sceneActive = 0;
+  var EMPTY_BAR = "Empty Bar (no characters)";   /* §11: the no-customer backdrop (Sage solo, game start, between visits) — never a bare screen */
   function setServeCustomer(who, exprName) {
     if (!sceneLayers) sceneLayers = [el("ms-img"), el("ms-img2")];
-    if (!who || !window.CAST[who]) { lastServe = null; return; }
+    if (!who || !window.CAST[who]) { lastServe = null; crossfadeScene(window.serveScenePath(EMPTY_BAR)); return; }
     var c = window.CAST[who];
     var names = [];
     for (var k in c.exprs) names.push(k);
@@ -92,15 +112,46 @@ window.Screens = (function () {
     lastServe = { who: who, expr: exprName, headTopY: (c.head || 0.25) * Stage.design().H };
     crossfadeScene(window.serveScenePath(base));
   }
-  /* fade a new scene in over the current one (~160ms via .scene-layer transition) */
+  /* True overlapped cross-fade (round-10 fix for the dip-to-empty). The outgoing
+     layer stays FULLY OPAQUE while the incoming ramps up on top of it — the scene is
+     never less than one solid opaque layer, so it can't dip dark between two faces.
+     Once the incoming is up the outgoing sits hidden behind it, ready to be next. */
   function crossfadeScene(path) {
     var cur = sceneLayers[sceneActive], nxt = sceneLayers[1 - sceneActive];
     if (cur.getAttribute("src") === path) return;              /* already showing it */
-    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; return; }   /* first show: no fade */
-    nxt.style.opacity = 0;
-    nxt.onload = function () { nxt.style.opacity = 1; cur.style.opacity = 0; };
+    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; cur.style.zIndex = 1; return; }
+    nxt.onload = function () {
+      nxt.style.zIndex = 2;            /* incoming above the still-opaque outgoing */
+      cur.style.zIndex = 1;
+      nxt.style.opacity = 0;
+      void nxt.offsetWidth;            /* commit 0 before transitioning to 1 */
+      nxt.style.opacity = 1;
+    };
     nxt.src = path;
     sceneActive = 1 - sceneActive;
+  }
+
+  /* R13: the layout-change DIP (a deliberate camera cut). Cross-fading two DIFFERENT
+     layouts reads as a double-exposure, so instead we fade to a warm near-dark, swap
+     the layout UNDER the cover (screen switch + beat start), then reveal. `mid` runs
+     at full cover — the screen is display:block there, so bubble pagination still
+     measures. Only used for serve<->duo<->group; same-layout swaps keep the cross-fade. */
+  var dipTimer = null;
+  function dip(mid) {
+    var d = el("dip"), stage = document.getElementById("stage");
+    if (!d || !stage) { mid(); return; }
+    if (dipTimer) { window.clearTimeout(dipTimer); dipTimer = null; }   /* a superseding dip cancels the old one */
+    stage.classList.add("dipping");            /* suppress the screenfade while covered */
+    d.classList.add("on");                     /* → opaque over ~200ms (covers the old layout) */
+    dipTimer = window.setTimeout(function () {
+      dipTimer = null;
+      mid();                                   /* swap layout + start the beat, hidden under the cover */
+      /* Drop `dipping` SYNCHRONOUSLY with the swap: the newly-active screen's ONE
+         screenfade now plays as the reveal, under the fading cover — reads as a single
+         continuous camera cut. (Removing it later re-triggered a second fade → flicker.) */
+      stage.classList.remove("dipping");
+      d.classList.remove("on");                /* → cover clears over ~250ms, revealing the new layout */
+    }, 210);
   }
 
   /* One dialogue line in the bubble. html is pre-formatted (escaped) by the
@@ -291,22 +342,31 @@ window.Screens = (function () {
      in the speaker's colour; the silent half dims a touch. */
   var duoSides = {};                       /* who → 'left' | 'right' */
   var lastDuo = null;
-  var duoBg = null, duoRt = null;          /* [layerA, layerB] pairs for cross-fade */
-  var duoBgIdx = { a: 0 }, duoRtIdx = { a: 0 };
+  var duoBg = null;                        /* the Empty Bar backdrop (single, static) */
+  var duoL = null, duoR = null;            /* [layerA, layerB] cross-fade pairs — both cutouts */
+  var duoLIdx = { a: 0 }, duoRIdx = { a: 0 };
 
-  /* cross-fade a stacked pair of layers to a new image (~160ms) */
-  function crossfadePair(pair, idx, path) {
+  /* Overlapped cross-fade (round-10): incoming ramps up on top while the outgoing
+     holds fully opaque — no dip. zBase keeps the tiers apart so the right cutout
+     (zBase 3) always sits above the backdrop serve scene (zBase 1). */
+  function crossfadePair(pair, idx, path, zBase) {
     var cur = pair[idx.a], nxt = pair[1 - idx.a];
     if (cur.getAttribute("src") === path) return;
-    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; return; }
-    nxt.style.opacity = 0;
-    nxt.onload = function () { nxt.style.opacity = 1; cur.style.opacity = 0; };
+    if (!cur.getAttribute("src")) { cur.src = path; cur.style.opacity = 1; cur.style.zIndex = zBase; return; }
+    nxt.onload = function () {
+      nxt.style.zIndex = zBase + 1;
+      cur.style.zIndex = zBase;
+      nxt.style.opacity = 0;
+      void nxt.offsetWidth;
+      nxt.style.opacity = 1;
+    };
     nxt.src = path;
     idx.a = 1 - idx.a;
   }
 
-  /* left = the character's whole serve scene (backdrop); right = the character's
-     grounded cutout, shifted onto the right of the same counter (CSS translateX) */
+  /* both characters are grounded cutouts on the Empty Bar backdrop (round 11) — the
+     left at its natural position (.duo-l), the right shifted onto the right of the
+     same counter (.duo-r). No character is ever baked into the base. */
   function setDuoSide(side, who, exprName) {
     var c = window.CAST[who];
     if (!c) return;
@@ -314,13 +374,24 @@ window.Screens = (function () {
     for (var k in c.exprs) names.push(k);
     if (!exprName || !c.exprs[exprName]) exprName = names[0];
     var base = c.exprs[exprName];
-    if (side === "left") crossfadePair(duoBg, duoBgIdx, window.serveScenePath(base));
-    else crossfadePair(duoRt, duoRtIdx, window.cutoutPath(base));
+    if (side === "left") crossfadePair(duoL, duoLIdx, window.cutoutPath(base), 3);
+    else crossfadePair(duoR, duoRIdx, window.cutoutPath(base), 5);
   }
 
   function renderDuo(b) {
     lastDuo = b;
-    if (!duoBg) { duoBg = [el("duo-bg"), el("duo-bg2")]; duoRt = [el("duo-right"), el("duo-right2")]; }
+    if (!duoBg) {
+      duoBg = el("duo-bg");
+      duoL = [el("duo-left"), el("duo-left2")];
+      duoR = [el("duo-right"), el("duo-right2")];
+    }
+    /* reset every cutout layer so a character from a PREVIOUS two-shot can't linger
+       behind — the round-10 keep-outgoing-opaque fade otherwise leaves stale cutouts
+       on screen (the stray-Knight bug). */
+    [duoL[0], duoL[1], duoR[0], duoR[1]].forEach(function (im) { im.removeAttribute("src"); im.style.opacity = 0; });
+    duoLIdx.a = 0; duoRIdx.a = 0;
+    duoBg.src = window.serveScenePath("Empty Bar (no characters)");   /* §11: the base never contains a character */
+    duoBg.style.opacity = 1; duoBg.style.zIndex = 1;                  /* static backdrop (.scene-layer defaults to 0) */
     duoSides = {};
     var cast = b.cast || [];
     if (cast[0]) { duoSides[cast[0].who] = "left"; setDuoSide("left", cast[0].who, cast[0].expr); }
@@ -394,6 +465,7 @@ window.Screens = (function () {
     fillStatic: fillStatic,
     renderTitle: renderTitle,
     leaveTitle: leaveTitle,
+    dip: dip,
     renderHerald: renderHerald,
     renderServe: renderServe,
     setServeCustomer: setServeCustomer,

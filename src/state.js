@@ -24,6 +24,7 @@ window.Game = (function () {
     if (name === "title") Screens.renderTitle();
     current = name;
     if (window.HUD) HUD.onShow(name);   /* the menu + Tome buttons live only on play screens */
+    if (window.Sound) Sound.onScreen(name);   /* music ducks on title + rest, lifts back on play */
   }
 
   function nightData() {
@@ -90,6 +91,20 @@ window.Game = (function () {
     pendingCursor = null;
   }
 
+  /* R13: switching between two DIFFERENT in-bar layouts (serve/duo/group) uses a
+     dip — a warm near-dark camera cut — instead of a cross-fade (which read as a
+     double-exposure). Entering a layout from the title/herald keeps the plain
+     screenfade; same-layout re-shows and reduced-motion skip the dip. */
+  var LAYOUTS = { serve: 1, duo: 1, group: 1 };
+  function layoutShow(screen, b) {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (current !== screen && LAYOUTS[current] && LAYOUTS[screen] && window.Screens && Screens.dip && !reduce) {
+      Screens.dip(function () { show(screen); startBeat(b); });
+    } else {
+      show(screen); startBeat(b);
+    }
+  }
+
   function playBeat() {
     applyNightTint();
     var b = beat();
@@ -109,9 +124,9 @@ window.Game = (function () {
          measures the bubble for pagination — a hidden screen has offsetHeight 0 and
          the line never paginates (round-4 pagination fix). Synchronous, no flash. */
       case "visit":
-      case "scene":    show("serve"); startBeat(b); break;
-      case "group":    show("group"); startBeat(b); break;
-      case "duo":      show("duo"); startBeat(b); break;
+      case "scene":    layoutShow("serve", b); break;
+      case "group":    layoutShow("group", b); break;
+      case "duo":      layoutShow("duo", b); break;
       case "epilogue": showEpilogue(); break;
       default:
         console.warn("Elixir Hour: unknown beat type, skipping", b);
@@ -159,9 +174,9 @@ window.Game = (function () {
     state.poured = [];
     startNight(1);
   }
-  function continueGame() {
-    var s = Save.load();
-    if (!s) { newGame(); return; }
+  /* hydrate Game.state from a save WITHOUT resuming — shared by Continue and by
+     "Open the Tome" from the finished-game title (the keepsake stays browsable). */
+  function hydrate(s) {
     state.night = typeof s.night === "number" ? s.night : 1;
     state.beatIndex = typeof s.beatIndex === "number" ? s.beatIndex : 0;
     var u = s.unlocks || {};
@@ -183,8 +198,29 @@ window.Game = (function () {
     /* within-beat resume point (P0-1; v5+). v4 and earlier had none → the beat
        replays from its top, the old per-beat behaviour. */
     pendingCursor = (s.cursor && typeof s.cursor.beatIndex === "number" && Array.isArray(s.cursor.q)) ? s.cursor : null;
+  }
+
+  function continueGame() {
+    var s = Save.load();
+    if (!s) { newGame(); return; }
+    hydrate(s);
     if (!hasNight(state.night)) { newGame(); return; }
     resume();
+  }
+
+  /* completed game = the epilogue's morning-after Herald (Night 4) is archived */
+  function isCompleted() {
+    var s = Save.exists() ? Save.load() : null;
+    return !!(s && s.unlocks && s.unlocks.heralds && s.unlocks.heralds.indexOf(4) >= 0);
+  }
+  /* §11 (round 10): from a finished-game title, open the finished Tome directly —
+     hydrate the unlocks so it shows the completed keepsake, then open the overlay
+     over the title (no game resumed). */
+  function openTomeFromTitle() {
+    var s = Save.exists() ? Save.load() : null;
+    if (!s) return;
+    hydrate(s);
+    if (window.Tome && Tome.open) Tome.open();
   }
   function saveQuit() { Save.store(snapshot()); if (window.HUD) HUD.saved(); show("title"); }
 
@@ -196,6 +232,7 @@ window.Game = (function () {
   return {
     show: show, advance: advance, playBeat: playBeat,
     startNight: startNight, newGame: newGame, continueGame: continueGame,
+    isCompleted: isCompleted, openTomeFromTitle: openTomeFromTitle,
     heraldContinue: heraldContinue, saveQuit: saveQuit,
     openTome: openTome, closeTome: closeTome, hasNight: hasNight,
     recordTone: recordTone,

@@ -39,7 +39,7 @@ window.BREWBOOK = [
    correct even if an export carries uneven transparent padding. */
 window.LEDGER = [
   {
-    who: "Knight", card: "assets/ui/cards/Knight Card (cutout).png", px: [1525, 2048], box: { l: 0.087, t: 0.083, r: 0.915, b: 0.928 },
+    who: "Knight", card: "assets/ui/cards/Knight Card (cutout).webp", px: [1525, 2048], box: { l: 0.087, t: 0.083, r: 0.915, b: 0.928 },
     stages: [
       { bio: "The everyman of the arena — **no special trick**, no legend to his name, just a steady sword. They send him in first, always have. Orders **the usual** every night and calls it that as if you'd already know it. The warm, steady one; the last to leave.",
         notes: [
@@ -56,7 +56,7 @@ window.LEDGER = [
     ],
   },
   {
-    who: "Wizard", card: "assets/ui/cards/Wizard Card (cutout).png", px: [1551, 2155], box: { l: 0.023, t: 0.030, r: 0.976, b: 0.969 },
+    who: "Wizard", card: "assets/ui/cards/Wizard Card (cutout).webp", px: [1551, 2155], box: { l: 0.023, t: 0.030, r: 0.976, b: 0.969 },
     stages: [
       { bio: "By his own account, the most awesome man ever to set foot in the Arena — handsomeness and fireballs, in roughly that order. Performs for **any room that'll watch**. He's the *plain* wizard, though, overshadowed by the flashier ones — an Electro Wizard, an Ice Wizard, a Magic Archer.",
         notes: [
@@ -70,7 +70,7 @@ window.LEDGER = [
     ],
   },
   {
-    who: "Princess", card: "assets/ui/cards/Princess Card (cutout).png", px: [774, 1076], box: { l: 0.023, t: 0.030, r: 0.977, b: 0.969 },
+    who: "Princess", card: "assets/ui/cards/Princess Card (cutout).webp", px: [774, 1076], box: { l: 0.023, t: 0.030, r: 0.977, b: 0.969 },
     stages: [
       { bio: "She sees everything before anyone else — a whole life spent watching from further back than the rest. Dry and precise, she lands **the cutting remark** so softly you barely feel it. She knows how the Championship will fall before it's even drawn, and every secret in this room, and she trades the gossip while giving away **nothing of her own**.",
         notes: [
@@ -84,7 +84,7 @@ window.LEDGER = [
     ],
   },
   {
-    who: "P.E.K.K.A", card: "assets/ui/cards/P.E.K.K.A Card (cutout).png", px: [1689, 2346], box: { l: 0.022, t: 0.030, r: 0.976, b: 0.970 },
+    who: "P.E.K.K.A", card: "assets/ui/cards/P.E.K.K.A Card (cutout).webp", px: [1689, 2346], box: { l: 0.022, t: 0.030, r: 0.976, b: 0.970 },
     stages: [
       { bio: "The armoured mountain they send out at dawn against whatever everyone's most afraid of. Takes up the most space in any room and, somehow, **the least**. Behind the visor, **no fearsome face** — a slow, soft voice and long pauses.",
         notes: [
@@ -98,7 +98,7 @@ window.LEDGER = [
     ],
   },
   {
-    who: "Hog Rider", card: "assets/ui/cards/Hog Rider Card (cutout).png", px: [1698, 2359], box: { l: 0.022, t: 0.030, r: 0.976, b: 0.969 },
+    who: "Hog Rider", card: "assets/ui/cards/Hog Rider Card (cutout).webp", px: [1698, 2359], box: { l: 0.022, t: 0.030, r: 0.976, b: 0.969 },
     stages: [
       { bio: "You'll hear him before you see him — the call goes up, the door bangs, and he's decided you're **old friends**. Loud, fast, all exclamation; works a room of three like a packed stadium. Best mate's his Hog, who is sentient — and who is currently **not speaking to him**.",
         notes: [
@@ -153,8 +153,8 @@ window.HERALD_EDITIONS = [
    Explicit story unlocks (unlocks.songs) always count too. Audio files are
    sourced separately (GDD §16); the picker works now, sound lands in M7. */
 window.SONGBOOK = [
-  { name: "Sage's Favourite",      when: { always: true },     by: "The default bar loop — the one Sage keeps on.", file: "" },
-  { name: "Rain on the Strip",     when: { heraldOf: 1 },      by: "Softer, late-night.",                            file: "" },
-  { name: "The Little One's Tune", when: { met: "P.E.K.K.A" }, by: "P.E.K.K.A's phonograph track.",                  file: "" },
-  { name: "Last Call",             when: { night: 3 },         by: "The night before the Championship — the bar bracing for the fight ahead.", file: "" },
+  { name: "Sage's Favourite",      when: { always: true },     by: "The default bar loop — the one Sage keeps on.", file: "sages-favourite.mp3" },
+  { name: "Rain on the Strip",     when: { heraldOf: 1 },      by: "Softer, late-night.",                            file: "rain-on-the-strip.mp3" },
+  { name: "The Little One's Tune", when: { met: "P.E.K.K.A" }, by: "P.E.K.K.A's phonograph track.",                  file: "the-little-ones-tune.mp3" },
+  { name: "Last Call",             when: { night: 3 },         by: "The night before the Championship — the bar bracing for the fight ahead.", file: "last-call.mp3" },
 ];

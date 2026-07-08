@@ -57,12 +57,18 @@
   };
 
   var prefsBox = storageBox("elixirHour.prefs.v1");
-  var PREF_DEFAULTS = { version: 1, lang: "en", music: true, sfx: true, track: "Sage's Favourite" };
+  /* Round 12 (GDD §11): sound is two 0-100 volume sliders + a mute each, not
+     on/off toggles. Default 70%. Old saves carried music/sfx booleans — migrated
+     below so a previously-muted player stays muted. */
+  var PREF_DEFAULTS = { version: 1, lang: "en", musicVol: 70, sfxVol: 70, musicMuted: false, sfxMuted: false, track: "Sage's Favourite" };
   window.Prefs = {
     get: function () {
       var raw = prefsBox.load() || {};
       var out = {};
       for (var k in PREF_DEFAULTS) out[k] = raw[k] != null ? raw[k] : PREF_DEFAULTS[k];
+      /* migrate the retired on/off booleans → mute states */
+      if (raw.musicMuted == null && raw.music === false) out.musicMuted = true;
+      if (raw.sfxMuted == null && raw.sfx === false) out.sfxMuted = true;
       return out;
     },
     set: function (patch) {

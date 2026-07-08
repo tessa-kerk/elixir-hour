@@ -24,17 +24,17 @@
      home-screen icons (apple-touch / manifest) get it on a dark glow plate so
      iOS/Android don't render the transparency as black. Versioned so a rebrand
      isn't stuck behind the aggressive favicon cache. -->
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=22">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=22">
-<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=22">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=22">
-<link rel="manifest" href="manifest.webmanifest?v=22">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=28">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=28">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=28">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=28">
+<link rel="manifest" href="manifest.webmanifest?v=28">
 <!-- Cache-bust: every local script/stylesheet carries ?v=<BUILD>. BUMP THIS
-     TOKEN ON EVERY BUILD (find-replace all "?v=22") so a refresh always gets the
+     TOKEN ON EVERY BUILD (find-replace all "?v=28") so a refresh always gets the
      current code — file:// and heuristic caches served stale JS to a real
      player once (P0 06-07) and stalled progression. -->
-<link rel="stylesheet" href="css/fonts.css?v=22">
-<link rel="stylesheet" href="css/main.css?v=22">
+<link rel="stylesheet" href="css/fonts.css?v=28">
+<link rel="stylesheet" href="css/main.css?v=28">
 </head>
 <body>
 <div id="viewport">
@@ -44,10 +44,11 @@
     <div class="screen" id="screen-title">
       <img id="title-bg" src="assets/scenes/Bar Scene V1 (title).jpg" alt="">
       <canvas id="fx" width="1280" height="720"></canvas>
-      <img id="title-logo" src="assets/logo/Elixir Hour Logo (transparent).png" alt="Elixir Hour">
+      <img id="title-logo" src="assets/logo/Elixir Hour Logo (transparent).webp" alt="Elixir Hour">
       <div id="title-menu">
         <button class="btn primary" id="btn-start"></button>
-        <button class="btn" id="btn-continue"></button>
+        <button class="btn sage" id="btn-continue"></button>
+        <button class="btn" id="btn-tome-title" hidden></button>
         <button class="btn" id="btn-settings"></button>
       </div>
       <!-- visible build stamp (filled from window.BUILD by Screens.fillStatic) -->
@@ -120,7 +121,7 @@
           <div class="dose-spacer"></div>
         </div>
         <div class="rightcol">
-          <div id="recipe"><img id="tankard" src="assets/ui/Tankard Icon (cutout).png" alt=""><div id="recipename"></div></div>
+          <div id="recipe"><img id="tankard" src="assets/ui/Tankard Icon (cutout).webp" alt=""><div id="recipename"></div></div>
           <button class="pbtn" id="brew-reset"></button>
           <button class="pbtn pour" id="brew-pour"></button>
         </div>
@@ -136,9 +137,9 @@
         </div>
       </div>
       <div id="brewstrip">
-        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Pour (4x5).png" alt=""><div class="fill"></div></div>
-        <div class="brewpanel"><img src="assets/ui/Brew Panel - Spell Drop (4x5).png" alt=""><div class="fill"></div></div>
-        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Stir (4x5).png" alt=""><div class="fill"></div></div>
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Pour (4x5).webp" alt=""><div class="fill"></div></div>
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - Spell Drop (4x5).webp" alt=""><div class="fill"></div></div>
+        <div class="brewpanel"><img src="assets/ui/Brew Panel - The Stir (4x5).webp" alt=""><div class="fill"></div></div>
       </div>
     </div>
 
@@ -147,7 +148,7 @@
          row is placed programmatically (src/screens.js renderGroup). -->
     <div class="screen" id="screen-group">
       <div id="g-ms">
-        <img id="g-img" src="assets/scenes/Group Scene V2.webp?v=22" alt="">
+        <img id="g-img" src="assets/scenes/Group Scene V2.webp?v=28" alt="">
       </div>
       <div id="group-row"></div>
       <div class="scene-tint"></div>
@@ -164,11 +165,15 @@
          vanishes). The diagonal split is a lighting treatment over the composed scene,
          dimming the silent half — never flat panels. Name-box in the speaker's colour. -->
     <div class="screen" id="screen-duo">
+      <!-- round 11: BOTH characters are cutouts pasted onto the EMPTY BAR backdrop
+           (never a character's serve scene — that leaks the baked character, e.g. a
+           stray Knight behind the Hog). Left + right each get a cross-fade pair. -->
       <div id="duo-scene">
         <img id="duo-bg" class="scene-layer" alt="">
-        <img id="duo-bg2" class="scene-layer" alt="">
-        <img id="duo-right" class="duo-cut" alt="">
-        <img id="duo-right2" class="duo-cut" alt="">
+        <img id="duo-left" class="duo-cut duo-l" alt="">
+        <img id="duo-left2" class="duo-cut duo-l" alt="">
+        <img id="duo-right" class="duo-cut duo-r" alt="">
+        <img id="duo-right2" class="duo-cut duo-r" alt="">
       </div>
       <div id="duo-split" aria-hidden="true"></div>
       <div class="scene-tint"></div>
@@ -210,7 +215,7 @@
     <!-- TOME OVERLAY (GDD §11) — the four ribbon tabs are painted INTO the
          spread art; these are hotspots + vector glyphs on top (mockup geometry) -->
     <div id="tome">
-      <img id="tomeimg" src="assets/ui/Tome Spread.png" alt="">
+      <img id="tomeimg" src="assets/ui/Tome Spread.webp" alt="">
       <div id="tomeclose"></div>
       <div class="tab" id="tab-brew" title="Brew Book">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h8a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M16 9h2.5a1.5 1.5 0 0 1 0 5H16"/><path d="M6 8h10"/></svg>
@@ -251,8 +256,22 @@
         <h2 id="set-title"></h2>
         <div class="setrow"><label id="set-lang-label" for="lang-select"></label><select id="lang-select"></select></div>
         <p id="set-disclaimer"></p>
-        <div class="setrow"><label id="set-music-label"></label><button class="btn small toggle" id="tgl-music"></button></div>
-        <div class="setrow"><label id="set-sfx-label"></label><button class="btn small toggle" id="tgl-sfx"></button></div>
+        <div class="setrow volrow">
+          <label id="set-music-label" for="vol-music"></label>
+          <button class="vol-mute" id="mute-music" type="button" aria-label="Mute music">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M18.6 6a8 8 0 0 1 0 12"/><path class="slash" d="M3 3l18 18"/></svg>
+          </button>
+          <div class="vol-track"><input type="range" min="0" max="100" step="1" value="70" id="vol-music" class="vol-slider" aria-label="Music volume"></div>
+          <span class="vol-pct" id="pct-music">70%</span>
+        </div>
+        <div class="setrow volrow">
+          <label id="set-sfx-label" for="vol-sfx"></label>
+          <button class="vol-mute" id="mute-sfx" type="button" aria-label="Mute sound effects">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M18.6 6a8 8 0 0 1 0 12"/><path class="slash" d="M3 3l18 18"/></svg>
+          </button>
+          <div class="vol-track"><input type="range" min="0" max="100" step="1" value="70" id="vol-sfx" class="vol-slider" aria-label="Sound effects volume"></div>
+          <span class="vol-pct" id="pct-sfx">70%</span>
+        </div>
         <div class="setrow"><span></span><button class="btn small sage" id="btn-about"></button></div>
         <button class="btn small primary" id="btn-set-back"></button>
       </div>
@@ -266,9 +285,11 @@
         <div class="nc-preview"><canvas id="nightcap-canvas" width="1200" height="1500"></canvas></div>
         <div class="nc-actions">
           <button class="btn small primary" id="nightcap-download"></button>
-          <button class="btn small" id="nightcap-share" hidden></button>
+          <button class="btn small" id="nightcap-share"></button>
           <button class="btn small" id="nightcap-close"></button>
         </div>
+        <!-- §R15: desktop "link copied" toast — two lines (plain + Sage's green hand) -->
+        <div id="nc-toast" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -278,6 +299,7 @@
         <h2 id="about-title"></h2>
         <p id="about-p1"></p>
         <p id="about-p2"></p>
+        <p id="about-p4"></p>
         <p id="about-p3"></p>
         <button class="btn small primary" id="btn-about-back"></button>
       </div>
@@ -288,19 +310,27 @@
          console-only note (P0 06-07). -->
     <div id="toast"></div>
 
+    <!-- R13: layout-change dip — a warm near-dark camera cut when the bar's layout
+         changes (serve<->duo<->group), so two different layouts never cross-fade
+         into a double-exposure. Same-layout swaps still cross-fade (untouched). -->
+    <div id="dip" aria-hidden="true"></div>
+
     <!-- persistent play-screen HUD (§11, locked 07/07): menu top-right (opens a
          pause tray), Tome button bottom-right (pulses once when something new
          lands). Shown only on serve/group/duo; hidden on title/interstitials. -->
     <button id="hud-menu" class="hud-btn" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
-    <button id="hud-tome" class="hud-btn tome" aria-label="The Tome"><img src="assets/ui/Tome Icon (cutout).webp?v=22" alt=""></button>
+    <button id="hud-tome" class="hud-btn tome" aria-label="The Tome"><img src="assets/ui/Tome Icon (cutout).webp?v=28" alt=""></button>
     <div id="autosave-quill" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-3 0-9 3-12 9l-4 7 7-4c6-3 9-9 9-12z"/><path d="M8.5 16.5l-2 2"/></svg><span id="autosave-word"></span></div>
     <div id="hint-chip"></div>
 
     <!-- MENU TRAY (§11 pause): Resume / The Tome / Settings / Save & Quit -->
     <div id="menu-tray" class="overlay">
       <div class="panel">
+        <button class="vol-mute tray-mute" id="tray-mute-music" type="button" aria-label="Mute music">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M18.6 6a8 8 0 0 1 0 12"/><path class="slash" d="M3 3l18 18"/></svg>
+        </button>
         <h2 id="menu-title"></h2>
         <button class="btn small primary" id="menu-resume"></button>
         <button class="btn small" id="menu-tome"></button>
@@ -316,22 +346,22 @@
 <div id="dev" hidden></div>
 
 <!-- ?v=<BUILD> on every script — BUMP the token on every build (see head note) -->
-<script src="strings/strings.js?v=22"></script>
-<script src="data/nights.js?v=22"></script>
-<script src="data/cast.js?v=22"></script>
-<script src="data/tome.js?v=22"></script>
-<script src="src/stage.js?v=22"></script>
-<script src="src/save.js?v=22"></script>
-<script src="src/particles.js?v=22"></script>
-<script src="src/screens.js?v=22"></script>
-<script src="src/brew.js?v=22"></script>
-<script src="src/dialogue.js?v=22"></script>
-<script src="src/state.js?v=22"></script>
-<script src="src/tome.js?v=22"></script>
-<script src="src/nightcap.js?v=22"></script>
-<script src="src/audio.js?v=22"></script>
-<script src="src/settings.js?v=22"></script>
-<script src="src/hud.js?v=22"></script>
-<script src="src/boot.js?v=22"></script>
+<script src="strings/strings.js?v=28"></script>
+<script src="data/nights.js?v=28"></script>
+<script src="data/cast.js?v=28"></script>
+<script src="data/tome.js?v=28"></script>
+<script src="src/stage.js?v=28"></script>
+<script src="src/save.js?v=28"></script>
+<script src="src/particles.js?v=28"></script>
+<script src="src/screens.js?v=28"></script>
+<script src="src/brew.js?v=28"></script>
+<script src="src/dialogue.js?v=28"></script>
+<script src="src/state.js?v=28"></script>
+<script src="src/tome.js?v=28"></script>
+<script src="src/nightcap.js?v=28"></script>
+<script src="src/audio.js?v=28"></script>
+<script src="src/settings.js?v=28"></script>
+<script src="src/hud.js?v=28"></script>
+<script src="src/boot.js?v=28"></script>
 </body>
 </html>

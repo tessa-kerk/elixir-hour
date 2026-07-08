@@ -421,6 +421,8 @@ window.Dialogue = (function () {
     if (u.recipe && un.recipes.indexOf(u.recipe) < 0) {
       var firstRecipe = un.recipes.length === 0;
       un.recipes.push(u.recipe); landed = true;
+      /* R12: opening the Tome next lands on THIS recipe's page */
+      if (window.HUD) HUD.markNewRecipe(u.recipe);
       /* staged reveal (§11): the FIRST recipe is what brings the Tome icon into
          being — it settles in with a glow, and a tap-first chip invites the tap */
       if (window.HUD && firstRecipe) { HUD.revealTome(); HUD.chip("chip.tome", true); onboarded = true; }
@@ -434,6 +436,9 @@ window.Dialogue = (function () {
       else if (typeof arr === "string") arr = un.ledger[u.ledger] = [arr];
       arr[(u.stage || 1) - 1] = u.note || "";
       landed = true;
+      /* R12: a newly MET regular points the next Tome open at the Ledger grid,
+         their card right there — not just the Knight, every new face */
+      if (window.HUD && isNew) HUD.markNewCharacter(u.ledger);
       /* second onboarding beat (§11): the Knight's first page glows the icon and
          points the next open at the Ledger ribbon */
       if (window.HUD && isNew && u.ledger === "Knight") { HUD.glowLedger(); HUD.chip("chip.ledger", true); onboarded = true; }

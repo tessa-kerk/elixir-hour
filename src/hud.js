@@ -8,7 +8,13 @@ window.HUD = (function () {
   var PLAY = { serve: 1, group: 1, duo: 1 };
   var trayOpen = false;
 
-  var pendingTab = null;   /* onboarding directs the first Tome open to a tab */
+  /* R12: opening the Tome shows whatever landed since it was last open — a newly
+     met character → the Ledger grid, a new recipe → that Brew Book page. Set on
+     every new unlock; character wins if both land together (it's set last). Cleared
+     on open; when null, the Tome restores its last position. */
+  var pendingTarget = null;   /* {tab:"ledger"} | {tab:"brew", recipe} | null */
+  function markNewRecipe(name) { pendingTarget = { tab: "brew", recipe: name }; }
+  function markNewCharacter(who) { pendingTarget = { tab: "ledger", who: who }; }
 
   /* staged reveal (§11 reworked): the Tome icon does NOT exist until the first
      recipe records — derived from the save so it survives a reload. */
@@ -25,37 +31,42 @@ window.HUD = (function () {
     if (!play) closeTray();
   }
 
-  /* first recipe recorded: the icon settles in with a held gold glow, and the
-     next open lands on the Brew Book showing that recipe (§11). */
+  /* first recipe recorded: the icon settles in with a held gold glow (the open
+     target is set separately by markNewRecipe). */
   function revealTome() {
     var b = el("hud-tome");
     if (!b) return;
     b.classList.remove("reveal");
     void b.offsetWidth;
     b.classList.add("on", "reveal", "glow");
-    pendingTab = "brew";
   }
-  /* the Knight's first page: glow again; the next open highlights the Ledger ribbon */
+  /* the Knight's first page: glow again (target set by markNewCharacter) */
   function glowLedger() {
     var b = el("hud-tome");
     if (b) b.classList.add("glow");
-    pendingTab = "ledger";
   }
-  /* open the Tome, honouring any onboarding target tab and clearing the glow */
+  /* open the Tome, honouring whatever landed since it was last open (R12),
+     clearing the glow. Nothing new → the Tome restores its own last position. */
   function openTome() {
     var b = el("hud-tome");
     if (b) b.classList.remove("glow", "reveal");
-    var tab = pendingTab; pendingTab = null;
-    if (window.Tome) Tome.open(tab || undefined);
-    if (tab === "ledger") {
+    var target = pendingTarget; pendingTarget = null;
+    if (!window.Tome) return;
+    if (target && target.tab === "ledger") {
+      Tome.openLedgerGrid();
       var t = el("tab-ledger");
       if (t) { t.classList.add("ribbon-hi"); window.setTimeout(function () { t.classList.remove("ribbon-hi"); }, 2600); }
+    } else if (target && target.tab === "brew") {
+      Tome.openRecipe(target.recipe);
+    } else {
+      Tome.open();                    /* nothing new → restore last position */
     }
   }
 
   function openTray() {
     trayOpen = true;
     el("menu-tray").classList.add("open");   /* .overlay show convention */
+    if (window.Settings && Settings.syncSound) Settings.syncSound();   /* tray music-mute icon reflects current state */
   }
   function closeTray() {
     trayOpen = false;
@@ -79,6 +90,7 @@ window.HUD = (function () {
   function saved() {
     var q = el("autosave-quill");
     if (!q) return;
+    if (window.Sound) Sound.sfx("quill");          /* the quill scratch rides the visible flourish */
     el("autosave-word").textContent = t("autosave.saved");
     q.classList.add("on");
     if (quillTimer) window.clearTimeout(quillTimer);
@@ -108,5 +120,6 @@ window.HUD = (function () {
     toggleTray: toggleTray, isTrayOpen: isTrayOpen,
     pulse: pulse, saved: saved, chip: chip, dismissChip: dismissChip,
     revealTome: revealTome, glowLedger: glowLedger, openTome: openTome, isRevealed: isRevealed,
+    markNewRecipe: markNewRecipe, markNewCharacter: markNewCharacter,
   };
 })();

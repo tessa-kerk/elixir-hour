@@ -16,8 +16,7 @@
 window.NightCap = (function () {
   function el(id) { return document.getElementById(id); }
 
-  /* FLAG (Tessa): swap for the hosted landing-page URL when it's live. */
-  var GAME_URL = "github.com/tessa-kerk/elixir-hour";
+  var GAME_URL = "elixirhour.tessa-kerk.com";   /* round-10: the landing page, not the GitHub repo */
   var W = 1200, H = 1500;
 
   var PALETTE = {
@@ -218,14 +217,16 @@ window.NightCap = (function () {
     ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
 
     /* 2. the scroll — ~92% of canvas height, centred */
-    var scroll = await loadImg("assets/ui/Night Cap Scroll (cutout).png");
+    var scroll = await loadImg("assets/ui/Night Cap Scroll (cutout).webp");
     var sH = H * 0.92, sW = sH * scroll.width / scroll.height;
     var sx = (W - sW) / 2, sy = (H - sH) / 2;
     ctx.drawImage(scroll, sx, sy, sW, sH);
 
     /* 3. the flat-paper safe zone between the rolls (never under the strap or
        on the rolls) — fractions of the scroll, tuned to the art */
-    var zx0 = sx + 0.165 * sW, zx1 = sx + 0.835 * sW;
+    /* round-10: wider side margins so long Night titles (and any content) clear the
+       rolled edges — nothing touches the rolls. */
+    var zx0 = sx + 0.20 * sW, zx1 = sx + 0.80 * sW;
     var zy0 = sy + 0.215 * sH, zy1 = sy + 0.80 * sH;
     var zW = zx1 - zx0, cx = W / 2;
 
@@ -233,7 +234,7 @@ window.NightCap = (function () {
 
     /* logo — the brand moment, noticeably bigger */
     try {
-      var logo = await loadImg("assets/logo/Elixir Hour Logo (transparent).png");
+      var logo = await loadImg("assets/logo/Elixir Hour Logo (transparent).webp");
       var s = Math.min((zW * 0.72) / logo.width, 150 / logo.height);
       var lw = logo.width * s, lh = logo.height * s;
       ctx.drawImage(logo, cx - lw / 2, y, lw, lh);
@@ -285,7 +286,7 @@ window.NightCap = (function () {
       centre(ctx, t("nightcap.poured"), y + 16, F.label, PALETTE.inkSoft, 2);
       y += 30;
       var tank = null;
-      try { tank = await loadImg("assets/ui/Tankard Icon (cutout).png"); } catch (e) {}
+      try { tank = await loadImg("assets/ui/Tankard Icon (cutout).webp"); } catch (e) {}
       var tW = 52, tH = tank ? tW * tank.height / tank.width : tW;
       var cell = Math.min(zW / data.drinks.length, 168);
       var rowW = cell * data.drinks.length;
@@ -331,9 +332,50 @@ window.NightCap = (function () {
     ctx.restore();
   }
 
+  /* ---- self-contained share state (§R15) ----
+     The whole card rebuilds from ~40 bytes: night (→ title + quote), the ISO date,
+     and the visitor/drink INDICES (into LEDGER / BREWBOOK). Base64url in the URL
+     fragment, so the card lives IN the link — no server, no storage, no expiry. */
+  function b64urlEnc(s) { return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function b64urlDec(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return decodeURIComponent(escape(atob(s))); }
+  function whoIdx(who) { for (var i = 0; i < window.LEDGER.length; i++) if (window.LEDGER[i].who === who) return i; return -1; }
+  function recipeIdx(name) { for (var i = 0; i < window.BREWBOOK.length; i++) if (window.BREWBOOK[i].name === name) return i; return -1; }
+  function isoToday() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return ""; } }
+  function fmtISO(iso) {
+    try {
+      var p = String(iso).split("-"); var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      if (isNaN(d.getTime())) return "";   /* Invalid Date returns "Invalid Date" (doesn't throw) — blank it instead */
+      return d.toLocaleDateString(LOCALES[window.LANG] || "en-GB", { year: "numeric", month: "long", day: "numeric" });
+    } catch (e) { return ""; }
+  }
+
+  function encodeState(data) {
+    var obj = { n: data.night, dt: isoToday(),
+      v: (data.visitors || []).map(whoIdx).filter(function (i) { return i >= 0; }),
+      k: (data.drinks || []).map(recipeIdx).filter(function (i) { return i >= 0; }) };
+    return b64urlEnc(JSON.stringify(obj));
+  }
+  /* rebuild the `data` object compose() consumes, from an encoded fragment */
+  function decodeState(str) {
+    var obj = JSON.parse(b64urlDec(str));
+    var nd = nightData(obj.n) || {};
+    /* cap the index arrays to the real number of entries — a crafted fragment with huge
+       arrays would otherwise make compose() draw tens of thousands of cards and freeze the tab */
+    var vv = Array.isArray(obj.v) ? obj.v.slice(0, window.LEDGER.length) : [];
+    var kk = Array.isArray(obj.k) ? obj.k.slice(0, window.BREWBOOK.length) : [];
+    return {
+      night: obj.n, title: nd.title || "", date: fmtISO(obj.dt),
+      visitors: vv.map(function (i) { return (window.LEDGER[i] || {}).who; }).filter(Boolean),
+      drinks: kk.map(function (i) { return (window.BREWBOOK[i] || {}).name; }).filter(Boolean),
+      quote: nd.nightcap && nd.nightcap.quote ? nd.nightcap.quote : null,
+    };
+  }
+  function shareLink(data) { return "https://" + GAME_URL + "/cap#" + encodeState(data); }
+
   /* ---- export / share ---- */
 
-  function fileName(night) { return "elixir-hour-night-" + night + ".png"; }
+  /* the personalised end-of-run card — NOT the link-preview image (§R15) */
+  function fileName() { return "elixir-hour-night-cap.png"; }
 
   function toBlob(canvas) {
     return new Promise(function (res, rej) {
@@ -352,29 +394,61 @@ window.NightCap = (function () {
     return new Blob([a], { type: "image/png" });
   }
 
-  function download(canvas, night) {
+  /* DOWNLOAD = download the card PNG only (§R15) */
+  function download(canvas) {
     toBlob(canvas).then(function (blob) {
       if (!blob) return;
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
-      a.href = url; a.download = fileName(night);
+      a.href = url; a.download = fileName();
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
     }).catch(function (e) { if (window.console) console.warn("Night Cap: download failed", e); });
   }
 
-  function share(canvas, night, data) {
-    toBlob(canvas).then(function (blob) {
-      if (!blob) return;
-      var file = new File([blob], fileName(night), { type: "image/png" });
-      var payload = { files: [file], title: "Elixir Hour",
-        text: t("nightcap.night", { n: night }) + (data.title ? " — " + data.title : "") };
-      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-        navigator.share(payload).catch(function () {});
-      } else {
-        download(canvas, night);
-      }
-    }).catch(function (e) { if (window.console) console.warn("Night Cap: share failed", e); });
+  /* SHARE = share the self-contained LINK only (§R15). Mobile → native share sheet
+     (caption + link); desktop → copy the link + the two-line toast. */
+  function share(data) {
+    var link = shareLink(data);
+    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (navigator.share && coarse) {
+      navigator.share({ title: "Elixir Hour", text: t("nightcap.share.caption"), url: link }).catch(function (err) {
+        if (err && err.name === "AbortError") return;   /* user dismissed the sheet — nothing to do */
+        copyThenToast(link);                            /* genuine failure (e.g. embedded without web-share) → still hand over the link */
+      });
+    } else {
+      copyThenToast(link);
+    }
+  }
+  /* copy + confirm honestly: the success toast fires ONLY when the clipboard actually took the
+     link; otherwise surface the link itself so it's never silently unreachable. */
+  function copyThenToast(link) {
+    copyLink(link).then(showCopiedToast, function () {
+      try { window.prompt(t("nightcap.share.copyfail"), link); } catch (e) {}
+    });
+  }
+  function copyLink(link) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(link);
+    return new Promise(function (res, rej) {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = link; ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        var ok = document.execCommand("copy"); ta.remove();
+        if (ok) res(); else rej(new Error("execCommand copy returned false"));
+      } catch (e) { rej(e); }
+    });
+  }
+  function showCopiedToast() {
+    var tEl = el("nc-toast");
+    if (!tEl) return;
+    tEl.textContent = "";
+    var m = document.createElement("div"); m.className = "nc-toast-main"; m.textContent = t("nightcap.share.copied");
+    var h = document.createElement("div"); h.className = "nc-toast-hand"; h.textContent = t("nightcap.share.copiedhand");
+    tEl.appendChild(m); tEl.appendChild(h);
+    tEl.classList.add("on");
+    if (showCopiedToast._t) window.clearTimeout(showCopiedToast._t);
+    showCopiedToast._t = window.setTimeout(function () { tEl.classList.remove("on"); }, 3400);
   }
 
   /* ---- overlay control ---- */
@@ -391,8 +465,8 @@ window.NightCap = (function () {
     current = { canvas: canvas, night: night, data: data };
     await ensureFonts();
     await compose(canvas, data);
-    var shareable = !!(navigator.canShare && navigator.share);
-    el("nightcap-share").hidden = !shareable;
+    el("nightcap-share").hidden = false;   /* §R15: Share works on both — native sheet (mobile) / copy+toast (desktop) */
+    var tEl = el("nc-toast"); if (tEl) tEl.classList.remove("on");
   }
 
   function close() { var o = el("nightcap"); if (o) o.classList.remove("open"); }
@@ -400,14 +474,18 @@ window.NightCap = (function () {
 
   function wire() {
     var d = el("nightcap-download"), s = el("nightcap-share"), x = el("nightcap-close");
-    if (d) d.addEventListener("click", function () { download(current.canvas, current.night); });
-    if (s) s.addEventListener("click", function () { share(current.canvas, current.night, current.data); });
+    if (d) d.addEventListener("click", function () { download(current.canvas); });
+    if (s) s.addEventListener("click", function () { share(current.data); });
     if (x) x.addEventListener("click", close);
     var ov = el("nightcap");
     if (ov) ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
   }
 
   return { open: open, close: close, isOpen: isOpen, wire: wire,
+           /* §R15 share-page hooks: decode a fragment → data, and compose that data onto
+              any canvas (the /cap page reuses this exact renderer + assets). */
+           decodeState: decodeState, shareLink: shareLink,
+           renderTo: function (canvas, data) { return ensureFonts().then(function () { return compose(canvas, data); }); },
            /* capture hook: compose to the shared canvas and hand back the blob */
            _composeBlob: function (night) {
              var canvas = el("nightcap-canvas");

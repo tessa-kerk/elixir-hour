@@ -7,10 +7,44 @@ window.Settings = (function () {
 
   function isOpen() { return el("settings").classList.contains("open"); }
   function aboutIsOpen() { return el("about").classList.contains("open"); }
+  /* Round 13: opening Settings does NOT lift the music duck — the duck stays as a
+     multiplier on the slider level until play starts. The slider still works: its %
+     changes the underlying level (heard at the ducked level on the title). */
   function open() { refresh(); el("settings").classList.add("open"); }
   function close() { el("settings").classList.remove("open"); }
   function openAbout() { refresh(); el("about").classList.add("open"); }
   function closeAbout() { el("about").classList.remove("open"); }
+
+  /* ---- sound: two live 0-100 sliders + a mute each (GDD §11 R12) ---- */
+  var lastMusicVol = 70, lastSfxVol = 70;   /* remembered level, so unmute restores it */
+  function effMuted(kind) {
+    var p = Prefs.get();
+    return kind === "music" ? (p.musicMuted || +p.musicVol <= 0) : (p.sfxMuted || +p.sfxVol <= 0);
+  }
+  function paintSound() {
+    var p = Prefs.get();
+    if (+p.musicVol > 0) lastMusicVol = +p.musicVol;
+    if (+p.sfxVol > 0) lastSfxVol = +p.sfxVol;
+    if (el("vol-music")) el("vol-music").value = p.musicVol;
+    if (el("vol-sfx")) el("vol-sfx").value = p.sfxVol;
+    if (el("pct-music")) el("pct-music").textContent = Math.round(p.musicVol) + "%";
+    if (el("pct-sfx")) el("pct-sfx").textContent = Math.round(p.sfxVol) + "%";
+    if (el("mute-music")) el("mute-music").classList.toggle("muted", effMuted("music"));
+    if (el("mute-sfx")) el("mute-sfx").classList.toggle("muted", effMuted("sfx"));
+    if (el("tray-mute-music")) el("tray-mute-music").classList.toggle("muted", effMuted("music"));
+  }
+  function toggleMusicMute() {
+    if (effMuted("music")) { var patch = { musicMuted: false }; if (+Prefs.get().musicVol <= 0) patch.musicVol = lastMusicVol || 70; Prefs.set(patch); }
+    else Prefs.set({ musicMuted: true });
+    paintSound();
+    if (window.Sound) Sound.applyMusicLevel();
+  }
+  function toggleSfxMute() {
+    if (effMuted("sfx")) { var patch = { sfxMuted: false }; if (+Prefs.get().sfxVol <= 0) patch.sfxVol = lastSfxVol || 70; Prefs.set(patch); }
+    else Prefs.set({ sfxMuted: true });
+    paintSound();
+    if (window.Sound && !effMuted("sfx")) Sound.previewSfx();
+  }
 
   /* All texts + control states, re-run on every open and language change. */
   function refresh() {
@@ -24,11 +58,10 @@ window.Settings = (function () {
     el("about-title").textContent = t("about.title");
     el("about-p1").textContent = t("about.affiliation");
     el("about-p2").textContent = t("about.translation");
+    el("about-p4").textContent = t("about.music");
     el("about-p3").textContent = t("about.inspiration");
     el("btn-about-back").textContent = t("settings.back");
-    var p = Prefs.get();
-    el("tgl-music").textContent = t(p.music ? "settings.on" : "settings.off");
-    el("tgl-sfx").textContent = t(p.sfx ? "settings.on" : "settings.off");
+    paintSound();
     el("lang-select").value = window.LANG;
   }
 
@@ -43,6 +76,10 @@ window.Settings = (function () {
     var active = document.querySelector(".screen.active");
     if (active && active.id === "screen-herald") Screens.renderHerald(Game.state.night);
     if (active && active.id === "screen-nightend") Screens.renderNightEnd(Game.state.night, Game.hasNight(Game.state.night + 1));
+    /* §R14: fillStatic() reset btn-continue to a plain "Continue" label but left the
+       two-line class/spans — re-render the title so the two-line Continue (or Play
+       Again) rebuilds correctly in the new language instead of a stale single line. */
+    if (active && active.id === "screen-title") Screens.renderTitle();
   }
 
   /* wire up */
@@ -51,8 +88,26 @@ window.Settings = (function () {
     sel.add(new Option(window.LANGS[i].native, window.LANGS[i].code));
   }
   sel.addEventListener("change", function () { applyLanguage(sel.value); });
-  el("tgl-music").addEventListener("click", function () { Prefs.set({ music: !Prefs.get().music }); refresh(); if (window.Sound) Sound.applyMusicPref(); });
-  el("tgl-sfx").addEventListener("click", function () { Prefs.set({ sfx: !Prefs.get().sfx }); refresh(); });
+
+  /* music volume — applies LIVE while dragging (§11 R12) */
+  el("vol-music").addEventListener("input", function () {
+    var v = +this.value, patch = { musicVol: v };
+    if (v > 0) patch.musicMuted = false;          /* dragging up from 0 unmutes */
+    Prefs.set(patch); paintSound();
+    if (window.Sound) Sound.applyMusicLevel();
+  });
+  /* sfx volume — persists live; previews a click on release (not mid-drag) */
+  el("vol-sfx").addEventListener("input", function () {
+    var v = +this.value, patch = { sfxVol: v };
+    if (v > 0) patch.sfxMuted = false;
+    Prefs.set(patch); paintSound();
+  });
+  el("vol-sfx").addEventListener("change", function () { if (window.Sound && +this.value > 0) Sound.previewSfx(); });
+  el("mute-music").addEventListener("click", toggleMusicMute);
+  el("mute-sfx").addEventListener("click", toggleSfxMute);
+  var trayMute = el("tray-mute-music");
+  if (trayMute) trayMute.addEventListener("click", toggleMusicMute);
+
   el("btn-about").addEventListener("click", openAbout);
   el("btn-about-back").addEventListener("click", closeAbout);
   el("btn-set-back").addEventListener("click", close);
@@ -60,6 +115,6 @@ window.Settings = (function () {
   return {
     open: open, close: close, openAbout: openAbout, closeAbout: closeAbout,
     isOpen: isOpen, aboutIsOpen: aboutIsOpen,
-    refresh: refresh, applyLanguage: applyLanguage,
+    refresh: refresh, applyLanguage: applyLanguage, syncSound: paintSound,
   };
 })();

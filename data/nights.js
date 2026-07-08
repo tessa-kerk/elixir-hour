@@ -118,15 +118,25 @@ window.NIGHTS = [
         ],
       },
 
-      /* ---- The Hog Rider — "HOG—!" ---- */
+      /* ---- The Hog Rider crashes in — he greets the Knight (Layout 5 two-shot) ----
+         Round 10 (option A): the arrival + the Knight's dry reply is a two-shot; the
+         rules-and-order + pour are the solo serve beat below. Verbatim, camera only. */
+      {
+        type: "duo",
+        cast: [ { who: "Hog Rider", expr: "Big Laugh" }, { who: "Knight", expr: "Warm & Content" } ],
+        script: [
+          { cue: "sfx", text: "an almighty CRASH at the door. Every tankard on the shelf rattles." },
+          { who: "Hog Rider", line: "HOG RII— *(spots Sage, and doesn't slow down for a second)* —oh, a new face! We've got a NEW FACE. Knight, mate, you didn't tell me we had a new face!" },
+          { who: "Knight", line: "*(not looking up from his drink)* You didn't ask." },
+        ],
+      },
+
+      /* ---- The Hog Rider — the rules, the order, the pour (solo) ---- */
       {
         type: "visit",
         who: "Hog Rider",
         expr: "Big Laugh",
         script: [
-          { cue: "sfx", text: "an almighty CRASH at the door. Every tankard on the shelf rattles." },
-          { who: "Hog Rider", line: "HOG RII— *(spots Sage, and doesn't slow down for a second)* —oh, a new face! We've got a NEW FACE. Knight, mate, you didn't tell me we had a new face!" },
-          { who: "Knight", line: "*(not looking up from his drink)* You didn't ask." },
           { who: "Hog Rider", line: "*(slamming onto a stool)* Alright, then, here's the rules for you, newcomer. Number one, I drink the strong stuff — that's Dark Elixir, and don't you be shy with it. Number two, you put a Rage in there for me, because a drink ought to have a bit of personality. And number three —" },
           { who: "Sage", line: "Wait, there's a three?" },
           { who: "Hog Rider", expr: "Warm Grin", line: "There's always a three! I'll think of it. You pour first." },
@@ -151,17 +161,28 @@ window.NIGHTS = [
         ],
       },
 
-      /* ---- The Wizard — a performance ---- */
+      /* ---- The Wizard arrives — he performs AT the Knight (Layout 5 two-shot) ----
+         Round 10 (option A): the interaction — his entrance and the Knight's dry
+         interjection — is a two-shot; the ordering + pour that follow are the solo
+         serve beat below. Dialogue is verbatim, only the camera changed. */
       {
-        type: "visit",
-        who: "Wizard",
-        expr: "Boastful Grin",
+        type: "duo",
+        cast: [ { who: "Wizard", expr: "Boastful Grin" }, { who: "Knight", expr: "Warm & Content" } ],
         script: [
           { who: "Wizard", line: "Ah, a keeper — a brand-new one, I see. Then you've not yet had the pleasure. The most awesome man ever to set foot in this Arena — and now this bar, too. Handsomeness and fireballs, in roughly that order. And since you won't know my order yet, you get the privilege of making it properly." },
           { who: "Sage", line: "And \"properly\" would be…?" },
           { who: "Wizard", line: "Elixir, a shot of Rage — no, better make that two — and then a Zap to finish. The Zap is the real art of it, keeper. Anyone can pour a drink, but not just anyone can make the thing actually spark." },
           { who: "Knight", line: "*(into his tankard)* Oh, here we go." },
           { who: "Wizard", line: "I heard that, you know." },
+        ],
+      },
+
+      /* ---- The Wizard — the performance (solo: he orders, you pour) ---- */
+      {
+        type: "visit",
+        who: "Wizard",
+        expr: "Boastful Grin",
+        script: [
           { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
                     /* wrong-pour line — approved 07-07 (GDD §7: hints the right cup, in voice) */
                     wrong: "Mm. Drinkable. But I ordered a performance — double Rage, a Zap. Where's the spark?",
@@ -357,7 +378,7 @@ window.NIGHTS = [
             { label: "\"You don't need to be on the card. You're the one they all copied.\"", tone: "see", reply: [
               { who: "Wizard", line: "*(caught off guard; the grand voice drops to something bare)* The one they… copied. *(he turns that over like it's fragile)* Nobody's ever put it quite that way. *(quietly)* Say it again, would you. I want to be sure I heard it." },
               { brew: { any: [ { base: "Elixir", mix: ["Rage", "Zap"], dose: 2 }, { base: "Elixir", mix: ["Heal"], dose: 1 } ],
-                        nudge: "*(he waits — the player's read: the loud Showstopper, or the quiet Usual)*" } },
+                        nudge: "*(he waits — the loud Showstopper, or the quiet Usual?)*" } },
             ] },
             { label: "\"Sit. I'll pour. You don't have to be anything in here.\"", tone: "room", reply: [
               { who: "Wizard", line: "*(the shoulders come down an inch)* No performance. No audience. *(a small, tired breath)* Do you know, that might be the only kind offer I've had all week." },

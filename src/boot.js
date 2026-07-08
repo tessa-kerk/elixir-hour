@@ -9,7 +9,16 @@
   if (window.Sound) Sound.refresh();   /* wire the audio system to the saved prefs + Songbook pick */
 
   document.getElementById("btn-start").addEventListener("click", function () { Game.newGame(); });
-  document.getElementById("btn-continue").addEventListener("click", function () { Game.continueGame(); });
+  document.getElementById("btn-continue").addEventListener("click", function () {
+    /* §11 (round 10): on a finished game this button is "Play Again" — confirm before
+       replacing the save; otherwise it's the normal Continue. */
+    if (Game.isCompleted && Game.isCompleted()) {
+      if (window.confirm(t("title.playagain.confirm"))) Game.newGame();
+    } else {
+      Game.continueGame();
+    }
+  });
+  document.getElementById("btn-tome-title").addEventListener("click", function () { Game.openTomeFromTitle(); });
   document.getElementById("btn-settings").addEventListener("click", function () { Settings.open(); });
   document.getElementById("broadsheet").addEventListener("click", function () { Game.heraldContinue(); });
   document.getElementById("btn-nextnight").addEventListener("click", function () { Game.startNight(Game.state.night + 1); });

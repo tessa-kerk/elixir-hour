@@ -17,7 +17,7 @@
    The stamp is how a real player (and Tessa) confirms which build loaded — the
    06-07 P0 was a stale cached build; this makes that visible at a glance. The
    optional .hash is a git short-hash pasted in AFTER commit if wanted. */
-window.BUILD = { n: 22, date: "08-07", hash: "" };
+window.BUILD = { n: 28, date: "08-07", hash: "" };
 
 /* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
 window.buildLabel = function () {
@@ -43,6 +43,11 @@ window.STRINGS = {
     "title.start": "Start",
     "title.continue": "Continue",
     "title.settings": "Settings",
+    "title.playagain": "Play Again — from Night 1",
+    "title.playagain.main": "Play Again",
+    "title.playagain.sub": "from Night 1",
+    "title.opentome": "Open the Tome",
+    "title.playagain.confirm": "Start over from Night 1? Tonight's save will be replaced.",
 
     "herald.masthead": "The Arena Herald",
     "herald.continue": "— tap to continue —",
@@ -117,6 +122,10 @@ window.STRINGS = {
     "nightcap.download": "Download",
     "nightcap.share": "Share",
     "nightcap.close": "Close",
+    "nightcap.share.caption": "I tended the little bar on the border. You can too, at Elixir Hour.",
+    "nightcap.share.copied": "Link copied.",
+    "nightcap.share.copiedhand": "Send it to someone who needs to head to the bar!",
+    "nightcap.share.copyfail": "Copy this link to share your night:",
     "epilogue.totitle": "Back to the title",
     "advance": "Next ▸",
     "tome.close": "✕",
@@ -135,6 +144,8 @@ window.STRINGS = {
     "about.affiliation": "An original fan concept by Tessa Kerk. Not affiliated with or endorsed by Supercell. No Supercell code, art or copy is reproduced.",
     "about.translation": "English is hand-written. Other languages are AI-translated and may not be perfect.",
     "about.inspiration": "Inspired by the structure of Coffee Talk (Toge Productions) — an original story and cast, in tribute to the format.",
+    "about.music": "The four bar tracks are AI-generated (Suno).",
+    "audio.loading": "Music loading…",
   },
 
   ko: {
@@ -205,6 +216,7 @@ window.STRINGS = {
     "about.affiliation": "Tessa Kerk의 오리지널 팬 창작물입니다. Supercell과 무관하며 Supercell의 승인을 받지 않았습니다. Supercell의 코드, 아트, 문구를 사용하지 않았습니다.",
     "about.translation": "영어는 직접 작성된 원문입니다. 다른 언어는 AI 번역으로, 완벽하지 않을 수 있습니다.",
     "about.inspiration": "Coffee Talk(Toge Productions)의 구성에서 영감을 받아, 오리지널 이야기와 등장인물로 만든 헌정작입니다.",
+    "about.music": "네 곡의 바 음악은 AI로 생성되었습니다 (Suno).",
   },
 
   ja: {
@@ -275,6 +287,7 @@ window.STRINGS = {
     "about.affiliation": "Tessa Kerk によるオリジナルのファン作品です。Supercell とは無関係であり、Supercell の承認を受けていません。Supercell のコード・アート・文章は使用していません。",
     "about.translation": "英語は手書きの原文です。他の言語はAI翻訳のため、完全ではない場合があります。",
     "about.inspiration": "Coffee Talk（Toge Productions）の構成に着想を得た、オリジナルの物語とキャストによるオマージュ作品です。",
+    "about.music": "4曲のバー音楽はAIで生成されています（Suno）。",
   },
 
   de: {
@@ -345,6 +358,7 @@ window.STRINGS = {
     "about.affiliation": "Ein originales Fan-Konzept von Tessa Kerk. Nicht mit Supercell verbunden und nicht von Supercell unterstützt. Es werden kein Code, keine Grafiken und keine Texte von Supercell verwendet.",
     "about.translation": "Englisch ist von Hand geschrieben. Andere Sprachen sind KI-übersetzt und möglicherweise nicht perfekt.",
     "about.inspiration": "Inspiriert vom Aufbau von Coffee Talk (Toge Productions) — mit eigener Geschichte und eigenem Ensemble, als Hommage an das Format.",
+    "about.music": "Die vier Bar-Musikstücke sind KI-generiert (Suno).",
   },
 
   es: {
@@ -414,6 +428,7 @@ window.STRINGS = {
     "about.affiliation": "Un concepto fan original de Tessa Kerk. No está afiliado a Supercell ni cuenta con su respaldo. No se reproduce código, arte ni textos de Supercell.",
     "about.translation": "El inglés está escrito a mano. Los demás idiomas están traducidos por IA y pueden no ser perfectos.",
     "about.inspiration": "Inspirado en la estructura de Coffee Talk (Toge Productions): una historia y un reparto originales, en homenaje al formato.",
+    "about.music": "Las cuatro pistas del bar están generadas por IA (Suno).",
   },
 
   fr: {
@@ -481,6 +496,7 @@ window.STRINGS = {
     "about.affiliation": "Un concept de fan original de Tessa Kerk. Sans affiliation avec Supercell et non approuvé par Supercell. Aucun code, art ou texte de Supercell n'est reproduit.",
     "about.translation": "L'anglais est écrit à la main. Les autres langues sont traduites par IA et peuvent être imparfaites.",
     "about.inspiration": "Inspiré de la structure de Coffee Talk (Toge Productions) — une histoire et une distribution originales, en hommage au format.",
+    "about.music": "Les quatre morceaux du bar sont générés par IA (Suno).",
   },
 
   pt: {
@@ -550,6 +566,7 @@ window.STRINGS = {
     "about.affiliation": "Um conceito original de fã por Tessa Kerk. Sem afiliação com a Supercell e sem endosso da Supercell. Nenhum código, arte ou texto da Supercell é reproduzido.",
     "about.translation": "O inglês foi escrito à mão. Os outros idiomas são traduzidos por IA e podem não ser perfeitos.",
     "about.inspiration": "Inspirado na estrutura de Coffee Talk (Toge Productions) — uma história e um elenco originais, em homenagem ao formato.",
+    "about.music": "As quatro faixas do bar são geradas por IA (Suno).",
   },
 };
 window.LANG = "en";
