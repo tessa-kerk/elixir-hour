@@ -12,15 +12,17 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://elixirhour.tessa-kerk.com/case-study/">
 <meta property="og:site_name" content="Elixir Hour">
-<!-- reuse the landing OG hero for now; relative path, the deploy zip absolutises it -->
-<meta property="og:image" content="../assets/img/og-share.jpg">
+<!-- reuse the landing OG hero for now. ABSOLUTE URL on purpose: the deploy zip
+     only absolutises the LANDING page's og tags, not this sub-page's, so
+     crawlers need the full URL here to resolve it. -->
+<meta property="og:image" content="https://elixirhour.tessa-kerk.com/assets/img/og-share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Elixir Hour — the Knight at Sage's bar counter with a glowing elixir tankard, the game's logo behind.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Elixir Hour — the case study">
 <meta name="twitter:description" content="Coffee Talk, in the Clash Royale universe — the case study behind Elixir Hour: the strategic idea, how it was made solo with AI, and how it would run at Supercell.">
-<meta name="twitter:image" content="../assets/img/og-share.jpg">
+<meta name="twitter:image" content="https://elixirhour.tessa-kerk.com/assets/img/og-share.jpg">
 <link rel="icon" type="image/png" sizes="48x48" href="../favicon-48.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preload" as="image" href="img/shot-hero.webp">
@@ -40,9 +42,9 @@
   <figcaption>The serve screen — read the fighter, brew the drink, and the conversation opens.</figcaption>
 </figure>
 
-<div class="cs-chips"><span class="cs-chip"><strong>Built solo with AI in [N] days</strong></span><span class="cs-chip"><strong>3 playable Nights, 7 languages</strong></span><span class="cs-chip"><strong>My second Supercell format, after the BrawlHouse</strong></span></div>
+<div class="cs-chips"><span class="cs-chip"><strong>Built solo with AI in 7 days</strong></span><span class="cs-chip"><strong>3 playable Nights, 7 languages</strong></span><span class="cs-chip"><strong>My second Supercell format, after the BrawlHouse</strong></span></div>
 
-<p class="cs-cta"><a class="cta" href="/play/">▶ Play the first three Nights</a></p>
+<p class="cs-cta"><a class="cta" href="/play/" target="_blank" rel="noopener">▶ Play the first three Nights</a></p>
 
 <h2>The brief I set myself</h2>
 
@@ -59,7 +61,7 @@
 <p>So: a cosy companion game where you meet the roster off the battlefield. You play Sage, keeper of a bar that serves Elixir on the strip of no-man's-land between the Blue and Red kingdoms. A fighter comes in after their duel, you read their mood, you brew and serve the right drink, and the conversation opens. No combat, no fail state, no rush. You learn the Knight is tired of always being sent in first. The Wizard is the original wizard, forgotten once the flashier ones showed up. P.E.K.K.A, the armoured mountain they aim at whatever you're most afraid of, just wants to be seen as a person.</p>
 
 <figure class="cs-fig">
-  <img src="img/shot-ledger.webp" width="1286" height="717" alt="A regular's page in the Tome — a printed bio with Sage's notes in the margin." loading="lazy" decoding="async">
+  <img src="img/shot-ledger.webp" width="1280" height="720" alt="A regular's page in the Tome — a printed bio with Sage's notes in the margin." loading="lazy" decoding="async">
   <figcaption>A regular's page in the Tome — a printed bio with Sage's notes in the margin.</figcaption>
 </figure>
 
@@ -80,7 +82,7 @@
 <p><strong>Canon first.</strong> Before any writing I researched the source properly: how Coffee Talk actually works, verified from the studio's own devlogs, and Clash lore, which is deliberately loose. There's no official story to contradict, but there's a mountain of card art, arena design and Clash-A-Rama to stay true to. Every character detail traces back to something real, from the Knight's moustache to P.E.K.K.A going still at the window when a butterfly lands.</p>
 
 <div class="cs-annot cs-annot-1">
-  <aside class="cs-note" aria-hidden="true"><span class="margin-note">this case study got the same treatment, for the record.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M112 10 C 74 6, 30 16, 10 44"/><path class="na-head" d="M8 30 L 9 45 L 24 40"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 84 66" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M12 8 C 34 6, 58 20, 66 56"/><path class="na-head" d="M52 48 L 67 60 L 73 43"/></svg></aside>
+  <aside class="cs-note" aria-hidden="true"><span class="margin-note">this case study got the same treatment, for the record.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 100 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M97 6 C 66 3, 30 13, 3 16"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 22 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M11 3 C 8 22, 14 40, 16 56"/></svg></aside>
   <p><strong>Writing that doesn't read as AI.</strong> This was the hard craft. Cosy games live or die on dialogue, and AI dialogue has a smell. So I wrote to a set of rules and held the line on them: distinct voices you can tell apart with the name hidden, subtext over stating the feeling, in-world language always. The characters are people, never game pieces; nobody gets "deployed". Each Night's script took around <span class="cs-target">ten rounds of back-and-forth</span>, me reading every line and sending it back until it sounded like a person.</p>
 </div>
 
@@ -89,12 +91,12 @@
 <p><strong>Governance, with a coding agent doing the building.</strong> The game was built in Claude Code from a single design document I kept as the source of truth, in a public repo. When a build decision changed the design, the document got updated in the same pass, so the plan and the build never drifted apart. That's the part that felt most like the actual job: not doing every task myself, but keeping one clear canon and making sure everything the "team" produced stayed true to it.</p>
 
 <figure class="cs-fig">
-  <img src="img/shot-brew.webp" width="1532" height="480" alt="The brew: a base, two mixers, four meters, and the ✓ when the drink fits the mood." loading="lazy" decoding="async">
+  <img src="img/shot-brew.webp" width="1532" height="482" alt="The brew: a base, two mixers, four meters, and the ✓ when the drink fits the mood." loading="lazy" decoding="async">
   <figcaption>The brew: a base, two mixers, four meters, and the ✓ when the drink fits the mood.</figcaption>
 </figure>
 
 <div class="cs-annot cs-annot-2">
-  <aside class="cs-note" aria-hidden="true"><span class="margin-note">the page-flip nearly finished me. three days to make a bit of paper turn like paper. worth it.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M112 10 C 74 6, 30 16, 10 44"/><path class="na-head" d="M8 30 L 9 45 L 24 40"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 84 66" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M12 8 C 34 6, 58 20, 66 56"/><path class="na-head" d="M52 48 L 67 60 L 73 43"/></svg></aside>
+  <aside class="cs-note" aria-hidden="true"><span class="margin-note">the page-flip nearly ended me. three days just to make the Tome page flipping animation look actually real. worth it.</span><svg class="cs-arrow cs-arrow-d" viewBox="0 0 100 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M97 6 C 66 3, 30 13, 3 16"/></svg><svg class="cs-arrow cs-arrow-m" viewBox="0 0 22 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="na-line" d="M11 3 C 8 22, 14 40, 16 56"/></svg></aside>
   <p>The war stories are real. <span class="cs-target">Getting a page in the Tome to turn like an actual leaf of paper, curling and bowing on the way over instead of sliding like a slide deck, took far longer than it had any right to.</span></p>
 </div>
 
@@ -119,15 +121,15 @@
 
 <h2>Limits, and what's next</h2>
 
-<p>This is a vertical slice, and I'd rather name what a real production would change than oversell it. It's a web build; the ambition is native mobile, where this kind of game's audience actually is (Coffee Talk came to iOS and Android in March 2026, which tells you the format sells there). English is hand-written; the other six languages are AI-translated with an honest in-product note, and a real launch would have real localisation. The music comes once the build is finished, and a real launch would want an original score. None of that is hidden in the build.</p>
+<p>This is a vertical slice, and I'd rather name what a real production would change than oversell it. It's a web build; the ambition is native mobile, where this kind of game's audience actually is (Coffee Talk came to iOS and Android in March 2026, which tells you the format sells there). English is hand-written; the other six languages are AI-translated with an honest in-product note, and a real launch would have real localisation. The four bar tracks are AI-generated (Suno), and a real launch would want an original score. None of that is hidden in the build.</p>
 
 <h2>Credits</h2>
 
-<p>Made by Tessa Kerk as an original, speculative fan concept. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are drawn in the spirit of Clash canon and Clash-A-Rama as affectionate homage. Built with AI throughout: writing, art and code, with a coding agent (Claude Code) doing the build from my design document. The AI toolchain is named openly, nothing hidden.</p>
+<p>Made by Tessa Kerk as an original, speculative fan concept. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are drawn in the spirit of Clash canon and Clash-A-Rama as affectionate homage. Built with AI throughout: writing, art, code and music (the four bar tracks are AI-generated with Suno), with a coding agent (Claude Code) doing the build from my design document. The AI toolchain is named openly, nothing hidden.</p>
 
 <footer class="cs-foot">
-  <div class="cs-foot-btns"><a class="cta" href="/play/">▶ Play Elixir Hour</a><a class="cta sage" href="https://brawlhouse.tessa-kerk.com/">The BrawlHouse, the first format</a></div>
-  <p class="cs-foot-links"><a href="https://www.tessa-kerk.com">tessa-kerk.com</a> · <a href="https://linkedin.com/in/tessa-kerk">LinkedIn</a></p>
+  <div class="cs-foot-btns"><a class="cta" href="/play/" target="_blank" rel="noopener">▶ Play Elixir Hour</a><a class="cta sage" href="https://brawlhouse.tessa-kerk.com/">The BrawlHouse, the first format</a></div>
+  <p class="cs-foot-links"><a href="https://www.tessa-kerk.com">My Portfolio</a> · <a href="https://linkedin.com/in/tessa-kerk">LinkedIn</a></p>
 </footer>
 </main>
 </body>

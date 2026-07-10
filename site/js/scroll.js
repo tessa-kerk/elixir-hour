@@ -9,13 +9,17 @@
   var mq = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   var reduced = mq ? mq.matches : false;
   var scenes = [].slice.call(document.querySelectorAll("[data-scene]"));
-  if (!scenes.length) return;
+  var breakers = [].slice.call(document.querySelectorAll("[data-breaker]"));
+  if (!scenes.length && !breakers.length) return;
   var ticking = false;
 
   function setStatic() {
     docEl.classList.add("reduce");
     for (var i = 0; i < scenes.length; i++) {
       scenes[i].style.setProperty("--p", scenes[i].getAttribute("data-static") || "1");
+    }
+    for (var b = 0; b < breakers.length; b++) {
+      breakers[b].style.setProperty("--bp", "0");   /* settled, no scroll-scale */
     }
   }
 
@@ -30,6 +34,14 @@
       if (span > 0) p = Math.min(Math.max(-top / span, 0), 1);
       else p = top <= 0 ? 1 : 0;
       w.style.setProperty("--p", p.toFixed(4));
+    }
+    /* breakers: settle from scale 1.03 (--bp 1, entering at the viewport bottom)
+       to 1.0 (--bp 0, once the top reaches the viewport top) — a slow scroll
+       scale, transform-only */
+    for (var b = 0; b < breakers.length; b++) {
+      var bt = breakers[b].getBoundingClientRect().top;
+      var t = Math.min(Math.max(bt / vh, 0), 1);
+      breakers[b].style.setProperty("--bp", t.toFixed(4));
     }
   }
 

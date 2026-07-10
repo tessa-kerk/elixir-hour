@@ -50,7 +50,7 @@
       <img class="hero-logo" src="assets/img/logo.webp" alt="Elixir Hour" width="1000" height="534">
       <h1 class="hero-logline">Coffee Talk, in the Clash Royale universe.</h1>
       <p class="hero-sub">A cosy bar on the neutral ground between two warring kingdoms — where the fighters come to drink and talk once the arena closes.</p>
-      <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
+      <a class="cta" href="../index.html" target="_blank" rel="noopener">▶&nbsp; Play the first three Nights</a>
       <ul class="chips">
         <!-- Product facts only (brief §0 product-first rule) — the making-of
              story lives in the case study + credits, not the hero. -->
@@ -119,6 +119,21 @@
   </div>
 </section>
 
+<!-- ===== SECTION BREAKER (a) — the Empty Bar (full-bleed image moment) =====
+     Pure image beat between the Sage intro and the regulars. Full-viewport
+     width, ~70vh, scrim top+bottom for legibility, one Cormorant-italic line.
+     Lazy-loaded; the slow 1.03->1.0 settle is driven by --bp (scroll.js),
+     transform-only, and defaults to a static composed frame with no JS / under
+     reduced motion. Focal interest is centre (the lit tap + pour) so a 360px
+     centre-crop stays graceful. -->
+<section class="breaker" data-breaker aria-label="The bar on the strip">
+  <img class="breaker-img" src="assets/img/breaker-empty-bar.webp"
+       width="1920" height="1072" loading="lazy" decoding="async"
+       alt="Sage's empty bar on the border strip at night — lantern light, the elixir tap mid-pour, and the shelf of potion bottles.">
+  <div class="breaker-scrim" aria-hidden="true"></div>
+  <p class="breaker-line">The bar on the strip. Neutral ground.</p>
+</section>
+
 <!-- ================= CHAPTER 3 — meet the regulars (rail) ================= -->
 <section class="pin-wrap rail-wrap" data-scene data-static="0.5" aria-label="Meet the regulars">
   <div class="pin rail">
@@ -163,7 +178,7 @@
         </figcaption>
       </figure>
     </div>
-    <p class="rail-hint" aria-hidden="true">five regulars, and you learn every one</p>
+    <p class="rail-hint" aria-hidden="true">the regulars — you learn every one</p>
   </div>
 </section>
 
@@ -207,14 +222,16 @@
     </div>
     <article class="broadsheet">
       <p class="bs-mast">The Arena Herald</p>
-      <div class="bs-ed">Ed. XLVII · the strip on the border</div>
-      <p class="bs-head" style="--i:0">Crown Championship in Three Days</p>
-      <p class="bs-story">
-        <span class="bs-l" style="--i:1">Blue and Red to settle it under the King's own eye.</span>
-        <span class="bs-l" style="--i:2">The greatest bout of the year draws near, and every fighter in the realm feels it — some with hunger, some with dread,</span>
-        <span class="bs-l bs-ripple" style="--i:3">and a rare few with nothing but thirst.<i class="ripplemark" aria-hidden="true">⚗</i></span>
-      </p>
-      <div class="bs-note">↑ this line? you poured it.</div>
+      <div class="bs-inner">
+        <div class="bs-ed">Ed. XLVII · the strip on the border</div>
+        <p class="bs-head" style="--i:0">Crown Championship in Three Days</p>
+        <p class="bs-story">
+          <span class="bs-l" style="--i:1">Blue and Red to settle it under the King's own eye.</span>
+          <span class="bs-l" style="--i:2">The greatest bout of the year draws near, and every fighter in the realm feels it — some with hunger, some with dread,</span>
+          <span class="bs-l bs-ripple" style="--i:3">and a rare few with nothing but thirst.<i class="ripplemark" aria-hidden="true">⚗</i></span>
+        </p>
+        <div class="bs-note">↑ this line? you poured it.</div>
+      </div>
     </article>
   </div>
 </section>
@@ -235,11 +252,23 @@
       <div class="ledger-frame">
         <picture>
           <source media="(max-width:640px)" srcset="assets/img/ledger-hog-rider-mobile.webp" width="660" height="610">
-          <img class="ledger-img" src="assets/img/ledger-hog.webp" width="1286" height="717" alt="The Hog Rider's page in the Regulars' Ledger — his printed bio with Sage's green pinned note in the margin." loading="lazy" decoding="async">
+          <img class="ledger-img" src="assets/img/ledger-hog.webp" width="1280" height="720" alt="The Hog Rider's page in the Regulars' Ledger — his printed bio with Sage's green pinned note in the margin." loading="lazy" decoding="async">
         </picture>
       </div>
     </div>
   </div>
+</section>
+
+<!-- ===== SECTION BREAKER (b) — the full cast (full-bleed image moment) =====
+     The whole roster at the counter, between the Tome and the Play pitch.
+     Focal interest is the centred Knight, so a 360px centre-crop keeps a face
+     in frame. -->
+<section class="breaker" data-breaker aria-label="The regulars are in.">
+  <img class="breaker-img" src="assets/img/breaker-group.webp"
+       width="1920" height="1072" loading="lazy" decoding="async"
+       alt="All five regulars gathered at Sage's counter, each raising a tankard of glowing elixir.">
+  <div class="breaker-scrim" aria-hidden="true"></div>
+  <p class="breaker-line">The regulars are in.</p>
 </section>
 
 <!-- ==================== CHAPTER 7 — play it ==================== -->
@@ -256,10 +285,10 @@
         <img src="assets/shots/serve.webp" width="1100" height="619" alt="Elixir Hour on desktop — the Wizard at the bar with the mixing panel open" loading="lazy" decoding="async">
       </div>
       <div class="dev phone">
-        <img src="assets/shots/serve-portrait.webp" width="560" height="996" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
+        <img src="assets/shots/serve-portrait.webp" width="560" height="990" alt="Elixir Hour on a phone — P.E.K.K.A at the bar" loading="lazy" decoding="async">
       </div>
     </div>
-    <a class="cta" href="../index.html">▶&nbsp; Play the first three Nights</a>
+    <a class="cta" href="../index.html" target="_blank" rel="noopener">▶&nbsp; Play the first three Nights</a>
   </div>
 </section>
 
@@ -294,6 +323,17 @@
       </div>
     </div>
   </div>
+</section>
+
+<!-- ===== SECTION BREAKER (c) — the Bar Closed (full-bleed image moment) =====
+     The cinematic close: the bar at rest, ahead of the maker-voice panel and
+     the footer. Focal interest is the centred "Closed" sign + taps. -->
+<section class="breaker breaker-end" data-breaker aria-label="Last call">
+  <img class="breaker-img" src="assets/img/breaker-bar-closed.webp"
+       width="1920" height="1072" loading="lazy" decoding="async"
+       alt="Sage's bar at rest after closing — a 'Closed' sign on the counter, the shutters down and the lanterns dimmed for the night.">
+  <div class="breaker-scrim" aria-hidden="true"></div>
+  <p class="breaker-line">Last call.</p>
 </section>
 
 <!-- ============ CHAPTER 9 — "Behind the bar" (maker voice) ============
@@ -336,13 +376,14 @@
 <footer class="foot">
   <div class="foot-inner">
     <h2>Same time tomorrow?</h2>
-    <a class="cta" href="../index.html">▶&nbsp; Play Elixir Hour</a>
+    <a class="cta" href="../index.html" target="_blank" rel="noopener">▶&nbsp; Play Elixir Hour</a>
     <div class="foot-links">
       <a href="https://www.tessa-kerk.com">Portfolio</a>
       <a href="https://linkedin.com/in/tessa-kerk">LinkedIn</a>
-      <a href="../index.html">Play the game</a>
+      <a href="../index.html" target="_blank" rel="noopener">Play the game</a>
     </div>
-    <p class="disclaimer">An original, speculative fan concept by Tessa Kerk. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are an affectionate homage to Clash canon. Built with AI throughout: writing, art and code.</p>
+    <p class="disclaimer">An original, speculative fan concept by Tessa Kerk. <strong>Not affiliated with or endorsed by Supercell</strong>, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are an affectionate homage to Clash canon. Built with AI throughout: writing, art, code and music.</p>
+    <p class="foot-source"><a href="https://github.com/tessa-kerk/elixir-hour" target="_blank" rel="noopener">Source on GitHub<span class="ext" aria-hidden="true">&#8599;</span></a></p>
     <p class="byline">made by Tessa Kerk</p>
   </div>
 </footer>

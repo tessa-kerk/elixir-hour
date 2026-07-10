@@ -108,6 +108,8 @@ window.Brew = (function () {
   }
   function pick(n, name) {
     state.mix[n - 1] = name;
+    /* §R18: a REAL mixer (not the "—" clear) retires the first-brew hint for good */
+    if (name) retireMixerHint();
     update();
   }
   function reset() {
@@ -199,7 +201,31 @@ window.Brew = (function () {
   var locked = true;
   var onBlocked = null;          /* dialogue sets the gentle "let them finish" response */
   function blocked() { if (onBlocked) onBlocked(); }
-  function lock() { locked = true; var p = el("panel-frame"); if (p) { p.classList.add("locked"); p.classList.remove("brew-open"); } }
+
+  /* §R18 FIRST-BREW MIXER HINT (GDD §11 fresh-player locks). A player coming to this blind
+     cannot tell the empty MIXER rows are tappable. On a fresh save, the first time the panel
+     unlocks, both mixer selects take Sage's own sage tint and a slow bounce — her guidance,
+     not a system prompt. Never on BASE (it is pre-filled). NO ARROWS: arrows are a proven
+     tailspin in this project. Tapping a mixer stops the nudge; picking one retires it for
+     the rest of the save. */
+  function mixerSlots() { return [el("slot-mix1"), el("slot-mix2")]; }
+  function showMixerHint() {
+    if (!window.Game || !Game.mixerHintDone || Game.mixerHintDone()) return;
+    mixerSlots().forEach(function (s) { if (s) s.classList.add("hint"); });
+  }
+  function hideMixerHint() {
+    mixerSlots().forEach(function (s) { if (s) s.classList.remove("hint"); });
+  }
+  function retireMixerHint() {
+    hideMixerHint();
+    if (window.Game && Game.completeMixerHint) Game.completeMixerHint();
+  }
+
+  function lock() {
+    locked = true;
+    hideMixerHint();             /* the nudge belongs to an OPEN panel */
+    var p = el("panel-frame"); if (p) { p.classList.add("locked"); p.classList.remove("brew-open"); }
+  }
   function unlock() {
     locked = false;
     var p = el("panel-frame"); if (!p) return;
@@ -207,6 +233,7 @@ window.Brew = (function () {
     p.classList.add("brew-open", "settle");
     void p.offsetWidth;          /* restart the settle animation each order */
     p.classList.remove("settle"); void p.offsetWidth; p.classList.add("settle");
+    showMixerHint();
   }
 
   /* wire up — every interaction is refused while locked (§7). The panel stays
@@ -214,8 +241,11 @@ window.Brew = (function () {
      the individual controls no-op, and one panel-level handler plays the gentle
      "let them finish" line. */
   el("slot-base").addEventListener("click", function () { if (locked) return; cycleBase(); });
-  el("slot-mix1").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; closePickers(); el("picker1").style.display = "block"; });
-  el("slot-mix2").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; closePickers(); el("picker2").style.display = "block"; });
+  /* §R18: the nudge stops the instant a mixer is tapped (before the picker opens — a bouncing
+     slot would drag its own dropdown around). It is only RETIRED once a mixer is actually
+     picked, so backing out of the picker leaves the hint available on the next unlock. */
+  el("slot-mix1").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; hideMixerHint(); closePickers(); el("picker1").style.display = "block"; });
+  el("slot-mix2").addEventListener("click", function (ev) { ev.stopPropagation(); if (locked) return; hideMixerHint(); closePickers(); el("picker2").style.display = "block"; });
   document.addEventListener("click", closePickers);
   el("dose").addEventListener("input", function () { if (locked) { this.value = state.dose; return; } state.dose = +this.value; updateDoseLabel(); update(); });
   el("brew-reset").addEventListener("click", function () { if (locked) return; reset(); });

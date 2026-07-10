@@ -472,8 +472,9 @@ window.Dialogue = (function () {
   document.getElementById("screen-group").addEventListener("click", advance);
   document.getElementById("screen-duo").addEventListener("click", advance);
 
-  /* §7: tapping the locked panel gets a gentle in-voice line, never a dead click */
-  Brew.setBlocked(function () { Screens.toast(t("brew.locked")); });
+  /* §7: tapping the locked panel gets a gentle in-voice line, never a dead click.
+     §R18: ~3.5s dwell — at the 5.6s default it overstayed. */
+  Brew.setBlocked(function () { Screens.toast(t("brew.locked"), 3500); });
 
   return { start: start, resume: resume, cursor: cursor, advance: advance, active: active, mode: function () { return mode; } };
 })();

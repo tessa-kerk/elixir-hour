@@ -569,9 +569,46 @@ window.Tome = (function () {
     svg.appendChild(g);
   }
 
-  /* ---- Arena Herald: unlocked back editions; ripple marker ---- */
+  /* ---- Today's Edition (§R20) --------------------------------------------
+     The one page of the Herald that reports the REAL Clash Royale. Ungated: a
+     live companion always has today's paper, even on a fresh save.
+
+     `live.validUntil` is the season's last day, INCLUSIVE, compared as a local
+     calendar date — never `new Date(iso)`, which parses "YYYY-MM-DD" as UTC.
+     That would retire the edition a full day early for every player WEST of
+     Greenwich: on 3 Aug in New York, local midnight is already 3 Aug 05:00 UTC,
+     which sorts after the parsed 3 Aug 00:00 UTC. Half the player base would
+     lose the last day of the season.
+
+     Anything unexpected — no file, no live item, a missing, malformed or
+     rolled-over date — falls through to `evergreen`. The failure mode is an
+     undated page that is always true, never a stale headline. */
+  function localMidnight(iso) {
+    var p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+    if (!p) return null;
+    var y = +p[1], m = +p[2], d = +p[3];
+    var dt = new Date(y, m - 1, d);
+    /* reject 2026-02-31 and friends — JS would silently roll them forward */
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+    return dt;
+  }
+  function todayEdition() {
+    var T = window.TODAY_EDITION;
+    if (!T) return null;
+    var live = T.live, end = live && localMidnight(live.validUntil);
+    if (live && live.head && end) {
+      var n = new Date();
+      var today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+      if (today.getTime() <= end.getTime()) return live;      /* inclusive of the last day */
+    }
+    return (T.evergreen && T.evergreen.head) ? T.evergreen : null;
+  }
+
+  /* ---- Arena Herald: today's edition, then unlocked back editions ---- */
   function renderHerald() {
     var eds = [];
+    var live = todayEdition();
+    if (live) eds.push(live);                     /* always first, never progression-gated */
     for (var i = 0; i < window.HERALD_EDITIONS.length; i++) {
       var e = window.HERALD_EDITIONS[i];
       if (e.head && Game.state.unlocks.heralds.indexOf(e.night) >= 0) eds.push(e);
@@ -594,9 +631,12 @@ window.Tome = (function () {
       story += "<br><br>" + esc(h.consequence[Game.state.consequence === "rattled" ? "rattled" : "clear"]);
     }
     if (h.story2) story += "<br><br>" + esc(h.story2);
+    if (h.story3) story += "<br><br>" + esc(h.story3);
     el("pageR").innerHTML =
-      /* text-only (R12): edition line → headline → story, on the plain page */
-      '<div class="rp-caption">' + esc(h.ed) + "</div>" +
+      /* text-only (R12): edition line → headline → story, on the plain page.
+         Today's Edition carries a dateline after its edition mark; the four
+         story editions have none, so the caption is unchanged for them. */
+      '<div class="rp-caption">' + esc(h.ed) + (h.dateline ? " · " + esc(h.dateline) : "") + "</div>" +
       '<div class="headline">' + esc(h.head) + "</div>" +
       '<div class="story">' + story + "</div>" +
       (h.ripple ? '<div class="ripple">⚗ Traced to a quiet brew poured at a certain bar the night before.</div>' : "");

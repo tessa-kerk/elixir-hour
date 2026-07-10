@@ -24,17 +24,17 @@
      home-screen icons (apple-touch / manifest) get it on a dark glow plate so
      iOS/Android don't render the transparency as black. Versioned so a rebrand
      isn't stuck behind the aggressive favicon cache. -->
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=31">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=31">
-<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=31">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=31">
-<link rel="manifest" href="manifest.webmanifest?v=31">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=35">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=35">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png?v=35">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=35">
+<link rel="manifest" href="manifest.webmanifest?v=35">
 <!-- Cache-bust: every local script/stylesheet carries ?v=<BUILD>. BUMP THIS
-     TOKEN ON EVERY BUILD (find-replace all "?v=31") so a refresh always gets the
+     TOKEN ON EVERY BUILD (find-replace all "?v=35") so a refresh always gets the
      current code — file:// and heuristic caches served stale JS to a real
      player once (P0 06-07) and stalled progression. -->
-<link rel="stylesheet" href="css/fonts.css?v=31">
-<link rel="stylesheet" href="css/main.css?v=31">
+<link rel="stylesheet" href="css/fonts.css?v=35">
+<link rel="stylesheet" href="css/main.css?v=35">
 </head>
 <body>
 <div id="viewport">
@@ -148,7 +148,7 @@
          row is placed programmatically (src/screens.js renderGroup). -->
     <div class="screen" id="screen-group">
       <div id="g-ms">
-        <img id="g-img" src="assets/scenes/Group Scene V2.webp?v=31" alt="">
+        <img id="g-img" src="assets/scenes/Group Scene V2.webp?v=35" alt="">
       </div>
       <div id="group-row"></div>
       <div class="scene-tint"></div>
@@ -261,7 +261,7 @@
           <button class="vol-mute" id="mute-music" type="button" aria-label="Mute music">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M18.6 6a8 8 0 0 1 0 12"/><path class="slash" d="M3 3l18 18"/></svg>
           </button>
-          <div class="vol-track"><input type="range" min="0" max="100" step="1" value="70" id="vol-music" class="vol-slider" aria-label="Music volume"></div>
+          <div class="vol-track"><input type="range" min="0" max="100" step="1" value="50" id="vol-music" class="vol-slider" aria-label="Music volume"></div>
           <span class="vol-pct" id="pct-music">70%</span>
         </div>
         <div class="setrow volrow">
@@ -324,7 +324,7 @@
     <button id="hud-menu" class="hud-btn" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
-    <button id="hud-tome" class="hud-btn tome" aria-label="The Tome"><img src="assets/ui/Tome Icon (cutout).webp?v=31" alt=""></button>
+    <button id="hud-tome" class="hud-btn tome" aria-label="The Tome"><img src="assets/ui/Tome Icon (cutout).webp?v=35" alt=""></button>
     <div id="autosave-quill" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-3 0-9 3-12 9l-4 7 7-4c6-3 9-9 9-12z"/><path d="M8.5 16.5l-2 2"/></svg><span id="autosave-word"></span></div>
     <div id="hint-chip"></div>
 
@@ -349,22 +349,25 @@
 <div id="dev" hidden></div>
 
 <!-- ?v=<BUILD> on every script — BUMP the token on every build (see head note) -->
-<script src="strings/strings.js?v=31"></script>
-<script src="data/nights.js?v=31"></script>
-<script src="data/cast.js?v=31"></script>
-<script src="data/tome.js?v=31"></script>
-<script src="src/stage.js?v=31"></script>
-<script src="src/save.js?v=31"></script>
-<script src="src/particles.js?v=31"></script>
-<script src="src/screens.js?v=31"></script>
-<script src="src/brew.js?v=31"></script>
-<script src="src/dialogue.js?v=31"></script>
-<script src="src/state.js?v=31"></script>
-<script src="src/tome.js?v=31"></script>
-<script src="src/nightcap.js?v=31"></script>
-<script src="src/audio.js?v=31"></script>
-<script src="src/settings.js?v=31"></script>
-<script src="src/hud.js?v=31"></script>
-<script src="src/boot.js?v=31"></script>
+<script src="strings/strings.js?v=35"></script>
+<script src="data/nights.js?v=35"></script>
+<script src="data/cast.js?v=35"></script>
+<!-- §R17: measured portrait framing for the scenes. Must load before src/screens.js. -->
+<script src="data/framing.js?v=35"></script>
+<script src="data/tome.js?v=35"></script>
+<script src="data/today.js?v=35"></script>
+<script src="src/stage.js?v=35"></script>
+<script src="src/save.js?v=35"></script>
+<script src="src/particles.js?v=35"></script>
+<script src="src/screens.js?v=35"></script>
+<script src="src/brew.js?v=35"></script>
+<script src="src/dialogue.js?v=35"></script>
+<script src="src/state.js?v=35"></script>
+<script src="src/tome.js?v=35"></script>
+<script src="src/nightcap.js?v=35"></script>
+<script src="src/audio.js?v=35"></script>
+<script src="src/settings.js?v=35"></script>
+<script src="src/hud.js?v=35"></script>
+<script src="src/boot.js?v=35"></script>
 </body>
 </html>

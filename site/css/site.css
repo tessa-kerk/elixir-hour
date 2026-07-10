@@ -201,6 +201,12 @@ html.reduce .cue-label{animation:none;}
   text-shadow:0 3px 20px rgba(0,0,0,.7); line-height:1.05;}
 .bb-caption p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,21px);
   color:#e9dfce; max-width:52ch; margin:12px auto 0; line-height:1.45; text-shadow:0 1px 10px rgba(0,0,0,.7);}
+/* localised soft scrim behind the chapter-two hero line so it stays legible over
+   the lit bar (same treatment as the full-bleed breaker captions) */
+.bb-caption::before{content:""; position:absolute; z-index:-1;
+  left:50%; top:52%; transform:translate(-50%,-50%);
+  width:min(720px,94%); height:185%;
+  background:radial-gradient(ellipse 58% 50% at 50% 50%, rgba(8,6,16,.66), rgba(8,6,16,.30) 54%, transparent 80%);}
 
 /* ---- Sage's green marginalia (the signature motif) ---- */
 .margin-note{position:absolute; font-family:'Caveat',cursive; font-weight:700; color:var(--sage);
@@ -225,6 +231,13 @@ html.reduce .cue-label{animation:none;}
 .foot-links a:hover{opacity:1; color:#fff;}
 .disclaimer{font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:#8f88a8;
   max-width:62ch; line-height:1.55; margin-top:6px;}
+/* "Source on GitHub" — sits with the disclaimer's maker-transparency fine print
+   (the code is open), a shade brighter than the disclaimer so it reads as a link */
+.foot-source{margin-top:2px;}
+.foot-source a{font-family:'Baloo 2',cursive; font-size:13px; color:var(--sage-pale);
+  text-decoration:none; opacity:.9; display:inline-flex; align-items:center; gap:3px;}
+.foot-source a:hover{opacity:1; color:#fff;}
+.foot-source .ext{font-size:12px;}
 /* signature — Baloo 2, not the reserved Caveat-green (that stays marginalia-only) */
 .byline{font-family:'Baloo 2',cursive; font-weight:700; color:var(--sage-pale); font-size:16px;
   letter-spacing:.03em; margin-top:4px;}
@@ -236,14 +249,20 @@ html.reduce .cue-label{animation:none;}
 .tome-wrap{height:200vh; --p:1;}
 
 /* ---------------------- beat: you play Sage ---------------------- */
-.sage-wrap{background:radial-gradient(70% 90% at 32% 45%, #2a2450, #141019 80%); padding:clamp(56px,9vh,110px) 22px;}
-.sage-inner{max-width:940px; margin:0 auto; display:flex; align-items:center; justify-content:center;
-  gap:clamp(20px,5vw,60px); flex-wrap:wrap;}
-.sage-fig{width:auto; height:clamp(300px,44vh,440px); filter:drop-shadow(-6px 16px 24px rgba(0,0,0,.55));}
-.sage-copy{flex:1 1 320px; max-width:460px;}
+/* a full chapter beat: near-full-height, a big Sage, a quiet warm lantern-glow
+   pooled behind her on the night ground so it reads deliberate, not squeezed */
+.sage-wrap{position:relative; min-height:88vh; display:flex; align-items:center; overflow:hidden;
+  background:
+    radial-gradient(38% 46% at 31% 50%, rgba(232,183,112,.16), rgba(232,183,112,.05) 52%, transparent 72%),
+    radial-gradient(80% 95% at 32% 46%, #2b2552, #141019 84%);
+  padding:clamp(60px,10vh,120px) 22px;}
+.sage-inner{max-width:1020px; margin:0 auto; display:flex; align-items:center; justify-content:center;
+  gap:clamp(26px,5vw,72px); flex-wrap:wrap; position:relative; z-index:1;}
+.sage-fig{width:auto; height:clamp(360px,58vh,580px); filter:drop-shadow(-8px 22px 34px rgba(0,0,0,.6));}
+.sage-copy{flex:1 1 350px; max-width:500px;}
 .sage-copy .eyebrow{color:var(--sage);}
-.sage-copy h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,3.6vw,42px); color:#fff; line-height:1.08;}
-.sage-copy p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(16px,1.9vw,20px); color:#d8cfe6; margin-top:16px; line-height:1.5;}
+.sage-copy h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(32px,4.6vw,54px); color:#fff; line-height:1.06;}
+.sage-copy p{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(17px,2.1vw,23px); color:#dcd3ea; margin-top:18px; line-height:1.5;}
 
 /* ===================== CHAPTER 3 — meet the regulars ===================== */
 .rail{background:radial-gradient(90% 70% at 50% 32%, #241f3f, #141019 82%); display:flex; align-items:center;}
@@ -333,21 +352,32 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
 /* ================= CHAPTER 5 — you brew tomorrow's news ================= */
 .herald{background:radial-gradient(80% 70% at 50% 35%, #26224a, #141019 84%);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:6vh 20px;}
-.broadsheet{width:min(560px, 88vw); background:linear-gradient(175deg,#f7efdc,#e9dcc0); color:var(--charcoal);
-  border:1px solid #cbbd9c; border-radius:6px; padding:clamp(24px,4vw,36px) clamp(24px,4vw,42px);
-  box-shadow:0 24px 60px rgba(0,0,0,.7); transform:rotate(-1deg);}
-.bs-mast{font-family:'Pirata One',cursive; font-weight:400; font-size:clamp(26px,4.5vw,38px); text-align:center;
-  border-bottom:3px double #8a7a5e; padding-bottom:8px;}
-.bs-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; color:var(--ink); margin-top:6px;}
+/* the card IS the game's real Herald paper art — the embossed "The Arena Herald"
+   masthead + crown divider are baked into the top ~38%; the LIVE text is placed
+   over the blank parchment below it. aspect-ratio holds the paper undistorted
+   (background stretched to fill an exact-ratio box, same as the game's #broadsheet)
+   and overflow:hidden clips any spill to the paper's edge. */
+.broadsheet{position:relative; width:min(600px, 92vw); aspect-ratio:2048 / 1329; overflow:hidden;
+  background:url('../assets/img/herald-paper.webp') center/100% 100% no-repeat;
+  color:#3a2a1c; transform:rotate(-1deg); filter:drop-shadow(0 20px 32px rgba(0,0,0,.5));}
+.bs-mast{display:none;}   /* the paper art already carries the embossed "The Arena Herald" masthead */
+.bs-inner{position:absolute; left:14%; right:12.5%; top:39.5%; bottom:4%;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start; text-align:center;}
+.bs-ed{font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic; font-size:15px; color:#6b5537; margin:0;}
 .bs-head{--ri:clamp(0, calc((var(--p) - .12 - var(--i) * .15) / .12), 1);
-  font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(19px,2.5vw,25px); margin:16px 0 10px;
+  font-family:'Baloo 2',cursive; font-weight:800; font-size:23px; line-height:1.04; margin:6px 0 6px; color:#2a1c0f;
   opacity:var(--ri); transform:translateY(calc((1 - var(--ri)) * 8px));}
-.bs-story{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:clamp(15px,1.8vw,18px); line-height:1.5;}
+/* balance the body so every line sits on the same measure — otherwise line 1 fills
+   the full column while the rest run short, and the block reads with a proud first
+   line / uneven side margins on the paper. Balancing keeps the line COUNT identical
+   (the mobile paper is height-tight), and pulls the trailing ⚗ back off its own line. */
+.bs-story{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; line-height:1.4; color:#3a2a1c;
+  text-wrap:balance;}
 .bs-l{opacity:clamp(0, calc((var(--p) - .12 - var(--i) * .15) / .12), 1);}
 .ripplemark{font-style:normal; margin-left:5px; color:var(--elixir); display:inline-block;
   animation:ripple 2.4s ease-in-out infinite;}
 @keyframes ripple{0%,100%{transform:scale(1); opacity:.65} 50%{transform:scale(1.28); opacity:1}}
-.bs-note{margin-top:16px; font-family:'Caveat',cursive; font-weight:700; color:var(--sage-deep); font-size:22px;
+.bs-note{font-family:'Caveat',cursive; font-weight:700; color:var(--sage-deep); font-size:20px; margin-top:8px;
   transform:rotate(-2deg); opacity:clamp(0, calc((var(--p) - .78) / .12), 1);}
 .herald-caption{text-align:center; max-width:640px; opacity:clamp(0, calc((var(--p) - .04) / .12), 1);}
 .herald-caption h2{font-family:'Baloo 2',cursive; font-weight:800; font-size:clamp(26px,4vw,44px); color:#fff; text-shadow:0 3px 18px rgba(0,0,0,.6);}
@@ -441,6 +471,52 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
 .behind-arrow .na-line, .behind-arrow .na-head{fill:none; stroke:currentColor; stroke-width:2.6;
   stroke-linecap:round; stroke-linejoin:round;}
 
+/* ===========================================================================
+   FULL-BLEED SECTION BREAKERS — three pure-image moments between chapters.
+   Full viewport width, ~70vh, scrim top+bottom for legibility, one line of
+   Cormorant italic. The image settles from scale 1.03 -> 1.0 as it scrolls in
+   (--bp written by scroll.js); transform/opacity only, GPU-safe. No JS / reduced
+   motion -> --bp defaults to 0 (settled, static). Focal points are centred so a
+   360px centre-crop stays graceful.
+   =========================================================================== */
+.breaker{position:relative; width:100%; height:72vh; overflow:hidden; background:var(--night);}
+.breaker-end{height:78vh;}   /* the closing beat gets a touch more room */
+.breaker-img{position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center center;
+  transform:scale(calc(1 + var(--bp,0) * .03)); transform-origin:center center;}
+/* scrim: darken top + bottom, clear centre — legibility for the line and a clean
+   seam into the dark sections either side */
+.breaker-scrim{position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,
+    rgba(20,19,35,.62) 0%, rgba(20,19,35,.12) 22%,
+    rgba(20,19,35,0) 45%, rgba(20,19,35,0) 56%,
+    rgba(20,19,35,.30) 79%, rgba(20,19,35,.80) 100%);}
+/* block-centred (not flex) so a long line WRAPS to two centred lines on a narrow
+   phone instead of overflowing/clipping; still one line of copy */
+.breaker-line{position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+  z-index:2; margin:0; text-align:center; padding:0 26px;
+  font-family:'Cormorant Garamond',serif; font-weight:600; font-style:italic;
+  font-size:clamp(23px,3.4vw,42px); line-height:1.25; color:var(--cream); letter-spacing:.01em;
+  text-shadow:0 2px 20px rgba(0,0,0,.72), 0 1px 3px rgba(0,0,0,.55);}
+/* a localised darkened radial directly behind the caption, so it stays legible
+   over the bright parts of the image (not a full-width wash — soft + centred) */
+.breaker-line::before{content:""; position:absolute; z-index:-1;
+  left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(680px,86%); height:2.7em;
+  background:radial-gradient(ellipse 58% 150% at 50% 50%, rgba(10,8,18,.74), rgba(10,8,18,.36) 52%, transparent 78%);}
+
+/* ===========================================================================
+   PAGE SCROLLBAR — NATIVE, deliberately (Tessa's ruling, 3rd attempt, 10-07).
+   The custom §R15 auto-hide bar is gone. On Windows the page scrollbar is
+   space-taking: it reserves a ~10px gutter, and the root/body background paints
+   THROUGH that gutter. So a "transparent track" never means "invisible" — it
+   means "show the page's navy", which reads as a permanent dark-blue track
+   beside every full-bleed breaker. That is unfixable without structurally
+   hiding the bar (banned: it must stay summonable and grabbable).
+   Native gives a real, grabbable thumb and never a track without a thumb.
+   Don't reintroduce a custom bar here.
+   =========================================================================== */
+
 /* ---------- reduced motion: kill drift, show composed frames ---------- */
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}
@@ -450,6 +526,7 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
   .reg{transition:none;}   /* no hover/scroll scale motion under reduced motion */
   /* guarantee the pin-collapse in CSS so it never depends on JS running */
   .pin-wrap{height:100vh !important;}
+  .breaker-img{transform:none;}   /* breakers: settled frame, no scroll-scale */
 }
 
 /* ---------- coarse responsive (full mobile pass = milestone 3) ---------- */
@@ -512,10 +589,15 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
      the "↑ you poured it" hand-note, sits inside the 100vh pin on a phone */
   .herald{gap:14px; padding:4vh 16px;}
   .herald-caption p{font-size:15px; line-height:1.4; margin-top:8px;}
-  .broadsheet{padding:20px 22px;}
-  .bs-head{font-size:19px; margin:12px 0 8px;}
-  .bs-story{font-size:15px; line-height:1.42;}
-  .bs-note{margin-top:12px; font-size:19px;}
+  /* a phone-width landscape paper at true ratio is too short for the full verbatim
+     story, so give it a slightly taller ratio (mild masthead stretch, fine on a
+     small screen) + a wider text column so the copy sits inside the parchment */
+  .broadsheet{width:min(600px,94vw); aspect-ratio:2048 / 1760;}
+  .bs-inner{top:38%; bottom:5%; left:11.5%; right:11%;}
+  .bs-ed{font-size:10.5px;}
+  .bs-head{font-size:14px; margin:3px 0 4px;}
+  .bs-story{font-size:9.5px; line-height:1.3;}
+  .bs-note{font-size:13.5px; margin-top:4px;}
   /* ch7/8 — stack devices, 2-up arenas */
   .arena-strip{grid-template-columns:repeat(2,1fr);}
   /* ch6 ledger — a phone gets a deliberate single-page crop (the right page: bio
@@ -524,4 +606,10 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
   .ledger{width:min(500px,94vw);}
   .ledger-frame{overflow:visible; border-radius:8px;}
   .ledger-img{width:100%; height:auto; min-width:0; aspect-ratio:660 / 610;}
+  /* breakers — a touch shorter on a phone; the line scales down and may wrap to
+     two centred lines (still one line of copy). Focal points stay centred, so
+     object-position:center keeps the crop graceful. */
+  .breaker{height:62vh;}
+  .breaker-end{height:66vh;}
+  .breaker-line{font-size:clamp(20px,5.6vw,30px); padding:0 22px;}
 }

@@ -4,9 +4,9 @@
    `hidden` attribute; flipping the flag on removes it.
 
    BEHIND_THE_BAR — chapter 9 "Behind the bar" (the maker-voice case-study/deck
-   section, brief §2 ch9). Its two CTAs point at /case-study/ and the GTM deck
-   PDF, which don't exist yet. Flip this to true ONLY once both are live. */
-var BEHIND_THE_BAR = false;
+   section, brief §2 ch9). Its two CTAs point at /case-study/ and
+   /assets/elixir-hour-gtm.pdf. Both ship in the bundle now, so this is ON. */
+var BEHIND_THE_BAR = true;
 
 (function () {
   "use strict";

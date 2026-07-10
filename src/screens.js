@@ -97,19 +97,72 @@ window.Screens = (function () {
      pre-baked, hand-grounded scenes — no compositing, no anchors, no shadows. An
      expression change swaps the whole image, cross-faded between two stacked #ms
      layers; the backgrounds are pixel-identical so the bar stays dead still and only
-     the character dissolves. lastServe.headTopY (from the per-character head fraction)
-     anchors the speech bubble just above the face. */
+     the character dissolves. §R17: placeServeBubble() derives the head-top at draw time
+     from the per-character head fraction × the SCENE BAND's height, so it is right in
+     both orientations (the band is the whole stage only in landscape). */
   var sceneLayers = null, sceneActive = 0;
   var EMPTY_BAR = "Empty Bar (no characters)";   /* §11: the no-customer backdrop (Sage solo, game start, between visits) — never a bare screen */
+
+  /* §R17 PORTRAIT REFRAME (GDD §11 mobile staging). The scene band is 720×819 and the art is
+     1.79:1, so `object-fit:cover` throws away ~51% of the width. The default `center` put the
+     cast — hand-grounded at head cx 0.21 — at x = −64px: the Knight half off the left edge.
+     Here we compute the object-position that lands the head at `targetX`, then CLAMP it so the
+     widest body (the Knight's) can never leave the frame. ONE value for every solo scene,
+     including the empty bar: the backgrounds are pixel-identical and cross-fade, so a per-scene
+     focal point would jitter the whole bar on every expression swap. */
+  function soloFocus() {
+    var f = window.SCENE_FRAME;
+    if (!f || !sceneLayers) return null;
+    var s = f.solo, layer = sceneLayers[0];
+    var bw = layer.clientWidth, bh = layer.clientHeight;
+    /* the serve screen can be display:none when a beat is armed under the dip cover, and a
+       hidden element measures 0. Fall back to the design band (the stage is a fixed size)
+       rather than bail out — bailing would clear the focal point and un-frame the character. */
+    if (!bw || !bh) { var D = Stage.design(); bw = D.W; bh = D.H * 0.64; }
+    var scale = Math.max(bw / f.img.w, bh / f.img.h);
+    var sw = f.img.w * scale, over = sw - bw;
+    if (over <= 0.5) return { pct: 50, p: 0.5, sw: sw, over: 0, bw: bw, bandH: bh };
+    var p = (s.headCx * sw - s.targetX * bw) / over;
+    var m = s.edge * bw;
+    var pMax = (s.bodyX0 * sw - m) / over;              /* larger p crops more off the LEFT  */
+    var pMin = (s.bodyX1 * sw - (bw - m)) / over;       /* smaller p crops more off the RIGHT */
+    var lo = Math.max(0, pMin), hi = Math.min(1, pMax);
+    /* If the body is wider than the band can hold, the two limits cross and the clamp would
+       return nonsense — centre the body instead, so it's cropped evenly rather than shoved
+       off one edge. (Unreachable at the locked 720x1280 stage; a taller band could reach it.) */
+    if (hi < lo) p = ((s.bodyX0 + s.bodyX1) / 2 * sw - bw / 2) / over;
+    else p = Math.min(Math.max(p, lo), hi);
+    p = Math.min(Math.max(p, 0), 1);
+    return { pct: p * 100, p: p, sw: sw, over: over, bw: bw, bandH: bh };
+  }
+  /* portrait: pin the focal point on both cross-fade layers. landscape: clear it, so the
+     signed-off desktop framing (the CSS default) is exactly what it always was. */
+  function applySoloFocus() {
+    if (!sceneLayers) sceneLayers = [el("ms-img"), el("ms-img2")];
+    var f = Stage.isPortrait() ? soloFocus() : null;
+    var pos = f ? (f.pct.toFixed(3) + "% 0%") : "";
+    sceneLayers[0].style.objectPosition = pos;
+    sceneLayers[1].style.objectPosition = pos;
+    return f;
+  }
+  /* where the speaker's head actually lands on screen, after the reframe */
+  function headScreenX(base, f) {
+    var F = window.SCENE_FRAME;
+    var h = F && F.heads && F.heads[base];
+    var cx = (h && h.cx != null) ? h.cx : F.solo.headCx;
+    return cx * f.sw - f.over * f.p;
+  }
+
   function setServeCustomer(who, exprName) {
     if (!sceneLayers) sceneLayers = [el("ms-img"), el("ms-img2")];
+    applySoloFocus();
     if (!who || !window.CAST[who]) { lastServe = null; crossfadeScene(window.serveScenePath(EMPTY_BAR)); return; }
     var c = window.CAST[who];
     var names = [];
     for (var k in c.exprs) names.push(k);
     if (!exprName || !c.exprs[exprName]) exprName = names[0];
     var base = c.exprs[exprName];
-    lastServe = { who: who, expr: exprName, headTopY: (c.head || 0.25) * Stage.design().H };
+    lastServe = { who: who, expr: exprName, base: base };
     crossfadeScene(window.serveScenePath(base));
   }
   /* True overlapped cross-fade (round-10 fix for the dip-to-empty). The outgoing
@@ -158,24 +211,53 @@ window.Screens = (function () {
      caller; the bubble sits bottom-anchored just above the figure's
      head/horns (figure top = counterY - charH by construction). The tail
      only shows when the on-screen customer is speaking. */
-  function serveLine(name, colour, html, withTail) {
+  /* Bubble geometry, shared by serveLine and the landscape/portrait flip. */
+  function placeServeBubble() {
     var comp = Stage.composite();
+    var D = Stage.design();
+    var bub = el("serve-bubble");
+    bub.style.top = "auto";
+
+    /* §R17: the head-top is a fraction of the SCENE BAND, not of the stage. In landscape the
+       band IS the stage (720px) so this is identical to the signed-off desktop maths; in
+       portrait the band is only 64% tall, and using the stage height dropped the bubble ~108px
+       — straight onto the speaker's face. */
+    var bandH = (sceneLayers && sceneLayers[0].clientHeight) ||
+                (Stage.isPortrait() ? D.H * 0.64 : D.H);   /* hidden screens measure 0 */
+    var c = lastServe && window.CAST[lastServe.who];
+    var headTop = c ? (c.head || 0.25) * bandH : (comp.counterY - comp.charH);
+    bub.style.bottom = (D.H - headTop + 12) + "px";
+
+    /* §R17: in portrait, sit the bubble over the speaker's head with the tail on them —
+       it used to be pinned at left:4%, tail pointing at empty counter. Landscape keeps the
+       CSS-driven left/width and its fixed 52% tail. */
+    var f = Stage.isPortrait() ? applySoloFocus() : null;
+    if (f && lastServe) {
+      var hx = headScreenX(lastServe.base, f);
+      var bw = bub.offsetWidth || D.W * 0.70;   /* CSS width; 0 if the screen is still hidden */
+      var left = Math.max(D.W * 0.03, Math.min(hx - bw / 2, D.W * 0.97 - bw));
+      bub.style.left = left + "px";
+      bub.style.setProperty("--tailx", Math.round(hx - left - 9) + "px");
+    } else {
+      bub.style.left = "";
+      bub.style.removeProperty("--tailx");
+    }
+
+    /* clamp (Fix 8): a long line grows the bottom-anchored bubble upward and can
+       push its top off the stage. If it would clip, pin the top just inside the
+       stage and let the bubble grow downward instead. */
+    if (bub.offsetTop < 8) { bub.style.top = "8px"; bub.style.bottom = "auto"; }
+  }
+
+  function serveLine(name, colour, html, withTail) {
     var bub = el("serve-bubble");
     el("serve-speaker").textContent = name || "";
     el("serve-speaker").style.color = colour;
     el("serve-speaker").style.display = name ? "" : "none";
     el("serve-line").innerHTML = html;
     bub.classList.toggle("notail", !withTail);
-    bub.style.top = "auto";
-    /* anchor the bubble bottom just above the speaker's head-top (#3): never
-       covers the face, and tracks the head when the cast is lowered. */
-    var headTop = (lastServe && lastServe.headTopY != null) ? lastServe.headTopY : (comp.counterY - comp.charH);
-    bub.style.bottom = (Stage.design().H - headTop + 12) + "px";
-    bub.classList.add("on");
-    /* clamp (Fix 8): a long line grows the bottom-anchored bubble upward and can
-       push its top off the stage. If it would clip, pin the top just inside the
-       stage and let the bubble grow downward instead. */
-    if (bub.offsetTop < 8) { bub.style.top = "8px"; bub.style.bottom = "auto"; }
+    bub.classList.add("on");                    /* on BEFORE measuring — .on is what makes it display */
+    placeServeBubble();
   }
   function hideServeBubble() { el("serve-bubble").classList.remove("on"); }
   /* the Order Strip text (§7) — the customer's order in their own words, shown
@@ -252,21 +334,34 @@ window.Screens = (function () {
 
   /* re-place the anchored layers when the stage flips landscape/portrait */
   document.addEventListener("stagemode", function () {
+    applySoloFocus();                           /* the reframe is mode-dependent, customer or not */
     if (lastServe && document.getElementById("screen-serve").classList.contains("active")) {
       setServeCustomer(lastServe.who, lastServe.expr);
+      if (el("serve-bubble").classList.contains("on")) placeServeBubble();
     }
   });
 
   /* a brief cream toast (e.g. storage-unavailable) — shown in-game, never
      console-only (GDD §13; P0 06-07) */
-  var toastTimer = null;
-  function toast(msg) {
+  var toastTimer = null, toastMsg = null;
+  var TOAST_MS = 5600;
+  /* §R18 (GDD §11 fresh-player locks): `ms` lets a caller pick its own dwell — the
+     brew-gating line uses 3500. Re-triggering the SAME line while it is still up is
+     ignored, so a player tapping the locked panel repeatedly can never stack a second
+     toast nor hold this one on screen indefinitely; once it has faded, a tap re-summons
+     it. A DIFFERENT message still interrupts (a storage error must not wait its turn). */
+  function toast(msg, ms) {
     var t2 = el("toast");
     if (!t2 || !msg) return;
+    if (toastTimer && toastMsg === msg) return;      /* already saying exactly this */
+    toastMsg = msg;
     t2.textContent = msg;
     t2.classList.add("on");
     if (toastTimer) window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(function () { t2.classList.remove("on"); }, 5600);
+    toastTimer = window.setTimeout(function () {
+      t2.classList.remove("on");
+      toastTimer = null; toastMsg = null;
+    }, ms || TOAST_MS);
   }
 
   function renderNightEnd(night, hasNext) {
@@ -325,13 +420,23 @@ window.Screens = (function () {
       /* above the speaker, clamped to the stage, tail on */
       var left = Math.max(W * 0.01, Math.min(g.cx - bw / 2, W * 0.99 - bw));
       bub.style.left = left + "px";
+      bub.style.top = "auto";                   /* clear a portrait `top` if we just rotated */
       bub.style.bottom = (H - g.topY + 12) + "px";
       bub.classList.remove("notail");
       bub.style.setProperty("--tailx", Math.round(g.cx - left - 9) + "px");
-    } else {
-      /* Sage / narration / portrait (heads reflow): bottom-centre name-box, no tail */
+    } else if (portrait) {
+      /* §R17: the portrait finale is letterboxed (`contain`, so all five stay in frame — see
+         css/main.css), and its scene band ends at 40%. Tuck the name-box straight under it
+         instead of stranding it at the foot of a mostly-empty screen. */
       bub.style.left = Math.round((W - bw) / 2) + "px";
-      bub.style.bottom = Math.round(H * (portrait ? 0.03 : 0.05)) + "px";
+      bub.style.top = Math.round(H * 0.42) + "px";
+      bub.style.bottom = "auto";
+      bub.classList.add("notail");
+    } else {
+      /* Sage / narration: bottom-centre name-box, no tail */
+      bub.style.left = Math.round((W - bw) / 2) + "px";
+      bub.style.top = "auto";
+      bub.style.bottom = Math.round(H * 0.05) + "px";
       bub.classList.add("notail");
     }
     bub.classList.add("on");

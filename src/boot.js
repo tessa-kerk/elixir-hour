@@ -1,6 +1,46 @@
 /* Boot: apply saved prefs, fill static strings, wire controls and the dev
-   bar, land on the title. */
+   bar, land on the title.
+   §R19: the whole boot runs inside a guard. If any earlier script in the chain
+   failed to load or parse — the R19 launch blocker was a corrupted deploy
+   artifact: strings.js / tome.js / nightcap.js shipped byte-corrupt, so STRINGS,
+   Tome and NightCap never defined and boot died silently on a flat indigo stage —
+   we paint a plain cream notice instead of leaving a beautiful empty room. The
+   notice is hardcoded English with inline styles ON PURPOSE: it must not depend
+   on the very string table or CSS that may be the thing that failed. */
 (function () {
+  function bootFailed(err) {
+    if (window.console) console.error("Elixir Hour: boot failed —", err);
+    try {
+      var prev = document.getElementById("boot-error");
+      if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
+      var box = document.createElement("div");
+      box.id = "boot-error";
+      box.setAttribute("role", "alert");
+      box.style.cssText =
+        "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99999;" +
+        "max-width:340px;padding:22px 26px;border-radius:14px;text-align:center;" +
+        "font-family:'Cormorant Garamond',Georgia,serif;color:#2b2536;background:#efe6d3;" +
+        "box-shadow:0 18px 50px rgba(0,0,0,.5);border:1px solid rgba(0,0,0,.12);";
+      var h = document.createElement("div");
+      h.style.cssText = "font-weight:700;font-size:21px;margin-bottom:8px;";
+      h.textContent = "The bar didn’t open.";
+      var p = document.createElement("div");
+      p.style.cssText = "font-size:16px;line-height:1.4;";
+      p.textContent = "Something went wrong loading Elixir Hour. Please refresh the page — " +
+        "if it keeps happening, try again in a little while.";
+      box.appendChild(h); box.appendChild(p);
+      (document.body || document.documentElement).appendChild(box);
+    } catch (e2) { /* last resort — the console error above is all we can offer */ }
+  }
+  try {
+  /* a script earlier in the chain failed to define its global (corrupt/blocked
+     load) → fail loudly HERE, not by dying mid-boot on a silent blank stage */
+  var NEED = ["STRINGS", "Prefs", "Save", "Game", "Stage", "Screens", "Brew",
+              "Dialogue", "Tome", "NightCap", "Settings", "HUD"];
+  var missing = [];
+  for (var mi = 0; mi < NEED.length; mi++) if (!window[NEED[mi]]) missing.push(NEED[mi]);
+  if (missing.length) throw new Error("core modules failed to load: " + missing.join(", "));
+
   var prefs = Prefs.get();
   window.LANG = window.STRINGS[prefs.lang] ? prefs.lang : "en";
   document.documentElement.lang = window.LANG;
@@ -143,4 +183,5 @@
   if (/[?&]dev=1/.test(window.location.search)) toggleDev(true);
 
   Game.show("title");
+  } catch (bootErr) { bootFailed(bootErr); }
 })();

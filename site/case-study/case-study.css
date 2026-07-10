@@ -88,7 +88,12 @@ a{color:var(--elixir);}
 .cs > p strong, .cs-annot p strong{font-weight:800; color:#241a10; font-synthesis:weight;}
 .cs-annot p{font-size:clamp(18px,2.2vw,20.5px); line-height:1.6; margin:0 0 18px; color:var(--ink); max-width:66ch;}
 .cs a{color:var(--elixir); text-decoration:underline; text-underline-offset:2px; text-decoration-thickness:1px;}
-.cs a.cta{text-decoration:none;}
+/* `.cs a` (0,1,1) outranks `.cta` (0,1,0), so a button inside the article would
+   inherit the purple link colour — purple ink on the purple fill. Restate the
+   button colours at higher specificity: white on purple (as on the landing),
+   dark ink on sage. */
+.cs a.cta{text-decoration:none; color:#fff;}
+.cs a.cta.sage{color:#241F1B;}
 /* green underline on a phrase a margin note points at */
 .cs-target{text-decoration:underline; text-decoration-color:var(--sage-deep);
   text-decoration-thickness:2px; text-underline-offset:3px;}
@@ -100,35 +105,37 @@ a{color:var(--elixir);}
 .cs-fig figcaption{font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px;
   color:var(--ink-soft); margin-top:10px; text-align:center; font-style:normal;}
 
-/* ---------------- Sage's margin notes ----------------
-   DEFAULT (narrow: <1120px): the note sits in the parchment flow, directly
-   ABOVE its target, with a down arrow onto the target phrase. */
+/* ---------------- Sage's margin notes (the Tome connector convention) ----------------
+   Locked rules: a SINGLE curved line, NO arrowhead; the line ends a small gap
+   short of its target (never touching or crossing printed lines); the note text
+   reads in line with the line's tail. The green underline marks the exact phrase.
+   Desktop = a true margin note; <1120px collapses to note-directly-above-target. */
 .cs-annot{position:relative;}
-.cs-note{display:block; width:max-content; max-width:min(90%,340px); margin:6px 0 -2px;
-  transform:rotate(-2deg); transform-origin:left center;}
+.cs-note{position:relative; display:block; width:max-content; max-width:min(88%,360px);
+  margin:8px 0 24px; transform:rotate(-1.5deg); transform-origin:left top;}
 .cs-note .margin-note{position:static; transform:none; display:inline; font-family:'Caveat',cursive;
-  font-weight:700; color:var(--sage-deep); font-size:clamp(21px,3vw,25px); line-height:1.05;}
-.cs-arrow{color:var(--sage-deep); overflow:visible; pointer-events:none;}
-.cs-arrow .na-line, .cs-arrow .na-head{fill:none; stroke:currentColor; stroke-width:2.4;
-  stroke-linecap:round; stroke-linejoin:round;}
-.cs-arrow-d{display:none;}                                    /* desktop arrow hidden on narrow */
-.cs-arrow-m{position:absolute; left:18%; top:78%; width:60px; height:48px;}
+  font-weight:700; color:var(--sage-deep); font-size:clamp(21px,3vw,25px); line-height:1.14;}
+.cs-arrow{color:var(--sage-deep); overflow:visible; pointer-events:none; display:block;}
+.cs-arrow .na-line{fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round;}
+.cs-arrow-d{display:none;}
+/* mobile: a short down-line — tail at the note's baseline, ending ~4px above the
+   target below (note margin-bottom 24px, line 20px → ~4px clear, no crossing) */
+.cs-arrow-m{position:absolute; left:20px; top:100%; width:10px; height:20px;}
 
-/* DESKTOP (≥1120px): note floats out into the right night margin, angled, with
-   a hand-drawn arrow flowing left, into the column, onto the underlined phrase. */
 @media (min-width:1120px){
-  .cs-note{position:absolute; left:100%; top:0;
-    margin:0 0 0 calc(var(--pad) + 1.6rem); width:170px; max-width:170px; transform:rotate(-2.5deg);}
-  .cs-note .margin-note{color:var(--sage-pale); font-size:23px; filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));}
+  /* the note floats in the right night margin, aligned to its target's line */
+  .cs-note{position:absolute; left:100%; margin:0 0 0 calc(var(--pad) + 1.5rem);
+    width:158px; max-width:158px; transform:rotate(-2deg); transform-origin:left center;}
+  .cs-note .margin-note{color:var(--sage-pale); font-size:22px; line-height:1.16; filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));}
   .cs-arrow{color:var(--sage-pale); filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));}
   .cs-arrow-m{display:none;}
-  .cs-arrow-d{display:block; position:absolute; right:80%; top:64%; width:118px; height:58px;}
-  /* note 2's target is a wide 3-line sentence starting at the top — the default
-     arrow lands on it. note 1's phrase is a short one mid-paragraph and to the
-     left, so drop that note toward its line and give the arrow a longer reach
-     down-left, so it lands ON the underlined phrase (§0 rule). */
-  .cs-annot-1 .cs-note{top:28px;}
-  .cs-annot-1 .cs-arrow-d{right:37%; top:62%; width:560px; height:118px;}
+  /* leftward line: tail (right end) a hair left of the note text, ending ~4px
+     before the parchment text — bridges the margin, never crosses a printed line */
+  .cs-arrow-d{display:block; position:absolute; right:100%; margin-right:7px;
+    width:calc(var(--pad) + 1.5rem - 11px); height:15px;}
+  /* align each note + its line to its target phrase's line */
+  .cs-annot-1 .cs-note{top:150px;}  .cs-annot-1 .cs-arrow-d{top:3px;}
+  .cs-annot-2 .cs-note{top:-4px;}   .cs-annot-2 .cs-arrow-d{top:3px;}
 }
 
 /* ---------------- footer ---------------- */

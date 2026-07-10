@@ -12,6 +12,10 @@ window.Game = (function () {
     tones: [],
     consequence: null,          /* the Knight's last cup: "clear" | "rattled" (GDD §8) */
     poured: [],                 /* [{night, recipe}] named drinks served — the Night Cap's drinks list (GDD §11); the consequential brew is NEVER recorded here (spoiler-safety) */
+    /* §R18 one-shot onboarding hints (GDD §11 fresh-player locks). `mixer` = the first-brew
+       mixer nudge has been retired for good. Lives in the SAVE, not prefs: it is a property
+       of this playthrough, and Play Again should teach a new player again. */
+    hints: { mixer: false },
   };
   function freshUnlocks() { return { recipes: [], ledger: {}, heralds: [], songs: [] }; }
 
@@ -43,9 +47,10 @@ window.Game = (function () {
   }
 
   function snapshot() {
-    return { version: 5, night: state.night, beatIndex: state.beatIndex,
+    return { version: 6, night: state.night, beatIndex: state.beatIndex,
              unlocks: state.unlocks, tones: state.tones,
              consequence: state.consequence, poured: state.poured,
+             hints: state.hints,        /* v6+: one-shot onboarding hints (§R18) */
              /* within-beat resume point (P0-1): where in the current visit's
                 script the player was, so Continue lands exactly there, not at
                 the start of the beat. null between beats / on non-dialogue screens. */
@@ -172,7 +177,18 @@ window.Game = (function () {
     state.tones = [];
     state.consequence = null;
     state.poured = [];
+    state.hints = { mixer: false };     /* §R18: a fresh player gets the mixer nudge again */
     startNight(1);
+  }
+
+  /* §R18 first-brew mixer hint. The nudge is retired the moment the player picks a real
+     mixer, and never returns for this save. */
+  function mixerHintDone() { return !!(state.hints && state.hints.mixer); }
+  function completeMixerHint() {
+    if (mixerHintDone()) return;
+    if (!state.hints) state.hints = { mixer: false };
+    state.hints.mixer = true;
+    Save.store(snapshot());
   }
   /* hydrate Game.state from a save WITHOUT resuming — shared by Continue and by
      "Open the Tome" from the finished-game title (the keepsake stays browsable). */
@@ -195,6 +211,10 @@ window.Game = (function () {
     state.tones = s.tones || [];
     state.consequence = (s.consequence === "clear" || s.consequence === "rattled") ? s.consequence : null;
     state.poured = Array.isArray(s.poured) ? s.poured : [];   /* v3 and earlier had no pour log */
+    /* §R18: v5 and earlier have no hints block. Infer it — a save that has already poured a
+       drink has plainly found the mixer, so don't nudge a returning player mid-playthrough.
+       A pre-v6 save that never reached a brew beat simply gets the hint once, which is right. */
+    state.hints = { mixer: s.hints ? !!s.hints.mixer : (Array.isArray(s.poured) && s.poured.length > 0) };
     /* within-beat resume point (P0-1; v5+). v4 and earlier had none → the beat
        replays from its top, the old per-beat behaviour. */
     pendingCursor = (s.cursor && typeof s.cursor.beatIndex === "number" && Array.isArray(s.cursor.q)) ? s.cursor : null;
@@ -236,6 +256,7 @@ window.Game = (function () {
     heraldContinue: heraldContinue, saveQuit: saveQuit,
     openTome: openTome, closeTome: closeTome, hasNight: hasNight,
     recordTone: recordTone,
+    mixerHintDone: mixerHintDone, completeMixerHint: completeMixerHint,
     state: state, snapshot: snapshot,
   };
 })();

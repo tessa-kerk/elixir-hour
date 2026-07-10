@@ -72,6 +72,19 @@ Suggested: a `.deployignore` or a zip step that excludes `assets/characters/**`
 and top-level `assets/scenes/*.png`. (Also exclude `.git/`, `tools/`, `site/` if
 present, and the `*.md` dev docs from the player zip.)
 
+## 4. `captures/readme/` — EXCLUDE from the deploy zip (~8.6 MB, added §R19)
+
+The README is a shop window now (the live site's footer links the repo), so it
+carries a hero banner, five feature stills and the page-turn GIF. They live in
+`captures/readme/` and are referenced by `README.md` only — **nothing in the game
+loads them.** They exist to be rendered by GitHub, so they must ship in the repo
+and must NOT ship to the player.
+
+- `captures/readme/` — 7 PNGs + 1 GIF, **9.2 MB** (`tome-page-turn.gif` is 4.3 MB of it)
+
+Same rule as the `*.md` dev docs: the zip step that already drops `README.md`
+should drop `captures/` with it.
+
 ---
 
 ### Done this round (v24)
