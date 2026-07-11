@@ -48,6 +48,21 @@
   Settings.refresh();
   if (window.Sound) Sound.refresh();   /* wire the audio system to the saved prefs + Songbook pick */
 
+  /* --- DEV-PANEL ACCESS GATE (round 22c) ---------------------------------------
+     The dev bar (Night jumps, fill-save, character preview) must not be reachable
+     by a published player pressing Ctrl+D. It is now gated behind a one-time unlock:
+     visit `?dev=sage` once on a device and the flag persists in localStorage; that
+     device then gets Ctrl+D (desktop) and a floating ⚙ (mobile). `?dev=off` clears it.
+     NB: the repo is public, so this stops a curious player, not a determined
+     source-reader — true gating would need a server we don't have. */
+  function devUnlocked() { try { return localStorage.getItem("eh-dev") === "1"; } catch (e) { return false; } }
+  (function () {
+    var m = /[?&]dev=([^&]*)/.exec(window.location.search);
+    if (!m) return;
+    if (m[1] === "sage") { try { localStorage.setItem("eh-dev", "1"); } catch (e) {} }
+    else if (m[1] === "off") { try { localStorage.removeItem("eh-dev"); } catch (e) {} }
+  })();
+
   document.getElementById("btn-start").addEventListener("click", function () { Game.newGame(); });
   document.getElementById("btn-continue").addEventListener("click", function () {
     /* §11 (round 10): on a finished game this button is "Play Again" — confirm before
@@ -63,7 +78,9 @@
   document.getElementById("broadsheet").addEventListener("click", function () { Game.heraldContinue(); });
   document.getElementById("btn-nextnight").addEventListener("click", function () { Game.startNight(Game.state.night + 1); });
   document.getElementById("btn-savequit").addEventListener("click", function () { Game.saveQuit(); });
-  document.getElementById("btn-totitle").addEventListener("click", function () { Game.show("title"); });
+  /* round 22: mid-arc (after Night 3) the epilogue continues into the next
+     night; only the FINAL epilogue returns to the title. Game decides. */
+  document.getElementById("btn-totitle").addEventListener("click", function () { Game.epilogueContinue(); });
   document.getElementById("tomeclose").addEventListener("click", Game.closeTome);
 
   /* in-game menu + Tome HUD (GDD §11) */
@@ -105,7 +122,7 @@
       /* T opens the Tome from any play screen (GDD §11) */
       if (isPlayScreen() && !tomeOpen() && !HUD.isTrayOpen() && !Settings.isOpen() && !NightCap.isOpen()) Game.openTome();
     }
-    if ((e.key === "d" || e.key === "D") && e.ctrlKey) { e.preventDefault(); toggleDev(); }
+    if ((e.key === "d" || e.key === "D") && e.ctrlKey && devUnlocked()) { e.preventDefault(); toggleDev(); }
   });
 
   /* Dev bar (mirrors the mockup's): ?dev=1 or Ctrl+D. */
@@ -153,11 +170,15 @@
                      "Lonely at the top and finally said so. Put the Poison down for one night."],
         "P.E.K.K.A": ["Gentle. Hates being feared. A mother. Loves butterflies — and keeps music where her heart would be.", "",
                       "Seen at last. A mother, a music-lover, the gentlest soul in the realm — under the most frightening shell in it."],
+        "Ronin": ["Drinks water. Pays for more than he takes.",
+                  "Asked why he's allowed in. Nobody here has ever asked me.",
+                  "First Elixir in years, maybe ever. Held the tankard like the others do. Like a regular."],
       },
-      heralds: [1, 2, 3, 4],
+      heralds: [1, 2, 3, 4, 5, 6],
       songs: songs,
     };
     Game.state.consequence = "clear";              /* so the epilogue edition reads */
+    Game.state.ronin = "clear";                    /* Ed. LII's line too (Edition 2) */
     Save.store(Game.snapshot());
     Game.openTome();
   });
@@ -177,10 +198,35 @@
     if (document.getElementById("screen-serve").classList.contains("active")) Screens.renderServe(cs.value, es.value);
   });
   fillExprs();
+
+  /* Night jump (round 22c): clean start at any Night's first beat — skip replaying
+     1–3 when testing Night 4. "fill save" first if you want a populated Tome. */
+  var nsel = document.createElement("select");
+  nsel.title = "Jump to a Night (clean start)";
+  nsel.add(new Option("Jump to…", ""));
+  for (var nj = 1; nj <= 4; nj++) nsel.add(new Option("Night " + nj, String(nj)));
+  nsel.addEventListener("change", function () {
+    if (this.value) { Game.startAtNight(+this.value); this.value = ""; }
+  });
+  dev.appendChild(nsel);
   dev.appendChild(cs); dev.appendChild(es);
 
   document.getElementById("panel-info").addEventListener("click", Game.openTome);
-  if (/[?&]dev=1/.test(window.location.search)) toggleDev(true);
+
+  /* dev panel: unlocked devices only. Show on load when a dev param is present;
+     a floating ⚙ toggles it where Ctrl+D can't reach (mobile). */
+  if (devUnlocked()) {
+    if (/[?&]dev=/.test(window.location.search)) toggleDev(true);
+    var gear = document.createElement("button");
+    gear.textContent = "⚙";
+    gear.title = "Dev panel";
+    gear.setAttribute("aria-label", "Dev panel");
+    gear.style.cssText = "position:fixed;left:6px;bottom:6px;z-index:99998;width:34px;height:34px;" +
+      "border-radius:50%;border:none;background:rgba(20,14,10,.62);color:#e8d9bd;font-size:16px;" +
+      "line-height:34px;text-align:center;cursor:pointer;padding:0;";
+    gear.addEventListener("click", function () { toggleDev(); });
+    document.body.appendChild(gear);
+  }
 
   Game.show("title");
   } catch (bootErr) { bootFailed(bootErr); }

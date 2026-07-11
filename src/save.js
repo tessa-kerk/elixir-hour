@@ -61,9 +61,10 @@
      on/off toggles. Old saves carried music/sfx booleans — migrated below so a
      previously-muted player stays muted.
      §R18 (GDD §11 fresh-player locks): MUSIC now defaults to 50 — 70 was too loud a first
-     impression. SFX is a SEPARATE constant and deliberately stays at 70. A default only ever
-     fills a key the player has never set, so anyone who has touched the slider keeps theirs. */
-  var PREF_DEFAULTS = { version: 1, lang: "en", musicVol: 50, sfxVol: 70, musicMuted: false, sfxMuted: false, track: "Sage's Favourite" };
+     impression. §R21 (10/07 live phone pass): SFX joins it at 50; R18 deliberately left it at
+     70, and the call now is both at 50. A default only ever fills a key the player has never
+     set, so anyone who has touched either slider keeps their value. */
+  var PREF_DEFAULTS = { version: 1, lang: "en", musicVol: 50, sfxVol: 50, musicMuted: false, sfxMuted: false, track: "Sage's Favourite" };
   window.Prefs = {
     get: function () {
       var raw = prefsBox.load() || {};

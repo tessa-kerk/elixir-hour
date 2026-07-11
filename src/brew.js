@@ -16,12 +16,39 @@ window.Brew = (function () {
      clear it (reset runs mid-gate: on arm, and after every wrong pour). */
   var activeOrder = null;
   var METERS = ["warmth", "kick", "chill", "bite"];
-  var BASE_DOT = { "Elixir": "#B26AE0", "Dark Elixir": "#3d2350" };
+  /* GDD v1.6 (Edition 2): WATER is the third tap — plain, clear, no glow.
+     The base cycle order is the taps' order on the bar. Water is GATED: the tap
+     only appears from the Away Night (Night 4) on, so Nights 1–3 have the two
+     taps they shipped with (and a stray water pour can't mismatch the baked
+     serve art). availableBases() is the single source of which taps exist now. */
+  var BASES = ["Elixir", "Dark Elixir", "Water"];
+  var BASE_DOT = { "Elixir": "#B26AE0", "Dark Elixir": "#3d2350", "Water": "#bcd7e6" };
+  function availableBases() {
+    if (window.Game && Game.state && Game.state.night >= 4) return BASES;
+    return ["Elixir", "Dark Elixir"];
+  }
 
   function baseStats(b) {
+    if (b === "Water") return { warmth: 0, kick: 0, chill: 0, bite: 0 };   /* nothing in it — that's the point */
     return b === "Elixir"
       ? { warmth: 1, kick: 0, chill: 0, bite: 0 }
       : { warmth: 0, kick: 1, chill: 0, bite: 1 };
+  }
+
+  /* v1.6: the brew animation strip follows the base — the water pour is the
+     humblest animation the bar owns (clear, no glow). Swapped on every update
+     so the images are loaded well before Pour runs the strip. */
+  var PANEL_SETS = {
+    "Water":   ["Brew Panel - The Water Pour (4x5)", "Brew Panel - The Water Drop (4x5)", "Brew Panel - The Water Stir (4x5)"],
+    "default": ["Brew Panel - The Pour (4x5)", "Brew Panel - Spell Drop (4x5)", "Brew Panel - The Stir (4x5)"],
+  };
+  function applyPanelSet() {
+    var set = PANEL_SETS[state.base] || PANEL_SETS["default"];
+    var imgs = document.querySelectorAll("#brewstrip .brewpanel img");
+    for (var i = 0; i < imgs.length && i < set.length; i++) {
+      var want = "assets/ui/" + set[i] + ".webp";
+      if (imgs[i].getAttribute("src") !== want) imgs[i].src = want;
+    }
   }
 
   function totals() {
@@ -81,6 +108,11 @@ window.Brew = (function () {
     }
     var hit = matchRecipe();
     var name = hit ? hit.name : null;
+    /* §8 (round 22): during THE consequential brew, a recipe the player hasn't
+       learned yet stays unnamed — on Night 4 the right mix's name would
+       otherwise light up like a tick. Learned recipes still name themselves. */
+    if (name && activeOrder && activeOrder.consequence &&
+        window.Game && Game.state.unlocks.recipes.indexOf(name) < 0) name = null;
     var tick;
     if (activeOrder) {
       /* GDD §7 gate-aware ✓: name any valid recipe you've formed, but tick ONLY
@@ -95,6 +127,7 @@ window.Brew = (function () {
     el("recipename").textContent = name ? (tick ? name + " ✓" : name) : t("brew.unnamed");
     el("base-name").textContent = canonTerm(state.base);   /* canon term (GDD §13) */
     el("base-dot").style.background = BASE_DOT[state.base];
+    applyPanelSet();                                       /* v1.6: strip art follows the base */
     for (var n = 1; n <= 2; n++) {
       var m = state.mix[n - 1];
       el("mix" + n + "-name").textContent = m ? canonTerm(m) : t("brew.none");
@@ -103,7 +136,10 @@ window.Brew = (function () {
   }
 
   function cycleBase() {
-    state.base = state.base === "Elixir" ? "Dark Elixir" : "Elixir";
+    /* cycle only the taps that currently exist (v1.6 water gate). A base that
+       just became unavailable (indexOf < 0) rounds to the first tap. */
+    var bs = availableBases();
+    state.base = bs[(bs.indexOf(state.base) + 1) % bs.length];
     update();
   }
   function pick(n, name) {

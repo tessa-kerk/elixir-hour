@@ -77,21 +77,33 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
    dim wood backdrop (lantern pool at top) → the 3D brown-paper render → the article
    over its blank lower area. The dark gradient is retired; the paper stays brightest. */
 #herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=35") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=41") center/cover no-repeat;}
 #broadsheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=35") center/100% 100% no-repeat;
-  /* padding % is relative to the PARENT width (the stage), so 15% ≈ the paper's
-     embossed-masthead depth — drops the article into the blank parchment below it.
-     The parchment render is asymmetric, so the sides aren't equal: a touch more on
-     the left centres the body text on the paper's flat area against the masthead (R12). */
-  padding:15% 12.4% 2.5% 13.6%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center/100% 100% no-repeat;
+  /* padding % is relative to the PARENT width (the stage). Top ≈ the paper's
+     embossed-masthead depth; the sides set the body-text column. WIDENED 11-07
+     (round 22b, Tessa): Edition 2's longer editions ran to 6 lines and crammed the
+     "tap to continue" against the paper's dark lower edge. Wider column + a lifted
+     top drop the longest edition (Ed. LI) to 5 lines with the continue clear on
+     parchment; the four original editions reflow a touch wider but stay framed.
+     Sides asymmetric — a touch more on the left centres the text against the
+     masthead on the asymmetric parchment render (R12).
+     TOP restored to 15% (round 22c-fix): round 22b's 13% pushed the edition label
+     up onto the embossed masthead flourish (Tessa caught the overlap). The wide
+     sides alone already cut the longest edition to 5 lines, so the original top can
+     come back — the label now sits at 42.8% of the paper, clear of the divider, and
+     every edition still fits with no overflow. */
+  padding:15% 9.5% 2.5% 10.5%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg); cursor:pointer;}
 #herald-masthead{display:none;}   /* the paper art carries the embossed masthead */
 #herald-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;
   color:#5a4632; margin-top:0;}
 #herald-head{font-family:'Baloo 2',cursive; font-size:20px; margin:7px 0 7px; text-align:center; color:#3a2a1c;}
 #herald-story{font-size:14.5px; line-height:1.48; font-weight:600; color:#4a3826;}
-.cont{margin-top:13px; text-align:center; font-family:'Baloo 2',cursive; color:#7a3fa0; font-size:14px;}
+/* "tap to continue" — darkened + bolder (round 22b): the old #7a3fa0 sat too faint
+   on the lower parchment. Now a deeper wine-purple with weight, so it reads as the
+   call-to-action it is without fighting the printed article above it. */
+.cont{margin-top:14px; text-align:center; font-family:'Baloo 2',cursive; color:#5e2578; font-weight:700; font-size:14.5px;}
 
 /* ---------- SERVE SCREEN — pre-baked hand-grounded scenes (GDD §12, round 9) ----
    The whole screen is one image: character grounded on the counter, brew wall,
@@ -105,6 +117,8 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
   object-position:center; opacity:0; transition:opacity .25s ease-in-out;}
 #stage.night2 #ms{filter:brightness(.97) saturate(1.02) hue-rotate(-4deg);}
 #stage.night3 #ms{filter:brightness(.93) saturate(1.05) hue-rotate(-8deg);}
+/* night4 (Edition 2, away): NO filter on purpose — the away scenes are baked
+   with their own festival-lantern grade; a tint on top would fight it. */
 #serve-bubble{left:2%; width:36%; display:none;}
 #serve-bubble.on{display:block;}
 /* tail points down at the cast anchor. Landscape uses the fixed 52% (the cast is at one
@@ -299,6 +313,7 @@ body.portrait .dose-live{font-size:9.5px;}
 #stage.night1{--night-tint:transparent;}
 #stage.night2{--night-tint:rgba(58,104,188,0.62);}   /* dusk — the window cools to blue */
 #stage.night3{--night-tint:rgba(52,32,88,0.82);}     /* late night — purple candlelight */
+#stage.night4{--night-tint:transparent;}             /* away night — the baked scenes carry their own lantern grade */
 /* Night 3: candlelight — dim the GROUP-screen wall a touch (that screen still
    uses the CSS placeholder). The serve master scene is a baked image now, tinted
    as a whole by .scene-tint; its window/tap accents no longer have separate CSS
@@ -320,13 +335,26 @@ body.portrait #serve-bubble{left:4%; top:auto; width:70%;}
 /* §R17 GDD §11: Sage is BEHIND the counter — her voice comes from the bottom of the scene.
    It already did; the anchor is now the scene band's bottom edge, not the panel's top. */
 body.portrait #sage-bubble{left:4%; top:auto; bottom:36.8%; width:78%;}
-body.portrait #panel-frame{left:3%; right:3%; top:64%; bottom:2.5%; height:auto;}
+/* §R21 (10/07 live phone pass): CENTRE the content group inside the panel block.
+   The landscape rule `.panel-cols{flex:1}` made the columns swallow every spare pixel
+   of the portrait panel, pinning the mixer selects to the panel's top edge and pooling
+   all the slack beneath them — top-aligned contents over a fat pad. The frame's OWN
+   padding was symmetric, which is why this measured innocent and had to be seen.
+   Now the group (order strip + columns + dose) takes its natural height and the frame
+   centres it. `flex:0 1 auto` keeps the columns shrinkable, so a very short panel
+   compresses instead of overflowing its rounded box. */
+body.portrait #panel-frame{left:3%; right:3%; top:64%; bottom:2.5%; height:auto;
+  justify-content:center;}
 /* §R17 items 4+5. Grid, not wrapped flex: the wrapped row stretched, leaving dead space under
    the mixer selects and pushing the meters down onto the slider, and the 44%+48% columns left
-   a dead strip on the right. Row 1 is `auto` (selects hug their content), row 2 is `1fr` and
-   the meter block centres in it — vertically centred between the selects and the slider. */
-body.portrait .panel-cols{display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr;
-  gap:12px 14px; align-items:start;}
+   a dead strip on the right. Rows are both `auto` now (§R21) — with the whole group centred,
+   a stretching `1fr` row 2 would just reintroduce the pooled slack it was there to absorb.
+   The R17 lock still holds — the meter block sits CENTRED between the selects and the
+   slider — because the grid's row gap (above the meters) is set to match #panel-frame's
+   own flex gap of 9px (below them). Change one and you must change the other. */
+body.portrait .panel-cols{flex:0 1 auto;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto;
+  gap:9px 14px; align-items:start;}
 body.portrait .slotcol{width:auto; grid-column:1; grid-row:1;}
 body.portrait .rightcol{width:auto; grid-column:2; grid-row:1;}
 body.portrait .meters{width:auto; flex:none; grid-column:1 / -1; grid-row:2; align-self:center;}
@@ -334,7 +362,14 @@ body.portrait .picker{left:0; right:0; width:auto; bottom:105%; top:auto;}   /* 
 body.portrait #panel-frame.brewing{top:auto; height:9%; bottom:38.5%;}
 body.portrait #brewstrip{left:3%; right:3%; top:64%; bottom:2.5%; height:auto;}
 body.portrait #title-logo{width:78%; top:13%;}
-body.portrait #broadsheet{width:88%; padding:30px 26px;}
+/* PORTRAIT HERALD FIX (round 22e): the old `padding:30px 26px` was FIXED px, so it
+   couldn't clear a masthead that scales with the paper — the article printed straight
+   over "The Arena Herald" (Tessa's mobile screenshot). Fix: size the portrait paper to
+   the SAME pixel box as landscape (96% of the 720 portrait stage = 691px, matching
+   landscape's 54%-of-1280) and give it the SAME padding in px, expressed as % of 720.
+   Now portrait frames byte-identically to landscape: label at 42.8% (clear of the
+   flourish), 5-line longest edition, 0 overflow. */
+body.portrait #broadsheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}
 body.portrait .panel{width:88%;}
 /* portrait: group counter becomes a band mid-frame (the row shrinks to fit
    five across); duo stacks its split top/bottom; epilogue sheet widens */
@@ -355,7 +390,7 @@ body.portrait #duo-box{width:88%; top:38%; bottom:auto;}
    screen — with the band shrunk to 36% they would otherwise wash over the letterbox and
    the name-box. (Caught by the R17 review.) */
 body.portrait #duo-split{top:4%; bottom:auto; height:36%;}
-body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop clears the masthead in portrait, same as #broadsheet */
+body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 22e: matches #broadsheet — same pixel box as landscape so the masthead is cleared (was fixed-px, overlapped) */
 
 /* ---------- PLACEHOLDER PANELS (night-end only now) ---------- */
 .placeholder{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
@@ -369,7 +404,7 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
 #screen-nightend .placeholder{
   background:
     radial-gradient(ellipse 56% 44% at 50% 52%, rgba(14,10,20,.76), rgba(14,10,20,.30) 66%, transparent 82%),
-    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=35") center/cover no-repeat;}
+    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=41") center/cover no-repeat;}
 
 /* ---------- GROUP — Layout 3 (GDD §11): the whole room, no mixing UI ----------
    Late-night dressing of the same master-scene placeholder: darker wall,
@@ -427,15 +462,17 @@ body.portrait #epi-sheet{width:88%; padding:30px 26px;}   /* §R15: paper prop c
    counter-wood backdrop as every other Herald interstitial (was a dark radial). */
 #epi-wrap{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:16px;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=35") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=41") center/cover no-repeat;}
 /* §R15: the epilogue Ed. L prints on the SAME generated 3D paper prop as every other
    full-screen Herald (was a plain CSS card, breaking the 3D look on the wrong-pour path
    Tessa hit) — same framing as #broadsheet: paper fills the sheet, the embossed masthead
    is baked in (text masthead hidden), the article sits in the blank parchment below. The
-   epilogue carries more copy than a Night herald, so its type is a touch smaller to fit. */
+   epilogue carries more copy than a Night herald, so its type is a touch smaller to fit.
+   Padding matched to #broadsheet (round 22c-fix: 15% top clears the masthead flourish;
+   the fullest epilogue, Ed. L, still fits with no overflow). */
 #epi-sheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=35") center/100% 100% no-repeat;
-  padding:14.5% 12.4% 2.5% 13.6%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center/100% 100% no-repeat;
+  padding:15% 9.5% 2.5% 10.5%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg);}
 #epi-masthead{display:none;}   /* the paper art carries the embossed masthead */
 #epi-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px;
@@ -747,7 +784,7 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
    Herald page widens for this tab; the article drops into the blank lower ~55%. */
 #pageR.herald-paper{
   left:49%; width:48%; top:13%; height:62%; padding:0;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=35") center top / contain no-repeat;}
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center top / contain no-repeat;}
 #pageR.herald-paper .rp-caption{text-align:center; margin-top:42%; color:#5a4632;}
 #pageR.herald-paper .headline{color:#3a2a1c; text-align:center; padding:0 14%;}
 #pageR.herald-paper .story{color:#4a3826; padding:0 14%; font-size:13.5px;}

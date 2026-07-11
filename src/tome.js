@@ -407,7 +407,11 @@ window.Tome = (function () {
            whitespace beside it (§R14 "tail must sit at its note"). */
         noteEl.style.textAlign = side === "left" ? "right" : "left";
         overlay.appendChild(noteEl);
-        var top = Math.max(sTop + 2, (lastBottom[key] || -1e9) + 6);
+        /* stacked-note breathing room: when two notes fall in the same lane, the
+           second sits at least this far below the first (round 22c: 6→14 — Ronin's
+           short bio put two marks a line apart and the notes read cramped). Only
+           binds on notes that would collide, so well-spread pages are untouched. */
+        var top = Math.max(sTop + 2, (lastBottom[key] || -1e9) + 14);
         top = Math.min(top, pageH - noteEl.offsetHeight - 4);
         var noteH = noteEl.offsetHeight;
         noteEl.style.top = top + "px";

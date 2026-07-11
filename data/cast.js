@@ -27,6 +27,9 @@ window.RECIPES = [
   { name: "The Long Look",    base: "Elixir",      mix: ["Mirror"] },
   { name: "The Easy One",     base: "Elixir",      mix: ["Heal"],         dose: 2 },
   { name: "The Gentle One",   base: "Elixir",      mix: ["Heal"],         dose: 3 },
+  /* Edition 2 (GDD v1.6) */
+  { name: "Water",         base: "Water",       mix: [] },              /* plain, any dose — mixers make it not-water */
+  { name: "The Long Road", base: "Dark Elixir", mix: ["Heal"], dose: 2 },
 ];
 
 /* The five regulars.
@@ -110,11 +113,33 @@ window.CAST = {
       "Arrival":         "Hog Rider - Arrival",
     },
   },
+  /* Edition 2 guest (GDD v1.5/§16(b)): Ronin — Season 85 "Honor & Exile". His
+     scenes exist ONLY in the away set (Night 4); head fraction from the away
+     bake measurements (hat top .222, cast band cx .211 — game/PLAN.md table). */
+  "Ronin": {
+    colour: "#6f6bbf",
+    they: "He",
+    head: 0.222,
+    demoLine: "Water, if you please.",
+    exprs: {
+      "Arrival":   "Ronin - Arrival",
+      "Guarded":   "Ronin - Guarded Served",
+      "Listening": "Ronin - Listening Served",
+      "At Ease":   "Ronin - At Ease Served",
+    },
+  },
 };
 
-/* Asset-path helpers (round 9): one base filename → its serve scene or its cutout. */
+/* Asset-path helpers (round 9): one base filename → its serve scene or its cutout.
+   Edition 2 (round 22): a night may declare `sceneSet:"away"` (data/nights.js) —
+   state.js mirrors it into window.SCENE_SET each beat, and the SAME base names
+   resolve into the away folder. Nights 1–3 pass through the original path
+   untouched, including "Empty Bar (no characters)" (the away folder carries a
+   plate under the same base name). */
 window.serveScenePath = function (base) {
-  return "assets/scenes/serve/" + base + " (serve scene).webp?v=" + (window.BUILD ? window.BUILD.n : 0);
+  var v = "?v=" + (window.BUILD ? window.BUILD.n : 0);
+  if (window.SCENE_SET === "away") return "assets/scenes/away/" + base + " (away scene).webp" + v;
+  return "assets/scenes/serve/" + base + " (serve scene).webp" + v;
 };
 window.cutoutPath = function (base) {
   return "assets/cutouts/" + base + " (no bg).webp?v=" + (window.BUILD ? window.BUILD.n : 0);

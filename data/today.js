@@ -41,10 +41,13 @@ window.TODAY_EDITION = {
   live: {
     validUntil: "2026-08-03",              /* the last day of Honor & Exile, inclusive */
     ed: "Today's Edition",
-    dateline: "6 July 2026 · Honor & Exile",
+    /* the dateline is a SEASON label, never a single day: the edition is live for
+       the whole of Honor & Exile (to 03-08), so "6 July" read as the paper's date
+       and looked stale by mid-season. Refresh it when `live` is rewritten. */
+    dateline: "This season · Honor & Exile",
     head: "A Wandering Swordsman Comes to the Arena",
 
-    story: "He came in off the long road with a sword on his back and the dust of three kingdoms on his boots, and asked only for water. They say he never strikes first — he waits, and gives back in kind whatever is given him. The season has brought stranger things through the gates. None so quiet.",
+    story: "He came in off the long road with swords on his back and the dust of three kingdoms on his boots, and asked only for water. They say he never strikes first — he waits, and gives back in kind whatever is given him. The season has brought stranger things through the gates. None so quiet.",
 
     story2: "The arena masters, meanwhile, have had a word with the heroes: the balloon's skeleton troopers are to fight less fiercely up close, and the goblin heroes to go easier on the rest. It had got so an ordinary fighter could scarcely find room to swing.",
 

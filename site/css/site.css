@@ -505,17 +505,10 @@ html.reduce .reg-meta, html:not(.js) .reg-meta{opacity:1;}
   width:min(680px,86%); height:2.7em;
   background:radial-gradient(ellipse 58% 150% at 50% 50%, rgba(10,8,18,.74), rgba(10,8,18,.36) 52%, transparent 78%);}
 
-/* ===========================================================================
-   PAGE SCROLLBAR — NATIVE, deliberately (Tessa's ruling, 3rd attempt, 10-07).
-   The custom §R15 auto-hide bar is gone. On Windows the page scrollbar is
-   space-taking: it reserves a ~10px gutter, and the root/body background paints
-   THROUGH that gutter. So a "transparent track" never means "invisible" — it
-   means "show the page's navy", which reads as a permanent dark-blue track
-   beside every full-bleed breaker. That is unfixable without structurally
-   hiding the bar (banned: it must stay summonable and grabbable).
-   Native gives a real, grabbable thumb and never a track without a thumb.
-   Don't reintroduce a custom bar here.
-   =========================================================================== */
+/* PAGE SCROLLBAR — the native bar is hidden and we draw our own overlay thumb.
+   Lives in css/scrollbar.css + js/scrollbar.js (shared with the case study).
+   Do NOT try to style the real bar here: its gutter paints the page background,
+   so a transparent track can never be invisible on Windows. */
 
 /* ---------- reduced motion: kill drift, show composed frames ---------- */
 @media (prefers-reduced-motion: reduce){

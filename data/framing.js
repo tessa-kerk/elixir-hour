@@ -48,5 +48,14 @@ window.SCENE_FRAME = {
     "Wizard - Boastful Grin Served": { cx: 0.210, top: 0.263 },
     "Wizard - Deflated & Insecure Served": { cx: 0.210, top: 0.263 },
     "Wizard - Warm Genuine Smile Served": { cx: 0.210, top: 0.263 },
+    /* Edition 2 — Ronin, away set only (measured off the away bakes, diff-vs-empty;
+       game/PLAN.md 10-07 table: top .222–.226, cx .211 — inside the cast band, so
+       the shared solo focal point holds for the whole away night. The residents'
+       away marks match their home rows above within noise, so those rows serve
+       both sets. */
+    "Ronin - Arrival": { cx: 0.211, top: 0.222 },
+    "Ronin - Guarded Served": { cx: 0.211, top: 0.222 },
+    "Ronin - Listening Served": { cx: 0.211, top: 0.223 },
+    "Ronin - At Ease Served": { cx: 0.211, top: 0.226 },
   },
 };

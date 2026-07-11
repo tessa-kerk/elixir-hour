@@ -393,11 +393,16 @@ window.Screens = (function () {
   function renderGroup(b) {
     lastGroup = b;
     var g = el("group-row"); if (g) g.innerHTML = "";
-    el("g-img").src = "assets/scenes/Group Scene V2.webp?v=" + (window.BUILD ? window.BUILD.n : 0);
+    /* Edition 2 (round 22): a group beat may carry its own baked image + head
+       anchors — Tessa's away duos and the Last Round four-hander render through
+       this exact route. Without them, the Night-3 finale behaves as always. */
+    var v = "?v=" + (window.BUILD ? window.BUILD.n : 0);
+    el("g-img").src = (b && b.image ? "assets/scenes/away/" + b.image + ".webp" : "assets/scenes/Group Scene V2.webp") + v;
+    var heads = (b && b.heads) || GROUP_HEADS;
     groupCast = {};
     var D = Stage.design(), sx = D.W / 1280, sy = D.H / 720;
-    for (var who in GROUP_HEADS) {
-      groupCast[who] = { cx: GROUP_HEADS[who].x * sx, topY: GROUP_HEADS[who].topY * sy };
+    for (var who in heads) {
+      groupCast[who] = { cx: heads[who].x * sx, topY: heads[who].topY * sy };
     }
     el("group-bubble").classList.remove("on");
   }
@@ -524,19 +529,21 @@ window.Screens = (function () {
   }
 
   /* ---- Epilogue: the morning-after Herald (GDD §9) ----
-     One edition, one consequence line from the Knight's last cup, the
-     decree lifted, and the closing card. */
-  function renderEpilogue() {
+     One edition, one consequence line from a quiet brew, and the closing card.
+     `key` names the edition (round 22): 4 = Ed. L after Night 3 (the Knight's
+     cup), 6 = Ed. LII after Night 4 (Ronin's first pour — its `field` says
+     which save slot the consequence line reads). No key = the classic Ed. L. */
+  function renderEpilogue(key) {
     var ed = null;
     var eds = window.HERALD_EDITIONS || [];
-    for (var i = 0; i < eds.length; i++) if (eds[i].night === 4) ed = eds[i];
+    for (var i = 0; i < eds.length; i++) if (eds[i].night === (key || 4)) ed = eds[i];
     if (!ed) return;
     el("epi-masthead").textContent = t("herald.masthead");
     el("epi-ed").textContent = ed.ed;
     el("epi-head").textContent = ed.head;
     el("epi-story").textContent = ed.story;
-    var key = Game.state.consequence === "rattled" ? "rattled" : "clear";
-    el("epi-conseq").textContent = ed.consequence ? ed.consequence[key] : "";
+    var cv = Game.state[ed.field || "consequence"];
+    el("epi-conseq").textContent = ed.consequence ? ed.consequence[cv === "rattled" ? "rattled" : "clear"] : "";
     el("epi-story2").textContent = ed.story2 || "";
     el("epi-final").textContent = ed.final || "";
   }

@@ -28,6 +28,13 @@ window.BREWBOOK = [
   { name: "The Gentle One", mix: ["Elixir", "Heal ×3"], dots: ["#B26AE0", "#4e9a51"],
     taught: "For P.E.K.K.A — warm and gentle",
     note: "No spark in it. Served slower on purpose." },
+  /* Edition 2 (GDD v1.6) — taught/note copy from the Night 4 script's TOME cues */
+  { name: "Water", mix: ["Water"], dots: ["#bcd7e6"],
+    taught: "Taught by: Ronin, who orders nothing else",
+    note: "Water, nothing in it, any pour. The humblest thing the bar owns — served with the same respect as the strong stuff." },
+  { name: "The Long Road", mix: ["Dark Elixir", "Heal ×2"], dots: ["#3d2350", "#4e9a51"],
+    taught: "Taught by: nobody. Made up on a festival night, for a man off the road",
+    note: "The dark base for the miles, the Heal for arriving. There is no hurry in it." },
 ];
 
 /* Regulars' Ledger — one growing page per character (GDD §10, verbatim).
@@ -111,6 +118,24 @@ window.LEDGER = [
         pinned: "With the noise off: the Hog's getting old, the river's getting wider, and one of these nights the jump won't land. He asked me not to make a thing of it." },
     ],
   },
+  /* Edition 2 guest. Card generated 11-07 (gpt-image-2, style-matched to the
+     five locked cards) — DRAFT until Tessa signs it off, like the bios below:
+     stage notes are verbatim from the Night 4 script's TOME cues; the bio
+     paragraphs are Cowork drafts in the §10 register, FLAGGED for her pass. */
+  {
+    who: "Ronin", card: "assets/ui/cards/Ronin Card (cutout).webp", px: [1056, 1408], box: { l: 0.075, t: 0.050, r: 0.930, b: 0.945 },
+    stages: [
+      { bio: "A wandering swordsman off the long road — **no banner**, no lord to vouch for him, and no story anyone can trail. Orders **water**, nothing in it, and pays for more than he takes. Never strikes first; answers exactly in kind.",
+        notes: [
+          { mark: "no banner", note: "Knight said that'll do for papers" },
+          { mark: "water", note: "the third tap — nothing in it, ever" },
+        ] },
+      { bio: "Asked why a counter would take a man with no side — **nobody here has ever asked him** anything, is the thing. The accounting fails somewhere east of the mountains; the road has been all there is, for longer than he can count.",
+        notes: [ { mark: "nobody here has ever asked him", note: "the room didn't vote — he noticed" } ] },
+      { bio: "One coin, slid forward an exact inch: the first drink he has asked of anyone in years. The Long Road went into the book the same night he stopped watching the door.",
+        pinned: "First Elixir in years, maybe ever. Held the tankard like the others do. Like a regular." },
+    ],
+  },
 ];
 
 /* Arena Herald — one edition per Night, VERBATIM from the Hour scripts;
@@ -140,6 +165,27 @@ window.HERALD_EDITIONS = [
     story2: "DECREE LIFTED — the border strip is ruled neutral ground once more. The little bar upon it reopens tonight, and the Crown, it is reported, will not press the matter.",
     final: "The victors are crowned. Elixir Hour opens again tonight.",
     ripple: true },
+  /* ---- Edition 2 (Night 4, "The Long Road") — keys 5 and 6 continue the
+     archive numbering; copy VERBATIM from the Night 4 script's Herald section.
+     Key 5 = Ed. LI, the Night 4 opener (its herald beat names it explicitly:
+     { type:"herald", ed:5 } — the plain `night` lookup would collide with Ed. L
+     above). Key 6 = Ed. LII, the Night 4 epilogue; `field` names the save slot
+     its consequence line reads (Ronin's first pour), and archiving key 6 is
+     what marks the whole game completed (src/state.js). */
+  { night: 5, ed: "Ed. LI", head: "The Bar Goes Travelling",
+    dateline: "From the festival grounds — Festival of Honor & Exile",
+    story: "The keeper of the strip's own bar has taken the counter to the festival — boards, taps and all — and has set up beneath the lanterns by the east gate. Patrons of both kingdoms are reminded that the rules travel with the furniture: no banners at the counter, no quarrels past the first pour. Neutral ground, delivered.",
+    story2: "Elsewhere: the wandering swordsman remains at the festival, still drinking only water, still declining every challenge issued to him. The arena masters have ruled the matter closed: a man who will not strike first cannot be made to. The masters are reported relieved to have a rule that enforces itself.",
+    ripple: false },
+  { night: 6, ed: "Ed. LII", head: "Festival Closes — Lanterns Down Till Next Year",
+    dateline: "From the festival grounds, first light",
+    field: "ronin",
+    story: "The Festival of Honor & Exile closed its gates at dawn, the banners coming down in the same order they went up. The travelling bar was seen folded flat and cart-bound by sunrise, its keeper reportedly last to leave and first to settle the pitch fee.",
+    consequence: {
+      clear: "And one item of note for the strip: the wandering swordsman was seen at first light — not on the road. He has taken a room above the bakery, two doors from the bar's home pitch. Locals report he tips generously.",
+      rattled: "And one item from the road: the wandering swordsman was gone before first light, walking east, or possibly west — reports differ, as they always will with him. The keeper of the travelling bar reports a coin left on the counter worth ten waters, and no note.",
+    },
+    ripple: true },
 ];
 
 /* Bard's Songbook — the four tracks (Build Setup doc), progression-gated per
@@ -157,4 +203,5 @@ window.SONGBOOK = [
   { name: "Rain on the Strip",     when: { heraldOf: 1 },      by: "Softer, late-night.",                            file: "rain-on-the-strip.mp3" },
   { name: "The Little One's Tune", when: { met: "P.E.K.K.A" }, by: "P.E.K.K.A's phonograph track.",                  file: "the-little-ones-tune.mp3" },
   { name: "Last Call",             when: { night: 3 },         by: "The night before the Championship — the bar bracing for the fight ahead.", file: "last-call.mp3" },
+  { name: "East of the Mountains", when: { met: "Ronin" },     by: "The wanderer's tune — carried in off the long road.", file: "east-of-the-mountains.mp3" },   /* Edition 2 (GDD v1.6) */
 ];

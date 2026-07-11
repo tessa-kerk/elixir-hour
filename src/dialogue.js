@@ -256,8 +256,14 @@ window.Dialogue = (function () {
         gate = e.brew;
         Brew.reset();
         /* arm the gate-aware ✓ (GDD §7). The consequence brew arms a never-true
-           predicate so it shows the name but never a tick — no §8 outcome leak. */
-        Brew.setOrder(e.brew.consequence ? function () { return false; } : orderMatcher(e.brew));
+           predicate so it never ticks — and the predicate is FLAGGED so the panel
+           also hides the names of recipes the player hasn't learned yet (round 22:
+           Night 4's right answer is a recipe that doesn't exist until he drinks it,
+           so its name appearing was itself the §8 leak the no-tick rule prevents). */
+        var order;
+        if (e.brew.consequence) { order = function () { return false; }; order.consequence = true; }
+        else order = orderMatcher(e.brew);
+        Brew.setOrder(order);
         Brew.onPour = onPour;
         /* §7: the customer has ordered — unlock the panel (settle) and light the
            Order Strip with their request in their own words. */
@@ -353,7 +359,9 @@ window.Dialogue = (function () {
        is stored in the save and pays off as one epilogue Herald line. */
     if (gate.consequence) {
       var right = pourMatches(gate.right, result);
-      Game.state.consequence = right ? "clear" : "rattled";
+      /* `field` names the save slot (Edition 2: Ronin's pour → state.ronin);
+         without it the Knight's original slot is written, as ever */
+      Game.state[gate.field || "consequence"] = right ? "clear" : "rattled";
       /* clear the gate BEFORE any side effect, so nothing can leave the
          sequencer stuck in "brew" (P0 06-07) */
       var g = gate;
@@ -444,6 +452,10 @@ window.Dialogue = (function () {
       if (window.HUD && isNew && u.ledger === "Knight") { HUD.glowLedger(); HUD.chip("chip.ledger", true); onboarded = true; }
     }
     if (u.herald && un.heralds.indexOf(u.herald) < 0) { un.heralds.push(u.herald); landed = true; }
+    /* explicit Songbook unlock (Edition 2): the track lands the moment the story
+       says so — "East of the Mountains" on Ronin's first water, one beat before
+       his Ledger page opens (the met: gate alone would run a beat late) */
+    if (u.song && un.songs.indexOf(u.song) < 0) { un.songs.push(u.song); landed = true; }
     /* a plain "new entry" pulse — but not on the onboarding beats, whose reveal/
        glow highlight IS the cue (a pulse on top would fight it) */
     if (landed && !onboarded && window.HUD) HUD.pulse();

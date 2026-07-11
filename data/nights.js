@@ -39,15 +39,39 @@
 
    Beat shapes: { type:"scene", script:[...] }            no customer on screen
                 { type:"visit", who, expr, script:[...] } customer at the counter
-                { type:"herald" }                         broadsheet interstitial (the
+                { type:"herald", ed?:n }                  broadsheet interstitial (the
                                                           current Night's edition; it
                                                           archives into the Tome when
-                                                          shown)
+                                                          shown. `ed` names an explicit
+                                                          HERALD_EDITIONS key — Night 4
+                                                          opens on key 5 (Ed. LI), which
+                                                          the plain night lookup can't
+                                                          reach: key 4 is Ed. L.)
                 { type:"group", cast:[{who,expr}…], script:[...] }  the whole room
-                                                          (Layout 3 — no mixing UI)
+                                                          (Layout 3 — no mixing UI).
+                                                          Edition 2: `image` + `heads`
+                                                          render one of Tessa's baked
+                                                          multi-character away scenes
+                                                          instead of Group Scene V2 —
+                                                          the same route the Night-3
+                                                          finale already takes, so away
+                                                          "duos" are group beats too.
                 { type:"duo", cast:[{who,expr},{who,expr}], script:[...] }  two
                                                           customers conversing (Layout
-                                                          5 — split, name-box)
+                                                          5 — split, name-box; home-bar
+                                                          cutout compositing — the away
+                                                          night never uses it)
+                { type:"epilogue", ed:n }                 the morning-after Herald as an
+                                                          explicit beat (round 22): key 4
+                                                          after Night 3, key 6 after
+                                                          Night 4. Mid-arc its button
+                                                          reads Continue; end-of-arc it
+                                                          returns to the title.
+   A night may declare sceneSet:"away" — every solo scene (and the empty bar)
+   resolves from assets/scenes/away/ for that night (data/cast.js).
+   A consequence gate may declare field:"ronin" — the §8 result stores to that
+   save slot instead of `consequence` (src/dialogue.js), so the Knight's last
+   cup and Ronin's first pour never overwrite each other.
    group/duo scripts carry lines/narration/cues/unlocks only — choices and
    brew gates belong to serve beats (the mixing panel lives there). */
 window.NIGHTS = [
@@ -606,6 +630,355 @@ window.NIGHTS = [
           { unlock: { ledger: "Knight", note: "", stage: 3 } },
         ],
       },
+
+      /* ---- The morning after (round 22): Ed. L as an explicit epilogue beat.
+         Before Edition 2 this screen was the hard-wired end of the game; with
+         Night 4 in the data it plays here, then Continue leads on to the
+         night-end screen and "Begin Night 4". Old completed saves sit just
+         before this beat, so their Continue replays the epilogue once and
+         flows into Night 4 — the live-ops "your save carries on" moment. ---- */
+      { type: "epilogue", ed: 4 },
+    ],
+  },
+
+  /* ================================================================== *
+   *  NIGHT 4 — "The Long Road" (Edition 2, the Away Night, GDD §16(b)) *
+   *  Transcribed VERBATIM from `../Elixir Hour - Night 4 Script (The   *
+   *  Long Road).md` (LOCKED for wiring, Tessa's round 4, 11-07).       *
+   *  Season 85 "Honor & Exile" — the festival pop-up. Guest: Ronin.    *
+   * ================================================================== */
+  {
+    night: 4,
+    title: "The Long Road",
+    sceneSet: "away",
+    /* Night Cap quote — spoiler-safe (his arrival order, NOT the consequential
+       brew). FLAGGED for Tessa's approval, like the first three. */
+    nightcap: { quote: { text: "Water, if you please.", who: "Ronin" } },
+    beats: [
+
+      /* ---- Interstitial — Ed. LI opens the Night (explicit key 5) ---- */
+      { type: "herald", ed: 5 },
+
+      /* ---- Cold open — unfamiliar ground ---- */
+      {
+        type: "scene",
+        script: [
+          { cue: "art", text: "the away bar, empty. Lanterns strung on the timber frame, the arena stands far off, blossom high in the dark." },
+          { cue: "sfx", text: "festival crowd, distant — a bigger, stranger roar than home. Boards creak." },
+          { who: "Sage", line: "*(to no one, pressing a palm flat on the counter)* Right. Same counter, but it is a four days' cart ride from where it usually lives. If anything's going to break, I'd rather know now." },
+          { cue: "sfx", text: "a tap hisses — the same wet complaint as the first night, briefer." },
+          { who: "Sage", line: "Oh, you as well? We're travelling. Behave." },
+          { cue: "sfx", text: "the hiss settles. Somewhere out in the dark, a horn, and a crowd losing its mind about something." },
+          { who: "Sage", line: "Ah... festival crowds. Either they've seen the finest bout of their lives out there, or someone's dropped a tray of candied apples." },
+          { n: "A blossom petal drifts down and lands, dead centre, in an empty tankard." },
+          { who: "Sage", line: "*(fishing it out, not entirely displeased)* …We didn't get that at home." },
+        ],
+      },
+
+      /* ---- The Hog Rider — festival weather ---- */
+      {
+        type: "visit",
+        who: "Hog Rider",
+        expr: "Big Laugh",
+        script: [
+          { cue: "sfx", text: "no crash this time — the crash is already IN the crowd noise, getting closer." },
+          { who: "Hog Rider", line: "HOG RIIIDERRR — *(arms out, spinning once, taking in the lanterns)* — they brought the BAR! You beautiful people, you brought the actual BAR! I said to the Hog, I said, if that's not our counter down by the gate then I'm a goblin's uncle, and it IS! It's the counter!" },
+          { who: "Sage", line: "We do travel, apparently. It's a new thing we're trying." },
+          { who: "Hog Rider", line: "*(slamming onto a stool like it owes him a good evening)* Best thing this festival's done all week, and I've seen a man juggle six hammers. Go on then — the usual road-trip order. Strong stuff, don't be shy with it, Rage in there for the occasion." },
+          { brew: { base: "Dark Elixir", mix: ["Rage"], recipe: "The Strong Stuff",
+                    wrong: "HA — nah, this one's had a gentle upbringing! Where's the DARK stuff, keeper? And the Rage! A festival drink needs a bit of personality to it!",
+                    nudge: "Go on then — the usual road-trip order. Strong stuff, don't be shy with it, Rage in there for the occasion.",
+                    orderShort: "The strong stuff, don't be shy with it — Rage in there for the occasion…" } },
+          { cue: "art", text: "he takes it one-handed, already mid-story." },
+          { who: "Hog Rider", line: "*(after a gulp that empties half of it)* HA! There it is. Tastes like home and a holiday at the same time, that does. *(leaning in, suddenly confidential, which for him means slightly quieter than a landslide)* Here — you heard about the fella at the gate? He watched two bouts today, and cheered for nobody. NOBODY. And then at the end, right, he bows. *(a pause for effect)* To the LOSER." },
+          { who: "Sage", line: "To the loser?" },
+          { who: "Hog Rider", line: "To the loser! Deepest bow you ever saw! Winner's stood there doing the arms-up thing, crowd going mad, and this fella's bowing to the one face-down in the dust. *(draining the tankard, philosophical)* Any man that calm wants feeding, you ask me. Or watching. Or maybe both. *(up, already leaving, louder somehow)* Right — the Hog's found the candied-apple stall and we are still NOT speaking, so I'd better go and not speak to him in person. Keep my stool!" },
+        ],
+      },
+
+      /* ---- Ronin arrives — water (the third tap, GDD v1.6) ---- */
+      {
+        type: "visit",
+        who: "Ronin",
+        expr: "Arrival",
+        script: [
+          { cue: "sfx", text: "nothing. The door-flap moves and the noise of the festival seems to step back a pace." },
+          { cue: "art", text: "RONIN — Arrival. Arms folded, hat low, at the end of the counter. He takes the end stool, where the light runs out." },
+          { n: "He sits the way other people stand guard." },
+          { who: "Ronin", line: "Keeper. Water, if you please." },
+          { who: "Sage", line: "Water it is." },
+          { brew: { base: "Water", mix: [], recipe: "Water",
+                    /* orderShort/nudge here are the MECHANICAL hint, not Ronin's words:
+                       water is a brand-new third tap, so the strip teaches how to make it
+                       (his bubble already says the in-fiction line). */
+                    wrong: "That is generous, keeper, but it is not water. Water only, if you please — nothing in it, straight from the tap.",
+                    nudge: "Water — the new third tap, beside Elixir and Dark Elixir. Nothing added, any amount.",
+                    orderShort: "Water — the new third tap. Nothing added." } },
+          { who: "Ronin", expr: "Guarded", line: "*(a small, precise nod)* Thank you." },
+          { unlock: { recipe: "Water" } },
+          { unlock: { song: "East of the Mountains" } },
+          { n: "He drinks the water the way other people drink the strong stuff — like it's owed the same respect. Then he sets two coins on the wood and squares them with one finger until the edges agree." },
+          { who: "Sage", line: "The water's not really a two-coin pour, if I'm honest." },
+          { who: "Ronin", line: "The seat is. You are letting me hold a stool a paying drinker could sit on. The difference is accounted for." },
+          { choice: "How does Sage take that?", options: [
+            { label: "\"The seat comes free with the water. House rule.\"", tone: "warm" },
+            { label: "Take one coin, slide one back.", tone: "silent" },
+            { label: "\"You've clearly never met our Hog Rider. He runs a tab.\"", tone: "dry" },
+          ] },
+          { who: "Ronin", line: "*(whichever way it goes, the coins stay where he put them)* You keep an honest counter. I will not unbalance it." },
+          { n: "Nobody at the bar makes it a thing. You watch him notice that nobody makes it a thing." },
+          { unlock: { ledger: "Ronin", note: "Drinks water. Pays for more than he takes." } },
+        ],
+      },
+
+      /* ---- The Wizard — a bigger audience (order + pour) ---- */
+      {
+        type: "visit",
+        who: "Wizard",
+        expr: "Boastful Grin",
+        script: [
+          { cue: "art", text: "WIZARD — Boastful Grin. He enters walking backwards, still waving to somebody out in the dark." },
+          { who: "Wizard", line: "Keeper! Keeper, you will not BELIEVE the evening I am having. The festival crowds — now there is an audience. Fresh eyes, keeper! Not one of them has spent years being wrong about me. I did the spark cascade by the west gate and they applauded. Actual applause, from actual hands!" },
+          { who: "Sage", line: "Go on then, what's the occasion order?" },
+          { who: "Wizard", line: "The Showstopper, obviously — tonight of all nights. Elixir, double Rage, and the Zap to finish. And make the Zap count, keeper; I have a reputation now. As of roughly an hour ago." },
+          { brew: { base: "Elixir", mix: ["Rage", "Zap"], dose: 2, recipe: "The Showstopper",
+                    wrong: "No spark, keeper, please. And add the Rage — two of them, I said — plus the Zap at the end. The Zap is the finale. One does not skip the finale.",
+                    nudge: "The Showstopper, obviously — tonight of all nights. Elixir, double Rage, and the Zap to finish. And make the Zap count, keeper; I have a reputation now.",
+                    orderShort: "The Showstopper — Elixir, double Rage, and the Zap to finish…" } },
+          { cue: "art", text: "he lifts it high — and catches sight of the figure at the end of the counter." },
+          { who: "Wizard", line: "*(voice dropping to what he believes is a whisper)* Keeper. Keeper, that's him. The one from the gate. *(straightening his robe, grandeur reloading)* Watch this." },
+        ],
+      },
+
+      /* ---- The trick and the nod (baked away duo — group route) ---- */
+      {
+        type: "group",
+        image: "Wizard + Ronin - The Nod (away duo)",
+        heads: { "Wizard": { x: 269, topY: 189 }, "Ronin": { x: 621, topY: 160 } },
+        cast: [ { who: "Wizard", expr: "Boastful Grin" }, { who: "Ronin", expr: "Guarded" } ],
+        script: [
+          { n: "He carries the drink three stools down, holds it up to the lantern light, and does the spark trick — the good version, the one that half-works. The little light fizzles out with its small, sad pop." },
+          { n: "A pause. The stranger looks at the burnt-out spark. Then at the Wizard. And gives him one slow, grave nod." },
+        ],
+      },
+
+      /* ---- The Wizard — luminous (choice) ---- */
+      {
+        type: "visit",
+        who: "Wizard",
+        expr: "Boastful Grin",
+        script: [
+          { who: "Wizard", line: "*(returning, luminous, barely keeping his voice down)* Did you see that. He NODDED. Keeper, that man has seen the whole wide world and he nodded at MY— *(collecting himself, magnificently failing)* —well. He clearly knows craft when he sees it. I told you, some people simply don't need the roof brought down to recognise subtlety." },
+          { choice: "How does Sage play it?", options: [
+            { label: "\"He did nod. I saw the whole thing.\"", tone: "kind", reply: [
+              { who: "Wizard", line: "*(under his breath, to his drink)* He nodded. The Electro Wizard can juggle his little lightning all he likes — HE'S never been nodded at." },
+            ] },
+            { label: "\"You should get that in writing.\"", tone: "tease", reply: [
+              { who: "Wizard", line: "Laugh all you want, keeper. Tonight I have an audience, a Showstopper, and a nod from a mysterious swordsman. This is, and I say it with all humility, the finest evening of my career." },
+            ] },
+            { label: "\"What was the trick meant to do, exactly?\"", tone: "craft", reply: [
+              { who: "Wizard", line: "*(and here he's suddenly precise, fluent, and actually good)* It's a timing thing, truthfully — the Zap wants to leave the drink the moment the Rage settles, and if you hold it back half a breath too long it dies early. Nobody's ever asked me that before, you know." },
+            ] },
+          ] },
+        ],
+      },
+
+      /* ---- The Princess — a gap in the file ---- */
+      {
+        type: "visit",
+        who: "Princess",
+        expr: "Sharp & Teasing",
+        script: [
+          { cue: "art", text: "PRINCESS — Sharp & Teasing. She's simply there, on a stool she wasn't on a moment ago, the way she does." },
+          { who: "Princess", line: "Keeper. The usual bitter one, when you have a moment. *(not looking at the end of the counter, which is its own way of looking)* I see the festival's brought you a collector's item." },
+          { who: "Sage", line: "He's mostly brought himself, as far as I can tell." },
+          { who: "Princess", line: "Mm. That's rather the point of him." },
+          { brew: { base: "Elixir", mix: ["Poison"], recipe: "The Bittersweet",
+                    wrong: "Sweet, but disappointing. I did say the bitter one, keeper — it wants the Poison. That is the whole point of the drink.",
+                    nudge: "Keeper. The usual bitter one, when you have a moment.",
+                    orderShort: "The usual bitter one, when you have a moment…" } },
+          { cue: "art", text: "she turns the tankard once, tasting it with her eyes first." },
+          { who: "Princess", line: "So. What everyone knows, which is to say what I told them: he walks in off the long road, refuses every challenge anyone puts to him, and if you do make him fight — and some fool always does — whatever you give him comes straight back at you, with interest. The arena masters have ruled that a man who will not strike first, cannot be made to. Which I could have told them for free." },
+          { who: "Sage", line: "And what doesn't everyone know?" },
+          { who: "Princess", line: "*(and here it is — the smallest pause, a flick of ash off her voice)* …That is an excellent question, keeper, and I find I don't love the answer, because the answer is: nearly everything. Where he's from. What he did. Which kingdom threw him out, or whether he threw them out first. There are usually threads, you understand. People trail threads the way the Hog trails mud. This one's been on the road so long the road's all there is." },
+          { who: "Sage", line: "That bothers you." },
+          { who: "Princess", line: "It fascinates me, which in my case is worse. *(she takes a sip; showing the sharp little smile again)* Warm feelings, keeper — careful with those. People who feel warm around me usually catch on fire, remember?" },
+          { choice: "The stranger's three stools away. Does Sage…", options: [
+            { label: "Ask him nothing. A man can drink his water in peace.", tone: "silent", reply: [
+              { n: "He drinks his water in peace. She notices that too. She notices everything." },
+            ] },
+            { label: "\"You could just ask him, you know.\"", tone: "gentle" },
+            { label: "Ask Ronin, lightly, where the road started.", tone: "press", reply: [
+              { who: "Ronin", line: "East of here." },
+              { n: "Which is every direction at once, depending where you stand. The Princess raises her tankard a fraction — to the first person who's got even that much out of him." },
+            ] },
+          ] },
+          { who: "Princess", line: "*(examining a nail, transparently delighted)* Oh — and you will have heard about the archer with the vanishing trick. The masters have shortened his little disappearances; apparently catching him is possible now. *(a sip, savoured longer than the drink needs)* I had nothing to do with it, and I have never enjoyed anything more." },
+          { who: "Princess", line: "*(rising, the tankard left exactly half-finished)* Do enjoy Monday, keeper. The masters shuffle the carry-lists again come morning, and I already know three fighters who won't like what they read. *(the smile, over her shoulder)* I'd tell you which three, but where would the fun be." },
+        ],
+      },
+
+      /* ---- Ronin — the middle of the road ---- */
+      {
+        type: "visit",
+        who: "Ronin",
+        expr: "Listening",
+        script: [
+          { cue: "art", text: "RONIN — Listening. The hat's still low, but he's turned a few degrees toward the room. For him that's practically joining the party." },
+          { who: "Ronin", line: "Keeper. A question, if the counter permits questions." },
+          { who: "Sage", line: "The counter runs on them." },
+          { who: "Ronin", line: "You have poured for a soldier of one kingdom, a wizard of another, an archer who misses nothing, and myself. I hold no banner. No lord vouches for me, and no one here can say what I did before I walked in. *(the cup turns once between his hands)* Why does your counter take a man with no side?" },
+          { choice: "Sage's answer — the real one.", options: [
+            { label: "\"I don't pour for sides. I pour for whoever sits down.\"", tone: "house" },
+            { label: "\"Everyone at this counter left their banner at the door. You just arrived without one to take with you when you leave.\"", tone: "longer" },
+            { label: "\"Because you said please.\"", tone: "dry" },
+          ] },
+          { who: "Ronin", line: "*(a silence with actual weight in it — then, softly)* I have been asked to leave better rooms than this one, and also worse ones. It is generally the first thing a room decides about me. *(he looks at the water, and almost — almost — smiles)* Yours has not voted." },
+          { who: "Sage", line: "We're not really the voting kind." },
+          { who: "Ronin", line: "No. I am beginning to see that. *(a pause; then, with the air of a man crossing a small bridge)* The others. What is it that they drink?" },
+          { who: "Sage", line: "Depends who's asking and what kind of night they've had. Steady ones, loud ones, bitter ones. One recipe with an actual spark in it. Mostly it depends what the road's been like on the way in." },
+          { who: "Ronin", line: "*(so softly you can hardly hear him over the crackling of the lanterns)* Mine has been long." },
+          { n: "He goes back to his water. But he leaves the words on the counter, where you can both see them." },
+          { unlock: { ledger: "Ronin", note: "Asked why he's allowed in. Nobody here has ever asked me.", stage: 2 } },
+        ],
+      },
+
+      /* ---- P.E.K.K.A — the slow one (order + pour) ---- */
+      {
+        type: "visit",
+        who: "P.E.K.K.A",
+        expr: "Shy",
+        script: [
+          { n: "Rule number one of this bar: nobody sits next to P.E.K.K.A. And a newly established rule number two, nobody sits next to the wanderer. The two rules are cancelling each other out now, and the bar holds its breath — she has crossed the whole pop-up to take the stool beside him." },
+          { who: "P.E.K.K.A", line: "*(to Sage, the deep voice at its softest)* The slow one. Please." },
+          { brew: { base: "Elixir", mix: ["Heal"], recipe: "The Gentle One",
+                    wrong: "…This one is loud. *(a pause)* The slow one is the Elixir with the Heal in it. Poured carefully. Please.",
+                    nudge: "The slow one. Please.",
+                    orderShort: "The slow one, please…",
+                    wrongIf: [{ has: "Zap", n: "P.E.K.K.A flinches, the helmet dipping. A small, wrong beat. Sage can pour it again." }] } },
+          { cue: "art", text: "the tankard disappears into two enormous gauntlets, held like it might break." },
+        ],
+      },
+
+      /* ---- Up close (baked away duo — group route) ---- */
+      {
+        type: "group",
+        image: "P.E.K.K.A + Ronin - Up Close (away duo)",
+        heads: { "P.E.K.K.A": { x: 264, topY: 199 }, "Ronin": { x: 621, topY: 160 } },
+        cast: [ { who: "P.E.K.K.A", expr: "Shy" }, { who: "Ronin", expr: "Guarded" } ],
+        script: [
+          { who: "P.E.K.K.A", line: "*(not to Sage — to the man beside her, without turning her helm)* They are afraid of you." },
+          { who: "Ronin", line: "Yes." },
+          { who: "P.E.K.K.A", line: "They are afraid of me also. *(a long pause; the festival roars, far away, about something else)* From far away, people decide what you are. They are very sure. They have never been close enough to check." },
+          { who: "Ronin", line: "*(and he turns to look at her — the first time all night he's turned fully toward anyone)* And up close?" },
+          { who: "P.E.K.K.A", line: "Up close, I am drinking the slow one. *(a small, careful shrug of the great pauldrons)* It has Heal in it. I like the warm ones." },
+          { n: "A blossom petal comes down through the lantern light between them, turning over and over." },
+          { who: "P.E.K.K.A", line: "*(watching it, very still, very hopeful)* …Butterfly?" },
+          { who: "Ronin", line: "*(gently, the way you'd correct a friend and not a stranger)* Blossom." },
+          { who: "P.E.K.K.A", line: "*(watching it land)* …Close." },
+        ],
+      },
+
+      /* ---- The Knight — the old-soldier welcome (order + pour) ---- */
+      {
+        type: "visit",
+        who: "Knight",
+        expr: "Warm & Content",
+        script: [
+          { cue: "art", text: "KNIGHT — Warm & Content. He arrives dusty from the festival crowds, takes his stool like it followed him here from home." },
+          { who: "Knight", line: "Evening, keeper. Evening, all. *(a nod down the counter — one soldier's nod to another, no politics in it)* The usual, when you're ready. It's been a lot of walking, this festival. My shoulder's been giving me the weather report since noon." },
+          { brew: { base: "Elixir", mix: ["Heal"], dose: 1, recipe: "The Usual",
+                    wrong: "Close, but that's not the usual, is it. One drop of Heal in the Elixir — just the one, same as ever. Steady's the whole point of it.",
+                    nudge: "The usual, when you're ready. It's been a lot of walking, this festival.",
+                    orderShort: "The usual, when you're ready…" } },
+          { cue: "art", text: "the first slow sip; the shoulders come down an inch." },
+          { who: "Sage", line: "Decent festival, at least? Beyond your shoulder's opinion of it." },
+          { who: "Knight", line: "Better than the month before it, I'll say that much. The masters finally had their word with the heroes — the balloon's little skeleton fellows have been told to land softer when they drop in on you, and the goblin heroes, the ones who arrive with the whole banner parade, were ordered to go gentler on the rest of us. *(a slow, satisfied sip)* First week in a good while where an ordinary fighter like me could take a swing and actually land it." },
+        ],
+      },
+
+      /* ---- Papers (baked away duo — group route) ---- */
+      {
+        type: "group",
+        image: "Knight + Ronin - Papers (away duo)",
+        heads: { "Knight": { x: 274, topY: 169 }, "Ronin": { x: 668, topY: 160 } },
+        cast: [ { who: "Knight", expr: "Warm & Content" }, { who: "Ronin", expr: "Listening" } ],
+        script: [
+          { who: "Knight", line: "*(to Ronin, easy, no preamble — the way old soldiers skip the introductions because the years do it for them)* Saw you at the east bouts today. You stood the whole afternoon and never once reached for those swords." },
+          { who: "Ronin", line: "There was nothing this afternoon worth drawing them for." },
+          { who: "Knight", line: "*(a short laugh into his tankard)* Ha — no, there wasn't, was there. Two lads with more banner than sense. *(a slower sip; with a question brewing underneath)* How long've you been out there, then? On the road. Not the years — the miles don't care about years. I mean how long since somebody poured for you and you didn't check where the door was first." },
+          { who: "Ronin", line: "*(he takes a long pause — he actually tries to count the time, and you watch him give up)* The accounting fails somewhere east of the mountains." },
+          { who: "Knight", line: "Aye. That's a long road. *(he raises the tankard a couple of inches — not a toast, nothing so loud; just an old man moving a drink slightly in another man's direction)* They sent me out the gate first, my whole life — the keeper's heard me say this one often enough. First one out, every bell. Nobody ever asks the first one out where his banner is — they're just glad it's you and not them. So as far as this counter goes, that'll do for papers." },
+          { n: "The stranger looks down the length of the counter — at the coins he squared, the water, the whole slow evening of nobody making it a thing." },
+        ],
+      },
+
+      /* ---- Last round (baked away group — the four-hander) ---- */
+      {
+        type: "group",
+        image: "Last Round (away group)",
+        heads: { "Knight": { x: 223, topY: 169 }, "Hog Rider": { x: 509, topY: 197 },
+                 "P.E.K.K.A": { x: 804, topY: 176 }, "Ronin": { x: 1117, topY: 161 } },
+        cast: [
+          { who: "Knight", expr: "Hearty Laugh" },
+          { who: "Hog Rider", expr: "Big Laugh" },
+          { who: "P.E.K.K.A", expr: "Happy" },
+          { who: "Ronin", expr: "Listening" },
+        ],
+        script: [
+          { who: "Hog Rider", line: "*(raising what is definitely not his first)* To the travelling counter!" },
+          { line: "The counter! — The bar! — *(and P.E.K.K.A, one beat late, deep and completely sincere)* To the warm ones." },
+          { who: "Sage", line: "Close enough." },
+        ],
+      },
+
+      /* ---- Ronin — the first pour (THE consequential brew, GDD §8) ---- */
+      {
+        type: "visit",
+        who: "Ronin",
+        expr: "Listening",
+        script: [
+          { cue: "art", text: "RONIN — Listening, still." },
+          { n: "He sets the water cup aside — deliberately, the way other things get sheathed — and lays one coin on the counter." },
+          { who: "Ronin", line: "Keeper. You have poured for everyone at this counter tonight." },
+          { who: "Sage", line: "That's the job, more or less." },
+          { who: "Ronin", line: "Then I am at the counter. *(the coin slides forward one exact inch)* Pour for me." },
+          { who: "Sage", line: "Any requests? It's a big board." },
+          { who: "Ronin", line: "Something for the road. *(a pause — and there, at last, under the hat brim, the start of a smile forming)* The road behind me. Not the one ahead." },
+          { brew: { consequence: true, field: "ronin",
+                    right: { base: "Dark Elixir", mix: ["Heal"], dose: 2 },
+                    nudge: "Something for the road. The road behind me. Not the one ahead.",
+                    orderShort: "Something for the road — the road behind, not the one ahead…",
+                    onRight: [
+                      { who: "Ronin", expr: "At Ease", line: "*(the pour settles in front of him; he studies the dark glow awhile)* …So that is what it tastes like, like a sense of arriving. *(both hands around the tankard now, the way the others hold theirs; his shoulders come down; like a man who has stopped watching the door)* Keeper. This one has no name on your board." },
+                      { who: "Sage", line: "It didn't exist before tonight. I'll have to write it in." },
+                      { who: "Ronin", line: "Then I am accounted somewhere. *(and there it is — a small, unguarded smile)* Good." },
+                      { unlock: { recipe: "The Long Road" } },
+                      { unlock: { ledger: "Ronin", note: "First Elixir in years, maybe ever. Held the tankard like the others do. Like a regular.", stage: 3 } },
+                    ],
+                    onWrong: [
+                      { who: "Ronin", expr: "At Ease", line: "*(not quite the right drink but still, he drinks it without hesitation, and sets it down with care)* Thank you, keeper. It is hard work. *(a pause; and because he never leaves a debt unpaid, not even this one)* Though if a man ever asks you for the road behind him — the miles want something dark under them, I think. And something kind on top. There is no hurry in it. *(he stands, bows — a deep one, like the one from the gate)* The water was the best I have had in many years." },
+                      { unlock: { ledger: "Ronin", note: "Asked for something for the road. I got it wrong; he drank it anyway, courteous to the last, and taught me the right one on his way out.", stage: 3 } },
+                    ] } },
+        ],
+      },
+
+      /* ---- Close of Night — packing flat ---- */
+      {
+        type: "scene",
+        script: [
+          { cue: "art", text: "the away bar, empty again. The lanterns going out one at a time along the string, the festival down to its last few voices." },
+          { cue: "sfx", text: "boards being stacked. A cart shifting its weight. One last tap-hiss, almost affectionate." },
+          { who: "Sage", line: "*(folding the counter's boards down, one by one)* Same counter. It comes apart, it rides a cart, it goes back up. Turns out that's all it has ever needed to do." },
+          { cue: "sfx", text: "footsteps on the road — several sets, heading home in several directions. One set, unhurried, you can't place the direction of at all." },
+          { who: "Sage", line: "Same time at the strip tomorrow, then." },
+          { cue: "art", text: "the last lantern goes out. The arena dark, the blossom still drifting. Fade." },
+        ],
+      },
+
+      /* ---- Ed. LII — the morning after (explicit key 6; `field:"ronin"`
+         decides which line prints; archiving key 6 completes the game) ---- */
+      { type: "epilogue", ed: 6 },
     ],
   },
 ];

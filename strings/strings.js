@@ -20,7 +20,7 @@
    The stamp is how a real player (and Tessa) confirms which build loaded — the
    06-07 P0 was a stale cached build; this makes that visible at a glance. The
    optional .hash is a git short-hash pasted in AFTER commit if wanted. */
-window.BUILD = { n: 35, date: "10-07", hash: "" };
+window.BUILD = { n: 41, date: "11-07", hash: "" };
 
 /* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
 window.buildLabel = function () {
@@ -99,6 +99,7 @@ window.STRINGS = {
        Displayed via canonTerm() so the "×N" dose suffix survives. */
     "term.Elixir": "Elixir",
     "term.Dark Elixir": "Dark Elixir",
+    "term.Water": "Water",   /* v1.6 third tap — English in every language until the localisation pass verifies official terms (the t() fallback handles the other six) */
     "term.Rage": "Rage",
     "term.Heal": "Heal",
     "term.Zap": "Zap",
@@ -133,6 +134,7 @@ window.STRINGS = {
     "nightcap.download.taint": "Saving only works from the shared link.",
     "nightcap.download.retry": "Something went wrong — give it another go.",
     "epilogue.totitle": "Back to the title",
+    "epilogue.continue": "Continue ▸",   /* round 22: the mid-arc epilogue (after Night 3) flows on to Night 4 — English-only for now, t() falls back for the other six */
     "advance": "Next ▸",
     "tome.close": "✕",
 

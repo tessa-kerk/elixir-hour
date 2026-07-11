@@ -6,11 +6,15 @@
    skeleton runs end-to-end before any content lands. */
 window.Game = (function () {
   var current = "title";
+  /* the final morning-after edition — archiving it is what marks the game
+     completed (Ed. LII, Night 4's epilogue; was Ed. L / key 4 before Edition 2) */
+  var FINAL_HERALD = 6;
   var state = {
     night: 1, beatIndex: 0,
     unlocks: { recipes: [], ledger: {}, heralds: [], songs: [] },
     tones: [],
     consequence: null,          /* the Knight's last cup: "clear" | "rattled" (GDD §8) */
+    ronin: null,                /* Ronin's first pour (Night 4): "clear" | "rattled" — Ed. LII reads it */
     poured: [],                 /* [{night, recipe}] named drinks served — the Night Cap's drinks list (GDD §11); the consequential brew is NEVER recorded here (spoiler-safety) */
     /* §R18 one-shot onboarding hints (GDD §11 fresh-player locks). `mixer` = the first-brew
        mixer nudge has been retired for good. Lives in the SAVE, not prefs: it is a property
@@ -47,9 +51,9 @@ window.Game = (function () {
   }
 
   function snapshot() {
-    return { version: 6, night: state.night, beatIndex: state.beatIndex,
+    return { version: 7, night: state.night, beatIndex: state.beatIndex,
              unlocks: state.unlocks, tones: state.tones,
-             consequence: state.consequence, poured: state.poured,
+             consequence: state.consequence, ronin: state.ronin, poured: state.poured,
              hints: state.hints,        /* v6+: one-shot onboarding hints (§R18) */
              /* within-beat resume point (P0-1): where in the current visit's
                 script the player was, so Continue lands exactly there, not at
@@ -71,19 +75,45 @@ window.Game = (function () {
     }
   }
 
-  function showEpilogue() {
-    archiveHerald(4);
-    Screens.renderEpilogue();
+  /* The morning-after Herald (GDD §9), as a screen. `b` is the epilogue BEAT
+     that summoned it (round 22) — its `ed` names the edition key; with no beat
+     (a completed save resuming at rest) the FINAL edition shows. Mid-arc the
+     button reads Continue and advances; at the end of the arc it returns to
+     the title (see epilogueContinue below). */
+  function showEpilogue(b) {
+    var key = (b && b.ed) || FINAL_HERALD;
+    archiveHerald(key);
+    Screens.renderEpilogue(key);
+    var btn = document.getElementById("btn-totitle");
+    if (btn) btn.textContent = t(epilogueHasMore() ? "epilogue.continue" : "epilogue.totitle");
     show("epilogue");
+  }
+  /* is there anything to play after the epilogue currently on screen? */
+  function epilogueHasMore() {
+    var b = beat();
+    if (!b || b.type !== "epilogue") return false;
+    var n = nightData();
+    return (n && state.beatIndex < n.beats.length - 1) || hasNight(state.night + 1);
+  }
+  /* the epilogue screen's one button (boot.js): onward mid-arc, title at rest */
+  function epilogueContinue() {
+    if (epilogueHasMore()) { advance(); return; }
+    var b = beat();
+    if (b && b.type === "epilogue") { state.beatIndex++; Save.store(snapshot()); }  /* step past the final epilogue — the save now rests completed */
+    show("title");
   }
 
   /* per-Night light shift (GDD §8): tag the stage so the scene tint reflects
-     the current Night — warm gold (1) → dusk blue (2) → late candlelight (3) */
+     the current Night — warm gold (1) → dusk blue (2) → late candlelight (3)
+     → festival lanterns (4: the away scenes carry their own grade, no tint).
+     Also mirrors the night's sceneSet for the asset-path helpers (Edition 2). */
   function applyNightTint() {
+    var nd = nightData();
+    window.SCENE_SET = (nd && nd.sceneSet) || null;
     var stage = document.getElementById("stage");
     if (!stage) return;
-    stage.classList.remove("night1", "night2", "night3");
-    var n = (state.night >= 1 && state.night <= 3) ? state.night : 1;
+    stage.classList.remove("night1", "night2", "night3", "night4");
+    var n = (state.night >= 1 && state.night <= 4) ? state.night : 1;
     stage.classList.add("night" + n);
   }
 
@@ -124,7 +154,9 @@ window.Game = (function () {
       return;
     }
     switch (b.type) {
-      case "herald":   archiveHerald(state.night); Screens.renderHerald(state.night); show("herald"); break;
+      /* a herald beat may name its edition (Night 4 opens on key 5 = Ed. LI);
+         without `ed` the night number is the key, as it always was */
+      case "herald":   var hk = b.ed || state.night; archiveHerald(hk); Screens.renderHerald(hk); show("herald"); break;
       /* show() BEFORE startBeat so the screen is laid out when the dialogue engine
          measures the bubble for pagination — a hidden screen has offsetHeight 0 and
          the line never paginates (round-4 pagination fix). Synchronous, no flash. */
@@ -132,7 +164,7 @@ window.Game = (function () {
       case "scene":    layoutShow("serve", b); break;
       case "group":    layoutShow("group", b); break;
       case "duo":      layoutShow("duo", b); break;
-      case "epilogue": showEpilogue(); break;
+      case "epilogue": showEpilogue(b); break;
       default:
         console.warn("Elixir Hour: unknown beat type, skipping", b);
         advance();
@@ -176,9 +208,70 @@ window.Game = (function () {
     state.unlocks = freshUnlocks();
     state.tones = [];
     state.consequence = null;
+    state.ronin = null;
     state.poured = [];
     state.hints = { mixer: false };     /* §R18: a fresh player gets the mixer nudge again */
     startNight(1);
+  }
+
+  /* Derive the unlock state of a player who has just FINISHED every Night before
+     `n` — walk those nights' data and collect every unlock (recipes, Ledger stages,
+     Herald editions) plus the interstitial/epilogue heralds. Data-driven, so it
+     can't drift from the scripts. Songs stay derived (src/tome.js gates them off
+     heralds/ledger/night), so an explicit songs list isn't needed. */
+  function priorUnlocks(n) {
+    var u = freshUnlocks();
+    function apply(x) {
+      if (!x) return;
+      if (x.recipe && u.recipes.indexOf(x.recipe) < 0) u.recipes.push(x.recipe);
+      if (x.ledger) {
+        var arr = u.ledger[x.ledger] || (u.ledger[x.ledger] = []);
+        arr[(x.stage || 1) - 1] = x.note || "";
+      }
+      if (x.herald && u.heralds.indexOf(x.herald) < 0) u.heralds.push(x.herald);
+      if (x.song && u.songs.indexOf(x.song) < 0) u.songs.push(x.song);
+    }
+    function walk(entries) {
+      if (!entries) return;
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        if (!e) continue;
+        if (e.unlock) apply(e.unlock);
+        if (e.options) for (var o = 0; o < e.options.length; o++) walk(e.options[o].reply);  /* choice replies */
+        if (e.brew && e.brew.onRight) walk(e.brew.onRight);                                    /* the consequential (right) path */
+      }
+    }
+    var ns = window.NIGHTS || [];
+    for (var k = 0; k < ns.length; k++) {
+      if (ns[k].night >= n) continue;
+      var beats = ns[k].beats || [];
+      for (var b = 0; b < beats.length; b++) {
+        var beat = beats[b];
+        if (beat.type === "herald") { var hk = beat.ed || ns[k].night; if (u.heralds.indexOf(hk) < 0) u.heralds.push(hk); }
+        else if (beat.type === "epilogue" && beat.ed) { if (u.heralds.indexOf(beat.ed) < 0) u.heralds.push(beat.ed); }
+        walk(beat.script);
+      }
+    }
+    return u;
+  }
+
+  /* DEV ONLY (dev-panel Night selector): start any Night as if the player had
+     finished the ones before it — the Tome icon reveals (it keys off having any
+     recipe) and the Tome/Songbook show the prior nights' content. Testing Night 4
+     no longer means replaying 1–3, and it doesn't wrongly look like a fresh save.
+     Night 4's own unlocks (Water, The Long Road, Ronin, Ed. LI/LII) stay LOCKED so
+     its mechanics — the water gate, the §8 name-hiding — test fresh. Never reachable
+     by a normal player (the panel is gated in boot.js). */
+  function startAtNight(n) {
+    if (!hasNight(n)) return;
+    Save.clear();
+    state.unlocks = n > 1 ? priorUnlocks(n) : freshUnlocks();
+    state.tones = [];
+    state.consequence = null;
+    state.ronin = null;
+    state.poured = [];
+    state.hints = { mixer: n > 1 };     /* a player who reached Night n has met the mixer */
+    startNight(n);
   }
 
   /* §R18 first-brew mixer hint. The nudge is retired the moment the player picks a real
@@ -210,6 +303,7 @@ window.Game = (function () {
     };
     state.tones = s.tones || [];
     state.consequence = (s.consequence === "clear" || s.consequence === "rattled") ? s.consequence : null;
+    state.ronin = (s.ronin === "clear" || s.ronin === "rattled") ? s.ronin : null;   /* v7+ (Edition 2) */
     state.poured = Array.isArray(s.poured) ? s.poured : [];   /* v3 and earlier had no pour log */
     /* §R18: v5 and earlier have no hints block. Infer it — a save that has already poured a
        drink has plainly found the mixer, so don't nudge a returning player mid-playthrough.
@@ -228,10 +322,13 @@ window.Game = (function () {
     resume();
   }
 
-  /* completed game = the epilogue's morning-after Herald (Night 4) is archived */
+  /* completed game = the FINAL morning-after Herald (Ed. LII, key 6) is archived.
+     Edition 2 deliberately un-completes old finished saves: a 3-night finisher has
+     key 4 but not 6, so their title button reads Continue and leads into Night 4 —
+     the "your save carries on" live-ops moment (flagged in PLAN.md). */
   function isCompleted() {
     var s = Save.exists() ? Save.load() : null;
-    return !!(s && s.unlocks && s.unlocks.heralds && s.unlocks.heralds.indexOf(4) >= 0);
+    return !!(s && s.unlocks && s.unlocks.heralds && s.unlocks.heralds.indexOf(FINAL_HERALD) >= 0);
   }
   /* §11 (round 10): from a finished-game title, open the finished Tome directly —
      hydrate the unlocks so it shows the completed keepsake, then open the overlay
@@ -251,9 +348,9 @@ window.Game = (function () {
 
   return {
     show: show, advance: advance, playBeat: playBeat,
-    startNight: startNight, newGame: newGame, continueGame: continueGame,
+    startNight: startNight, startAtNight: startAtNight, newGame: newGame, continueGame: continueGame,
     isCompleted: isCompleted, openTomeFromTitle: openTomeFromTitle,
-    heraldContinue: heraldContinue, saveQuit: saveQuit,
+    heraldContinue: heraldContinue, epilogueContinue: epilogueContinue, saveQuit: saveQuit,
     openTome: openTome, closeTome: closeTome, hasNight: hasNight,
     recordTone: recordTone,
     mixerHintDone: mixerHintDone, completeMixerHint: completeMixerHint,

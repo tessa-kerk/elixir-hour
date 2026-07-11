@@ -1,0 +1,41 @@
+/* ===========================================================================
+   OVERLAY SCROLLBAR THUMB (shared: landing + case study)
+
+   Why not style the real bar: on Windows the native page scrollbar is
+   space-taking — it reserves a gutter, and the root/body background paints
+   THROUGH that gutter. So a "transparent track" never means "invisible", it
+   means "show the page's navy", which reads as a permanent dark strip beside
+   every full-bleed image. (Measured: the gutter column was a single uniform
+   colour, no thumb, idle AND while scrolling.) A div, however, can be invisible.
+
+   So: hide the native bar and draw our own thumb as a page element. Scrolling
+   itself stays 100% native — wheel, keyboard, space, touch, no scroll-jacking.
+   The thumb is an INDICATOR, not a scroll implementation.
+
+   `html.sb-overlay` is added by js/scrollbar.js, and only on a fine-pointer
+   device that can hover. Touch keeps its native overlay bar; if the JS never
+   runs, the native bar is never hidden.
+   =========================================================================== */
+html.sb-overlay{scrollbar-width:none;}              /* Firefox */
+html.sb-overlay::-webkit-scrollbar{display:none;}   /* Chrome / Safari */
+
+.sb-thumb{
+  position:fixed; right:4px; top:0; width:8px; border-radius:4px;
+  /* the R15 indigo: a lighter shade of the page's own night, no new hue */
+  background:color-mix(in srgb, #1C1B3A, #ffffff 34%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.10);
+  /* invisible AND click-through when idle: the thumb is the only hit target,
+     and only once it is actually showing. There is no track element at all. */
+  opacity:0; pointer-events:none;
+  z-index:9999;
+  transition:opacity .28s ease, background-color .18s ease;
+}
+.sb-thumb.on{opacity:.62; pointer-events:auto;}
+.sb-thumb.on:hover,
+.sb-thumb.drag{opacity:.92; background:color-mix(in srgb, #1C1B3A, #ffffff 52%);}
+
+/* phones/tablets: no mouse, and their native bars already overlay — stand down */
+@media (hover:none){ .sb-thumb{display:none;} }
+/* reduced motion: plain show/hide, no fade */
+@media (prefers-reduced-motion:reduce){ .sb-thumb{transition:none;} }
+@media print{ .sb-thumb{display:none;} }
