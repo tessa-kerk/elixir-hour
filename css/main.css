@@ -9,14 +9,32 @@
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%;}
-body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
+/* -webkit-text-size-adjust:100% disables iOS Safari's automatic text INFLATION — without it
+   Safari boosts text it deems too small, so the Small text-size step (0.9×, ~7px once the
+   720 stage is scaled to a phone) was being blown up bigger than Default (Tessa 12-07). Keeps
+   every text-size step faithful to what --text-scale sets. */
+body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;}
 
 /* The stage: everything is laid out in a fixed 1280×720 design space
    (the mockup's reference resolution) and the whole stage scales to fit
    the window — see src/stage.js. */
 #viewport{position:fixed; inset:0;}
 #stage{position:absolute; left:0; top:0; width:1280px; height:720px; overflow:hidden;
-  background:var(--night); transform-origin:0 0; user-select:none;}
+  background:var(--night); transform-origin:0 0; user-select:none;
+  /* --text-scale (WS1, mobile-polish): a single multiplier the player-facing type ramp
+     derives from — every reading surface's font-size is calc(px * var(--text-scale)).
+     Default 1 → calc(px*1) === px, so desktop at Default is pixel-identical to before.
+     Set live from Settings (Small/Default/Large/Extra Large) and at boot from Prefs.
+     Chrome (build stamp, dev bar, mixing-panel labels, buttons) is deliberately NOT
+     routed through it, so tightly-tuned fixed geometry never resizes.
+     --paper-cap caps the two FIXED paper props (Herald interstitial + epilogue) that
+     can't paginate: their article area has ~0 headroom at the signed-off size, so even
+     +5% reflows a line off the parchment (verified, cap_find). The paper text follows
+     the ramp only up to this cap (default 1 = holds its signed-off size, never clips;
+     Small still shrinks it via the min()). WS2's taller portrait paper prop can raise
+     this so the Herald scales up too. */
+  --text-scale:1; --paper-cap:1;}
 .screen{position:absolute; inset:0; display:none;}
 /* §11 scene transitions (round 8/9): a layout change fades the new screen in
    (never a hard pop); within a layout, expression/character swaps cross-fade via
@@ -77,9 +95,9 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
    dim wood backdrop (lantern pool at top) → the 3D brown-paper render → the article
    over its blank lower area. The dark gradient is retired; the paper stays brightest. */
 #herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=41") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=47") center/cover no-repeat;}
 #broadsheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=47") center/100% 100% no-repeat;
   /* padding % is relative to the PARENT width (the stage). Top ≈ the paper's
      embossed-masthead depth; the sides set the body-text column. WIDENED 11-07
      (round 22b, Tessa): Edition 2's longer editions ran to 6 lines and crammed the
@@ -96,14 +114,14 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
   padding:15% 9.5% 2.5% 10.5%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg); cursor:pointer;}
 #herald-masthead{display:none;}   /* the paper art carries the embossed masthead */
-#herald-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;
+#herald-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:calc(15px * min(var(--text-scale), var(--paper-cap)));
   color:#5a4632; margin-top:0;}
-#herald-head{font-family:'Baloo 2',cursive; font-size:20px; margin:7px 0 7px; text-align:center; color:#3a2a1c;}
-#herald-story{font-size:14.5px; line-height:1.48; font-weight:600; color:#4a3826;}
+#herald-head{font-family:'Baloo 2',cursive; font-size:calc(20px * min(var(--text-scale), var(--paper-cap))); margin:7px 0 7px; text-align:center; color:#3a2a1c;}
+#herald-story{font-size:calc(14.5px * min(var(--text-scale), var(--paper-cap))); line-height:1.48; font-weight:600; color:#4a3826;}
 /* "tap to continue" — darkened + bolder (round 22b): the old #7a3fa0 sat too faint
    on the lower parchment. Now a deeper wine-purple with weight, so it reads as the
    call-to-action it is without fighting the printed article above it. */
-.cont{margin-top:14px; text-align:center; font-family:'Baloo 2',cursive; color:#5e2578; font-weight:700; font-size:14.5px;}
+.cont{margin-top:14px; text-align:center; font-family:'Baloo 2',cursive; color:#5e2578; font-weight:700; font-size:calc(14.5px * min(var(--text-scale), var(--paper-cap)));}
 
 /* ---------- SERVE SCREEN — pre-baked hand-grounded scenes (GDD §12, round 9) ----
    The whole screen is one image: character grounded on the counter, brew wall,
@@ -146,12 +164,12 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;}
 #serve-choices{position:absolute; left:2%; bottom:4%; width:36%; z-index:7; display:none;
   flex-direction:column; gap:8px; justify-content:flex-end;}
 #serve-choices.on{display:flex;}
-.choice-prompt{font-family:'Baloo 2',cursive; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+.choice-prompt{font-family:'Baloo 2',cursive; font-size:calc(12.5px * var(--text-scale)); letter-spacing:.06em; text-transform:uppercase;
   color:var(--cream); text-shadow:0 2px 4px rgba(0,0,0,.6); padding-left:4px;}
 /* §11 (round 10): Sage is asking, so her prompts wear her colour — sage fill like
    her bubbles, dark-sage outline, a slight lift on hover (they read cream before,
    as if someone else were asking). */
-.choice-btn{font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px; text-align:left;
+.choice-btn{font-family:'Nunito',sans-serif; font-weight:600; font-size:calc(13.5px * var(--text-scale)); text-align:left;
   background:linear-gradient(180deg,var(--sage-pale),var(--sage)); color:var(--charcoal);
   border:2.5px solid var(--sage-deep); border-radius:12px;
   padding:8px 12px; cursor:pointer; box-shadow:0 3px 0 var(--sage-deep);
@@ -175,8 +193,8 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:36.8%; width:78%;}
    with no dark seam where the triangle meets the body (Fix 9). */
 .bubble:after{content:""; position:absolute; bottom:-9px; left:46%; border:8px solid transparent;
   border-top-color:var(--cream); border-width:11px 9px 0;}
-.bubble .speaker{font-family:'Baloo 2',cursive; font-size:12px; letter-spacing:.06em; color:var(--sage-deep); text-transform:uppercase;}
-.bubble .line{font-size:13.5px; line-height:1.35; color:var(--charcoal); font-weight:600; margin-top:3px;}
+.bubble .speaker{font-family:'Baloo 2',cursive; font-size:calc(12px * var(--text-scale)); letter-spacing:.06em; color:var(--sage-deep); text-transform:uppercase;}
+.bubble .line{font-size:calc(13.5px * var(--text-scale)); line-height:1.35; color:var(--charcoal); font-weight:600; margin-top:3px;}
 
 /* ---------- MIXING PANEL (Mixing UI Panel Spec, ported from the mockup) ---------- */
 #panel-frame{font-size:13px; position:absolute; right:1.2%; bottom:1.6%; left:40.6%; height:41%; z-index:6;
@@ -199,7 +217,7 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:36.8%; width:78%;}
 #panel-frame.brew-open #order-strip.order-empty{display:none;}   /* empty text (between beats / cleared on pour) → no blank bar */
 #order-strip.has-more{cursor:pointer;}                            /* a trimmed line is tappable for the full request */
 #order-text{flex:1; min-width:0; color:#f2e7cf; font-family:'Nunito',sans-serif; font-weight:600;
-  font-size:12px; font-style:italic; line-height:1.28; overflow:hidden; pointer-events:none;
+  font-size:calc(12px * var(--text-scale)); font-style:italic; line-height:1.28; overflow:hidden; pointer-events:none;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
 /* §7 tap-for-full popover: grows UPWARD out of the panel over the scene, so it
    never reflows the mixing panel (a reflow would re-open the Pour-overflow P0).
@@ -207,7 +225,7 @@ body.portrait #serve-choices{left:4%; top:auto; bottom:36.8%; width:78%;}
 #order-full{display:none; position:absolute; left:0; right:0; bottom:calc(100% + 8px);
   max-height:44vh; overflow-y:auto; z-index:12; cursor:pointer;
   background:linear-gradient(180deg,#241a12,#1b130c); border:2px solid #3a2a1c; border-radius:12px;
-  padding:12px 14px; color:#f2e7cf; font-family:'Nunito',sans-serif; font-weight:600; font-size:13px;
+  padding:12px 14px; color:#f2e7cf; font-family:'Nunito',sans-serif; font-weight:600; font-size:calc(13px * var(--text-scale));
   font-style:italic; line-height:1.42; box-shadow:0 -8px 26px rgba(0,0,0,.55);}
 #panel-frame.order-open #order-full{display:block;}
 #panel-info{flex:0 0 auto; width:24px; height:24px; border-radius:50%;
@@ -369,7 +387,32 @@ body.portrait #title-logo{width:78%; top:13%;}
    landscape's 54%-of-1280) and give it the SAME padding in px, expressed as % of 720.
    Now portrait frames byte-identically to landscape: label at 42.8% (clear of the
    flourish), 5-line longest edition, 0 overflow. */
-body.portrait #broadsheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}
+/* WS2 (mobile polish, 12-07): the PORTRAIT Herald gets its OWN portrait-proportioned paper
+   prop — a generated parchment with the REAL "The Arena Herald" masthead composited on
+   (never model-drawn type). It fills the tall screen instead of floating as a wide landscape
+   band. The taller article area has real headroom, so `--paper-cap` is raised in portrait
+   (below) and the Herald/epilogue text now scales with the size slider too. Desktop keeps the
+   landscape paper untouched. Padding %s are of the 720 parent width; the article sits below
+   the baked masthead (paper aspect 912/1396). Tuned by looking on a 720×1280 portrait rig. */
+body.portrait #broadsheet{width:94%; max-width:none; aspect-ratio:912/1396;
+  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=47");
+  padding:40.5% 15% 8% 15%;}
+/* the epilogue also shows a closer + two buttons BELOW the sheet, so its paper is a touch
+   smaller to leave them on-screen; it carries more copy but starts higher and its type is
+   already smaller, so the article still fits with room at Extra Large. */
+body.portrait #epi-sheet{width:80%; max-width:none; aspect-ratio:912/1396;
+  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=47");
+  padding:34% 12% 6% 12%;}
+/* portrait has real article headroom now, so the Herald/epilogue text may scale to the full
+   ramp (landscape stays capped at 1 — its landscape paper has none). Set ON #stage so it wins
+   over the #stage local default. */
+body.portrait #stage{--paper-cap:1.4;}
+/* the tall portrait paper leaves blank lower page under a short edition; pin "tap to
+   continue" into the lower third so the layout brackets (masthead+article up top, CTA
+   down low) instead of the CTA clinging to the story with a void beneath. #broadsheet's
+   rotate already makes it a positioning context; be explicit. */
+body.portrait #broadsheet{position:relative;}
+body.portrait #broadsheet .cont{position:absolute; left:8%; right:8%; bottom:11%; margin:0;}
 body.portrait .panel{width:88%;}
 /* portrait: group counter becomes a band mid-frame (the row shrinks to fit
    five across); duo stacks its split top/bottom; epilogue sheet widens */
@@ -390,7 +433,7 @@ body.portrait #duo-box{width:88%; top:38%; bottom:auto;}
    screen — with the band shrunk to 36% they would otherwise wash over the letterbox and
    the name-box. (Caught by the R17 review.) */
 body.portrait #duo-split{top:4%; bottom:auto; height:36%;}
-body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 22e: matches #broadsheet — same pixel box as landscape so the masthead is cleared (was fixed-px, overlapped) */
+/* (portrait #epi-sheet is defined in the WS2 block above — it uses the new portrait paper) */
 
 /* ---------- PLACEHOLDER PANELS (night-end only now) ---------- */
 .placeholder{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
@@ -404,7 +447,7 @@ body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 
 #screen-nightend .placeholder{
   background:
     radial-gradient(ellipse 56% 44% at 50% 52%, rgba(14,10,20,.76), rgba(14,10,20,.30) 66%, transparent 82%),
-    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=41") center/cover no-repeat;}
+    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=47") center/cover no-repeat;}
 
 /* ---------- GROUP — Layout 3 (GDD §11): the whole room, no mixing UI ----------
    Late-night dressing of the same master-scene placeholder: darker wall,
@@ -453,8 +496,8 @@ body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 
   background:var(--cream); border-radius:14px; padding:10px 20px 13px; display:none;
   box-shadow:0 10px 26px rgba(0,0,0,.5);}
 #duo-box.on{display:block;}
-#duo-box .speaker{font-family:'Baloo 2',cursive; font-size:13px; letter-spacing:.06em; text-transform:uppercase;}
-#duo-box .line{font-size:15px; line-height:1.4; color:var(--charcoal); font-weight:600; margin-top:3px;}
+#duo-box .speaker{font-family:'Baloo 2',cursive; font-size:calc(13px * var(--text-scale)); letter-spacing:.06em; text-transform:uppercase;}
+#duo-box .line{font-size:calc(15px * var(--text-scale)); line-height:1.4; color:var(--charcoal); font-weight:600; margin-top:3px;}
 #duo-box .line em{color:var(--ink-soft); font-style:italic; font-weight:600;}
 
 /* ---------- EPILOGUE — the morning-after Herald (GDD §9) ---------- */
@@ -462,7 +505,7 @@ body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 
    counter-wood backdrop as every other Herald interstitial (was a dark radial). */
 #epi-wrap{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:16px;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=41") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=47") center/cover no-repeat;}
 /* §R15: the epilogue Ed. L prints on the SAME generated 3D paper prop as every other
    full-screen Herald (was a plain CSS card, breaking the 3D look on the wrong-pour path
    Tessa hit) — same framing as #broadsheet: paper fills the sheet, the embossed masthead
@@ -471,17 +514,17 @@ body.portrait #epi-sheet{width:96%; padding:26.7% 16.9% 4.4% 18.6%;}   /* round 
    Padding matched to #broadsheet (round 22c-fix: 15% top clears the masthead flourish;
    the fullest epilogue, Ed. L, still fits with no overflow). */
 #epi-sheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=47") center/100% 100% no-repeat;
   padding:15% 9.5% 2.5% 10.5%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg);}
 #epi-masthead{display:none;}   /* the paper art carries the embossed masthead */
-#epi-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13.5px;
+#epi-ed{text-align:center; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:calc(13.5px * min(var(--text-scale), var(--paper-cap)));
   color:#5a4632; margin-top:0;}
-#epi-head{font-family:'Baloo 2',cursive; font-size:17px; margin:5px 0 4px; text-align:center; color:#3a2a1c;}
-#epi-story,#epi-conseq,#epi-story2{font-size:12.6px; line-height:1.4; font-weight:600; color:#4a3826; margin-top:6px;}
+#epi-head{font-family:'Baloo 2',cursive; font-size:calc(17px * min(var(--text-scale), var(--paper-cap))); margin:5px 0 4px; text-align:center; color:#3a2a1c;}
+#epi-story,#epi-conseq,#epi-story2{font-size:calc(12.6px * min(var(--text-scale), var(--paper-cap))); line-height:1.4; font-weight:600; color:#4a3826; margin-top:6px;}
 #epi-conseq{font-style:italic; color:#7a5330;
   border-left:3px solid var(--gold); padding-left:10px;}   /* the ripple — one line, one brew */
-#epi-final{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:21px; color:var(--cream);
+#epi-final{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(21px * min(var(--text-scale), var(--paper-cap))); color:var(--cream);
   letter-spacing:.02em; text-align:center; text-shadow:0 2px 10px rgba(0,0,0,.6);}
 
 /* ---------- TOME OVERLAY (mockup geometry; §11 marginalia rule) ---------- */
@@ -551,22 +594,22 @@ body.portrait #spreadvp{top:5%; bottom:5%;}
    P.E.K.K.A lost 58% of hers.) */
 #spreadflow .spread-head{padding:30px 0 14px; gap:12px;}
 #spreadflow .spread-head .bigclip{flex:0 0 auto;}
-#spreadflow .nameplate{font-size:25px;}
+#spreadflow .nameplate{font-size:calc(25px * var(--text-scale));}
 body.portrait #spreadflow .spread-head{flex-direction:column; align-items:flex-start; gap:8px;}
 /* §R16 supersedes §R14's 74px side padding. The notes no longer live INSIDE the text column —
    they sit in their own lane outboard of it (outer lanes in the flow's margins, inner lanes in
    the gutter), so the printed body text now uses the whole column. See laneMetrics() in
    src/tome.js: lane = NOTEW + STROKE + CLEAR + EDGE, which is what guarantees the ≥12px clearance. */
-#spreadflow .ledger-bio{padding:0 2px 12px; font-size:15.5px; line-height:1.5; width:auto; margin:0;}
+#spreadflow .ledger-bio{padding:0 2px 12px; font-size:calc(15.5px * var(--text-scale)); line-height:1.5; width:auto; margin:0;}
 #spreadflow .hand-note.pinned{margin:6px 2px 16px; break-inside:avoid; -webkit-column-break-inside:avoid;}
 #spreadnotes{position:absolute; left:0; top:0; height:100%; pointer-events:none;}
-#spreadnotes .margin-note{position:absolute; font-size:14.5px; line-height:1.08; margin:0;}
+#spreadnotes .margin-note{position:absolute; font-size:calc(14.5px * var(--text-scale)); line-height:1.08; margin:0;}
 #spreadnotes .note-arrows{position:absolute; left:0; top:0; overflow:visible;}
-body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
+body.portrait #spread{left:4%; top:13.5%; width:92%; height:83.5%;}
 
 .spread-head{display:flex; align-items:center; gap:18px; padding-top:34px; margin-bottom:14px;
   break-inside:avoid; -webkit-column-break-inside:avoid;}
-.nameplate{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:29px; color:var(--ink); line-height:1.05;}
+.nameplate{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(29px * var(--text-scale)); color:var(--ink); line-height:1.05;}
 
 /* All page furniture lives in one overlay spanning the paper box (same rect
    as #spread) — grid AND spread share it, and it's cleared on every render so
@@ -574,7 +617,7 @@ body.portrait #spread{left:4%; top:11%; width:92%; height:86%;}
    the close button (z-35). */
 #tomenav{position:absolute; left:18.5%; top:15%; width:62.5%; height:68%; z-index:34; pointer-events:none;}
 #tomenav > *{pointer-events:auto;}
-body.portrait #tomenav{left:4%; top:11%; width:92%; height:86%;}
+body.portrait #tomenav{left:4%; top:13.5%; width:92%; height:83.5%;}
 
 /* Page-TURN arrows (GDD §11): the ornate fletched icon, RESERVED for turning
    to a prev/next sheet — on the character spread AND the paginated grid. They
@@ -717,13 +760,13 @@ body.portrait #pageflip .backdrop,body.portrait #pageflip .face{background-image
 body.portrait #pageflip .leaf{top:4%; height:92%;}
 body.portrait #pageflip.fwd .leaf{left:50%; width:46%;}
 body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
-.tometitle{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; letter-spacing:.01em;
+.tometitle{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(28px * var(--text-scale)); letter-spacing:.01em;
   border-bottom:2.5px solid rgba(122,103,72,.45); padding-bottom:5px; margin-bottom:10px;}
 .tometitle.centre{text-align:center;}
 /* printed epigraphs are BODY text (§11) — only Sage's hand is Caveat */
-.tome-epigraph{font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:15px;
+.tome-epigraph{font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:calc(15px * var(--text-scale));
   color:#6b5a44; margin-bottom:12px; line-height:1.3;}
-.hand-note{font-family:'Caveat',cursive; font-size:19px; font-weight:700; color:var(--sage-deep); line-height:1.15; margin:8px 0;}
+.hand-note{font-family:'Caveat',cursive; font-size:calc(19px * var(--text-scale)); font-weight:700; color:var(--sage-deep); line-height:1.15; margin:8px 0;}
 /* tilts are rotation ONLY — placement belongs to the marginalia engine */
 .hand-note.tilt0{transform:rotate(-2.4deg);} .hand-note.tilt1{transform:rotate(1.8deg);}
 .hand-note.tilt2{transform:rotate(-1.2deg);}
@@ -732,8 +775,8 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
 .entry{padding:7px 9px; border-radius:9px; cursor:pointer; margin-bottom:4px;}
 .entry:hover{background:rgba(122,103,72,.12);}
 .entry.sel{background:rgba(122,103,72,.18);}
-.entry b{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18.5px; display:block;}
-.entry span{font-family:'Cormorant Garamond',serif; font-size:14px; font-weight:600; color:var(--ink-soft);}
+.entry b{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(18.5px * var(--text-scale)); display:block;}
+.entry span{font-family:'Cormorant Garamond',serif; font-size:calc(14px * var(--text-scale)); font-weight:600; color:var(--ink-soft);}
 .entry.locked{opacity:.5; cursor:default;}
 .entry.locked:hover{background:none;}
 /* UNIFORM card height (GDD §15): cards clip to their measured content box —
@@ -752,31 +795,31 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
 .cardthumb.locked{cursor:default;}
 .cardthumb.locked:after{content:"?"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   font-family:'Baloo 2',cursive; font-size:30px; color:rgba(244,236,221,.85);}
-.cardthumb small{display:block; text-align:center; font-family:'Baloo 2',cursive; font-size:10.5px; color:var(--ink-soft); margin-top:2px;}
+.cardthumb small{display:block; text-align:center; font-family:'Baloo 2',cursive; font-size:calc(10.5px * var(--text-scale)); color:var(--ink-soft); margin-top:2px;}
 .bigclip{position:relative; overflow:hidden; border-radius:6px; margin:2% auto 10px;
   filter:drop-shadow(0 12px 16px rgba(30,20,10,.20));}
 .bigclip img{position:absolute; width:auto; display:block;}
 /* the annotated page (GDD §11): printed bio in a narrower centre column,
    Sage's notes placed in the clear margins beside their marks */
 .ledger-annot{position:relative; margin-bottom:18px;}
-.ledger-annot .ledger-bio{width:60%; margin:0 auto; font-size:16px; line-height:1.52;}
+.ledger-annot .ledger-bio{width:60%; margin:0 auto; font-size:calc(16px * var(--text-scale)); line-height:1.52;}
 .note-arrows{position:absolute; inset:0; pointer-events:none; overflow:visible;}
 .note-arrows path{stroke:var(--sage-deep); stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round; opacity:.6;}
-.margin-note{position:absolute; margin:0; font-size:14.5px; line-height:1.08;}
-.margin-note.foot{font-size:16px;}
-.ledger-bio{font-family:'Cormorant Garamond',serif; font-size:15.5px; font-weight:600; line-height:1.42; margin-bottom:4px;}
+.margin-note{position:absolute; margin:0; font-size:calc(14.5px * var(--text-scale)); line-height:1.08;}
+.margin-note.foot{font-size:calc(16px * var(--text-scale));}
+.ledger-bio{font-family:'Cormorant Garamond',serif; font-size:calc(15.5px * var(--text-scale)); font-weight:600; line-height:1.42; margin-bottom:4px;}
 .marked{border-bottom:2.5px solid rgba(107,127,92,.85); background:rgba(156,175,136,.18); border-radius:2px; padding:0 1px;}
-.rp-caption{text-align:center; font-family:'Cormorant Garamond',serif; font-size:15px; font-weight:600;
+.rp-caption{text-align:center; font-family:'Cormorant Garamond',serif; font-size:calc(15px * var(--text-scale)); font-weight:600;
   color:var(--ink-soft); font-style:italic; line-height:1.35; margin-top:10px;}
 .rp-caption.strong{font-style:normal; font-weight:700; margin-top:4px;}
 .tome-tankard{display:block; height:96px; margin:14px auto 4px; transform:translateX(-12%);}
 .ingdots{display:flex; gap:8px; justify-content:center; margin:10px 0 0;}
 .ingdots i{width:20px; height:20px; border-radius:50%; display:block; box-shadow:inset 0 -3px 5px rgba(0,0,0,.25);}
-.masthead{font-family:'Pirata One',cursive; font-weight:400; font-size:33px; line-height:1.1; text-align:center;
+.masthead{font-family:'Pirata One',cursive; font-weight:400; font-size:calc(33px * var(--text-scale)); line-height:1.1; text-align:center;
   letter-spacing:.04em; border-bottom:3px double rgba(122,103,72,.55); padding-bottom:6px;}
-.headline{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:20px; margin:10px 0 6px; line-height:1.2;}
-.story{font-family:'Cormorant Garamond',serif; font-size:15.5px; font-weight:600; line-height:1.4;}
-.ripple{margin-top:12px; font-size:12px; font-weight:700; color:var(--elixir); font-style:italic;}
+.headline{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(20px * var(--text-scale)); margin:10px 0 6px; line-height:1.2;}
+.story{font-family:'Cormorant Garamond',serif; font-size:calc(15.5px * var(--text-scale)); font-weight:600; line-height:1.4;}
+.ripple{margin-top:12px; font-size:calc(12px * var(--text-scale)); font-weight:700; color:var(--elixir); font-style:italic;}
 /* §11 (round 10): the Arena Herald prints on the 3D brown-paper masthead render.
    The paper's embossed masthead + crown flourish own the top ~40%; the article
    drops into the blank parchment below. Text goes warm dark-brown to sit on it. */
@@ -784,10 +827,10 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
    Herald page widens for this tab; the article drops into the blank lower ~55%. */
 #pageR.herald-paper{
   left:49%; width:48%; top:13%; height:62%; padding:0;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=41") center top / contain no-repeat;}
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=47") center top / contain no-repeat;}
 #pageR.herald-paper .rp-caption{text-align:center; margin-top:42%; color:#5a4632;}
 #pageR.herald-paper .headline{color:#3a2a1c; text-align:center; padding:0 14%;}
-#pageR.herald-paper .story{color:#4a3826; padding:0 14%; font-size:13.5px;}
+#pageR.herald-paper .story{color:#4a3826; padding:0 14%; font-size:calc(13.5px * var(--text-scale));}
 #pageR.herald-paper .ripple{color:#7a3fa0; padding:0 14%;}
 #phonowrap{position:relative; width:58%; margin:6% auto 0;}
 #phonoglow{position:absolute; inset:-14%; border-radius:50%;
@@ -795,17 +838,44 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
   filter:blur(10px); animation:phonopulse 2.6s ease-in-out infinite;}
 @keyframes phonopulse{0%,100%{opacity:.45; transform:scale(.96);} 50%{opacity:1; transform:scale(1.05);}}
 #phonowrap img{position:relative; width:100%;}
-.plaque{margin-top:8px; text-align:center; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:16.5px; color:var(--ink);}
+.plaque{margin-top:8px; text-align:center; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:calc(16.5px * var(--text-scale)); color:var(--ink);}
 
-/* portrait: the 16:9 spread art doesn't fit — fall back to a cream book panel */
+/* portrait: the 16:9 spread art doesn't fit — the book fills the screen as real aged
+   PARCHMENT instead of a flat cream gradient (WS2, 12-07: same paper language as the Herald
+   prop, so the Tome + Herald read as one system). A soft inner vignette gives page depth. */
 body.portrait #tomeimg{display:none;}
-body.portrait #tome{background:linear-gradient(175deg,#f7efdc,var(--cream));}
-body.portrait .tab{left:auto; width:15%; height:7%; top:1.5% !important; background:rgba(122,103,72,.16); border-radius:10px;}
-body.portrait .tab svg{stroke:#4a3a28;}
+body.portrait #tome{
+  background:#2a1d12 url("../assets/ui/Tome Paper (portrait).webp?v=47") center/cover no-repeat;
+  box-shadow:inset 0 0 90px 20px rgba(70,45,22,.30);}
+/* the four tabs read as aged-leather ribbon tabs (embossed brown + gilt edge), not flat grey
+   chips — crafted, and legible against the parchment. Dropped to 4.5% top so they sit clear
+   of the torn paper edge with breathing room above (Tessa 12-07); content follows below. */
+/* SQUARE tabs, all equal (Tessa 12-07): each tab was inheriting its DESKTOP ribbon height
+   (#tab-brew 8.4% / #tab-ledger 8.9% / #tab-herald 8.9% / #tab-song 9% — id selectors that
+   outrank a plain class), so the boxes were unequal (the brew box shortest). Force them all
+   to a square: width 15% of 720 = 108px, so height 8.4% of 1280 ≈ 108px. `!important` beats
+   the desktop id heights (same reason `top` needs it). */
+body.portrait .tab{left:auto; width:15%; height:8.4% !important; top:4.5% !important;
+  background:linear-gradient(180deg,#6e4b2a,#4a3120); border:1.5px solid #7a5a34;
+  border-radius:9px; box-shadow:0 2px 5px rgba(30,18,8,.4), inset 0 1px 0 rgba(255,225,170,.18);}
+body.portrait .tab svg{stroke:#f0dcae;}
+/* equalise OPTICAL icon size: the four glyphs fill their 24×24 viewBox very differently
+   (ledger 50% tall, song 75%), so a single px size reads uneven. Normalised so each icon's
+   larger dimension lands at ~18 viewBox units (measured getBBox). */
+body.portrait #tab-brew svg{width:27px; height:27px;}
+body.portrait #tab-ledger svg{width:29px; height:29px;}
+body.portrait #tab-herald svg{width:24px; height:24px;}
+body.portrait #tab-song svg{width:24px; height:24px;}
+body.portrait .tab.on{background:linear-gradient(180deg,#8a5f34,#5a3c24); border-color:var(--gold);}
+body.portrait .tab.on svg{stroke:#fff;}
 body.portrait #tab-brew{left:4%;} body.portrait #tab-ledger{left:23%;}
 body.portrait #tab-herald{left:42%;} body.portrait #tab-song{left:61%;}
-body.portrait #pageL{left:5%; top:11%; width:90%; height:38%;}
-body.portrait #pageR{left:5%; top:52%; width:90%; height:45%;}
+/* The list (pageL) FITS its content (Tessa 12-07: a short list — e.g. one Herald edition
+   early game — left a big blank gap before the detail below). It shrinks to the list and
+   only scrolls if a long list exceeds the cap; the detail (pageR) is then dropped directly
+   beneath it by positionPortraitDetail() in tome.js. */
+body.portrait #pageL{left:5%; top:13.5%; width:90%; height:auto; max-height:56%;}
+body.portrait #pageR{left:5%; top:51%; width:90%; height:auto; max-height:84%;}
 body.portrait #pageflip{left:0; top:0; width:100%; height:100%;}
 
 /* ---------- SETTINGS & ABOUT OVERLAYS (GDD §11: cream panel, gold trim) ---------- */
@@ -822,6 +892,26 @@ body.portrait #pageflip{left:0; top:0; width:100%; height:100%;}
 #lang-select{font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; padding:6px 10px;
   border-radius:10px; border:2.5px solid #d8cbb2; background:#fdf6e8; color:var(--charcoal); cursor:pointer;}
 #set-disclaimer{font-size:12.5px; color:var(--ink-soft); margin:-4px 0 10px; line-height:1.45;}
+/* WS1 mobile-polish: iOS-style text-size control. The row + preview are settings CHROME
+   (fixed px), EXCEPT .ts-preview, whose size derives from --text-scale so it previews the
+   choice live as you drag. Four notch pips sit under the track at the step thumb-centres. */
+.tsrow{gap:10px;}
+.tsrow label{flex:0 0 auto; min-width:104px;}
+.ts-a{flex:0 0 auto; font-family:'Baloo 2',cursive; color:var(--charcoal); opacity:.65; line-height:1;}
+.ts-a-sm{font-size:12px;} .ts-a-lg{font-size:21px;}
+.ts-track{flex:1; position:relative; display:flex; align-items:center; height:26px;}
+.ts-slider{width:100%; margin:0; accent-color:var(--glow); cursor:pointer; position:relative; z-index:2;}
+.ts-pips{position:absolute; left:0; right:0; top:50%; height:10px; margin-top:-5px; z-index:1; --th:14px; pointer-events:none;}
+.ts-pips span{position:absolute; top:0; width:2px; height:10px; border-radius:1px; background:rgba(122,103,72,.4); transform:translateX(-50%);}
+.ts-pips span:nth-child(1){left:calc(var(--th)/2);}
+.ts-pips span:nth-child(2){left:calc(var(--th)/2 + (100% - var(--th))*0.3333);}
+.ts-pips span:nth-child(3){left:calc(var(--th)/2 + (100% - var(--th))*0.6667);}
+.ts-pips span:nth-child(4){left:calc(100% - var(--th)/2);}
+.ts-step{flex:0 0 auto; min-width:82px; text-align:right; font-family:'Baloo 2',cursive;
+  font-size:13px; color:var(--charcoal); opacity:.85; letter-spacing:.02em;}
+.ts-preview{margin:2px 0 12px; padding:9px 14px; border-radius:12px; border:2px solid #e4d8bd;
+  background:#fdf6e8; color:var(--charcoal); font-family:'Nunito',sans-serif; font-weight:700;
+  line-height:1.35; font-size:calc(15px * var(--text-scale));}
 .toggle{min-width:110px;}
 /* Round 12 (§11): sound is two live volume sliders + a speaker mute each — dose-slider accent */
 .volrow{gap:11px;}

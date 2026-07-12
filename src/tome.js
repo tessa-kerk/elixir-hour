@@ -65,10 +65,39 @@ window.Tome = (function () {
       el("tab-" + tabs[i]).classList.toggle("on", tabs[i] === tab);
     }
     el("pageR").classList.remove("herald-paper");   /* R12: the Tome Herald tab is text-only — the 3D paper is reserved for the full-screen interstitial (too large for the book page, and text-only scales to any article length) */
+    el("pageR").style.top = "";                      /* clear any portrait inline top (rotate / tab change) */
     if (tab === "brew") renderBrew();
     if (tab === "ledger") renderLedger();
     if (tab === "herald") renderHerald();
     if (tab === "song") renderSong();
+    /* PORTRAIT list+detail tabs: drop the detail (pageR) directly beneath the list's ACTUAL
+       content, so a short list (e.g. one Herald edition early game) has no blank gap before
+       it, and the detail slides down as more entries fill in (Tessa 12-07). Ledger uses the
+       full-height spread, not the list/detail split, so it's left alone. */
+    if (tab !== "ledger" && window.Stage && Stage.isPortrait && Stage.isPortrait()) positionPortraitDetail();
+  }
+  function positionPortraitDetail() {
+    var pl = el("pageL"), pr = el("pageR");
+    if (!pl || !pr) return;
+    pl.style.maxHeight = "";                                  /* natural (CSS max-height still caps) */
+    var top = pl.offsetTop;
+    pr.style.top = (top + pl.offsetHeight + 12) + "px";
+    /* keep the detail ON the parchment: a full list at a large text size pushed the article past
+       the paper's lower torn edge (Tessa 12-07). If it runs over, shrink the list so it scrolls,
+       pulling the detail back up above the deckle (~95% of the stage = where the parchment ends). */
+    var usableBottom = (window.Stage ? Stage.design().H : 1280) * 0.95;
+    var over = (pr.offsetTop + pr.offsetHeight) - usableBottom;
+    if (over > 0) {
+      var cap = Math.max(90, pl.offsetHeight - over);
+      pl.style.maxHeight = cap + "px";
+      pr.style.top = (top + cap + 12) + "px";
+    }
+    /* the Songbook's phonograph is an <img> that grows pageR AFTER this runs, so re-measure once
+       it loads (else the tall phono overflows unchecked). {once} + completeness guard = no loop. */
+    var imgs = pr.querySelectorAll("img");
+    for (var i = 0; i < imgs.length; i++) {
+      if (!imgs[i].complete) imgs[i].addEventListener("load", positionPortraitDetail, { once: true });
+    }
   }
 
   /* ---- Brew Book: only recipes the player has actually brewed ---- */
@@ -235,7 +264,12 @@ window.Tome = (function () {
     var L = laneMetrics(vpW);
     var gap = 2 * L.LANE + 2 * L.SPINE;          /* the spine/gutter, wide enough for two lanes */
     var flowW = vpW - 2 * L.LANE;
-    var colW = Math.floor((flowW - gap) / 2);
+    /* PORTRAIT: one WIDE readable column per page (Tessa 12-07 — two narrow columns read
+       poorly on a phone). The page-turn advances one column instead of two; Sage's notes
+       still sit in the outer lanes. Landscape keeps the signed-off two-page book spread. */
+    var portrait = !!(window.Stage && Stage.isPortrait && Stage.isPortrait());
+    var perView = portrait ? 1 : 2;
+    var colW = portrait ? flowW : Math.floor((flowW - gap) / 2);
     flow.style.marginLeft = L.LANE + "px";
     flow.style.marginRight = L.LANE + "px";
     flow.style.columnWidth = colW + "px";
@@ -258,12 +292,12 @@ window.Tome = (function () {
     flow.appendChild(overlay);
     layoutSpreadNotes(c, stage, flow, overlay, colW, gap, pageH, L);
 
-    /* sheets: a view shows two columns; turning slides the strip */
+    /* sheets: a view shows `perView` columns (2 landscape / 1 portrait); turning slides the strip */
     var stripW = flow.scrollWidth;
     var nCols = Math.max(1, Math.round((stripW + gap) / (colW + gap)));
-    var nSheets = Math.max(1, Math.ceil(nCols / 2));
+    var nSheets = Math.max(1, Math.ceil(nCols / perView));
     if (ledgerNav.sheet >= nSheets) ledgerNav.sheet = nSheets - 1;
-    flow.style.transform = "translateX(" + (-ledgerNav.sheet * 2 * (colW + gap)) + "px)";
+    flow.style.transform = "translateX(" + (-ledgerNav.sheet * perView * (colW + gap)) + "px)";
 
     /* nav (GDD §11 final): the fletched arrow is RESERVED for page-turns —
        prev/next, and only when that sheet exists (prev never on sheet 0).
@@ -307,15 +341,30 @@ window.Tome = (function () {
        NOTEW  = whatever is left — the handwriting's own column.
      Because LANE = NOTEW + STROKE + CLEAR + EDGE by construction, a note can never come closer
      than CLEAR to the type, and the connector always has a real line to be. */
+  /* the player's --text-scale (WS1 mobile-polish): Sage's margin notes scale with the rest
+     of the type ramp, so at Large/Extra Large the handwriting column must GROW with the text
+     or the hand wraps to ribbons. Default 1 → unchanged geometry (signed-off pages intact). */
+  function textScale() {
+    var stage = document.getElementById("stage");
+    var s = stage ? parseFloat(getComputedStyle(stage).getPropertyValue("--text-scale")) : 1;
+    return s > 0 ? s : 1;
+  }
   function laneMetrics(vpW) {
     /* the 80px floor is what keeps PORTRAIT's notes at their old ~46px width — a bare
        proportional lane there collapses NOTEW to 38px and Sage's hand wraps to ribbons */
-    var LANE = Math.max(80, Math.min(94, Math.round(vpW * 0.108)));
+    var LANE0 = Math.max(80, Math.min(94, Math.round(vpW * 0.108)));
     var CLEAR = 13;                                   /* Tessa's ~12px minimum, with a hair spare */
     var STROKE = Math.max(14, Math.round(vpW * 0.023));
     var EDGE = 5;
+    var NOTEW0 = LANE0 - STROKE - CLEAR - EDGE;
+    /* widen the handwriting column WITH the text scale so larger notes never wrap to ribbons
+       or overflow the lane; the extra width comes out of the body column, which just paginates
+       onto more sheets. At scale 1, NOTEW === NOTEW0 and LANE === LANE0 (byte-identical). The
+       STROKE/CLEAR/EDGE guarantees (§R16) hold because LANE stays NOTEW + STROKE + CLEAR + EDGE. */
+    var NOTEW = Math.round(NOTEW0 * textScale());
+    var LANE = NOTEW + STROKE + CLEAR + EDGE;
     return { LANE: LANE, CLEAR: CLEAR, STROKE: STROKE, EDGE: EDGE,
-             NOTEW: LANE - STROKE - CLEAR - EDGE, SPINE: 10 };
+             NOTEW: NOTEW, SPINE: 10 };
   }
 
   /* §R17 — every glyph LINE box under `root` except the ones belonging to `skipEl` (so a

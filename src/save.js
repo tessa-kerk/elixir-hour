@@ -64,7 +64,11 @@
      impression. §R21 (10/07 live phone pass): SFX joins it at 50; R18 deliberately left it at
      70, and the call now is both at 50. A default only ever fills a key the player has never
      set, so anyone who has touched either slider keeps their value. */
-  var PREF_DEFAULTS = { version: 1, lang: "en", musicVol: 50, sfxVol: 50, musicMuted: false, sfxMuted: false, track: "Sage's Favourite" };
+  /* textScale (WS1 mobile-polish): the player-facing type multiplier, an iOS-style
+     stepped size (Small 0.9 / Default 1 / Large 1.2 / Extra Large 1.4). Default 1, so a
+     returning player who never touched it is byte-identical; a default only ever fills a
+     key the player has never set (same never-overwrite rule as musicVol/sfxVol). */
+  var PREF_DEFAULTS = { version: 1, lang: "en", musicVol: 50, sfxVol: 50, musicMuted: false, sfxMuted: false, track: "Sage's Favourite", textScale: 1 };
   window.Prefs = {
     get: function () {
       var raw = prefsBox.load() || {};

@@ -15,6 +15,39 @@ window.Settings = (function () {
   function openAbout() { refresh(); el("about").classList.add("open"); }
   function closeAbout() { el("about").classList.remove("open"); }
 
+  /* ---- text size (WS1 mobile-polish): an iOS-style stepped control -------------
+     Four notches map to a --text-scale multiplier the player-facing type ramp derives
+     from (see main.css). The scale float is what persists in Prefs (robust); the slider
+     works in step index. Applied LIVE on the stage + at boot. */
+  var TS_STEPS = [
+    { scale: 0.9, key: "settings.textsize.small" },
+    { scale: 1.0, key: "settings.textsize.default" },
+    { scale: 1.2, key: "settings.textsize.large" },
+    { scale: 1.4, key: "settings.textsize.xlarge" },
+  ];
+  function tsScaleToStep(scale) {
+    var best = 1, bd = 1e9;
+    for (var i = 0; i < TS_STEPS.length; i++) {
+      var d = Math.abs(TS_STEPS[i].scale - scale);
+      if (d < bd) { bd = d; best = i; }
+    }
+    return best;
+  }
+  /* apply a scale to the stage + repaint the settings control (label + preview). Safe to
+     call before Settings is open (the control may not be visible yet) and at boot. */
+  function applyTextScale(scale) {
+    var s = +scale; if (!(s > 0)) s = 1;
+    var stage = el("stage");
+    if (stage) stage.style.setProperty("--text-scale", s);
+    paintTextSize();
+  }
+  function paintTextSize() {
+    var step = tsScaleToStep(+Prefs.get().textScale);
+    if (el("text-scale")) el("text-scale").value = step;
+    if (el("ts-step-label")) el("ts-step-label").textContent = t(TS_STEPS[step].key);
+    if (el("ts-preview")) el("ts-preview").textContent = t("settings.textsize.preview");
+  }
+
   /* ---- sound: two live 0-100 sliders + a mute each (GDD §11 R12) ---- */
   var lastMusicVol = 70, lastSfxVol = 70;   /* remembered level, so unmute restores it */
   function effMuted(kind) {
@@ -51,6 +84,8 @@ window.Settings = (function () {
     el("set-title").textContent = t("settings.title");
     el("set-lang-label").textContent = t("settings.language");
     el("set-disclaimer").textContent = t("settings.disclaimer");
+    if (el("set-textsize-label")) el("set-textsize-label").textContent = t("settings.textsize");
+    paintTextSize();
     el("set-music-label").textContent = t("settings.music");
     el("set-sfx-label").textContent = t("settings.sfx");
     el("btn-about").textContent = t("settings.about");
@@ -103,6 +138,14 @@ window.Settings = (function () {
     Prefs.set(patch); paintSound();
   });
   el("vol-sfx").addEventListener("change", function () { if (window.Sound && +this.value > 0) Sound.previewSfx(); });
+  /* text size — applies LIVE while dragging (mirrors the volume sliders). Persists the
+     scale float in Prefs; the type ramp resizes at once via the --text-scale var. */
+  if (el("text-scale")) el("text-scale").addEventListener("input", function () {
+    var step = Math.max(0, Math.min(TS_STEPS.length - 1, Math.round(+this.value)));
+    var scale = TS_STEPS[step].scale;
+    Prefs.set({ textScale: scale });
+    applyTextScale(scale);
+  });
   el("mute-music").addEventListener("click", toggleMusicMute);
   el("mute-sfx").addEventListener("click", toggleSfxMute);
   var trayMute = el("tray-mute-music");
@@ -112,9 +155,15 @@ window.Settings = (function () {
   el("btn-about-back").addEventListener("click", closeAbout);
   el("btn-set-back").addEventListener("click", close);
 
+  /* apply the saved text scale to the stage at module load — before boot even runs its
+     first render — so the type ramp is correct from the first frame, and stays correct
+     even if the boot sequence changes. Default 1 is a no-op (byte-identical). */
+  applyTextScale(Prefs.get().textScale);
+
   return {
     open: open, close: close, openAbout: openAbout, closeAbout: closeAbout,
     isOpen: isOpen, aboutIsOpen: aboutIsOpen,
     refresh: refresh, applyLanguage: applyLanguage, syncSound: paintSound,
+    applyTextScale: applyTextScale,
   };
 })();
