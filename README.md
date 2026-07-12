@@ -80,6 +80,10 @@ Every Night ends with a page worth keeping: who came in, what you poured them, a
 
 Four tracks play behind the bar, and they unlock as the story does. The last one won't even show you its title before you've earned it, because its title is a spoiler. P.E.K.K.A keeps a phonograph where her heart would be, and once she trusts you, she shares it.
 
+### On a phone
+
+Plays both ways on a phone — portrait or landscape, no "please rotate your device" screen. The scene reframes around whoever's at the counter.
+
 ---
 
 ## How it was made
