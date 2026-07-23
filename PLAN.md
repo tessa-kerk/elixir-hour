@@ -264,6 +264,8 @@
 - **`GAME_URL`** in `src/nightcap.js` is a placeholder — swap for the hosted landing-page URL at deploy (part of the canonical-URL swap; see Cross-session requests). CJK canvas font on the Night Cap parked as optional polish.
 - **Content Tessa owes** (engine ready): bespoke wrong-brew lines (`wrong:[…]`); a read-aloud pass on all three Nights. The 3 Night Cap quotes are **approved**.
 
+**ℹ Session protocol (24-07-2026): report to the PM, not to Tessa.** Elixir Hour runs as a two-session group like the Portfolio project: a **Project Manager** session (Fable) holds goals/milestones and briefs this Builder session; the Builder executes. Tessa only talks to the PM. When you finish a work block, send your completion report as a CCD session message to the PM session (title "Project Manager", Elixir Hour cwd — the only PM-titled session in this folder). Do not address reports to Tessa or wait for her to relay. The PM dispatches work to you the same way; receiving a message auto-starts this session.
+
 **ℹ Git history curated 24-07-2026:** the public repo's history was rebuilt as 13 milestone commits (content unchanged — final tree byte-identical to the old main). Commit hashes cited in rounds below (c939a7f, 666d56a, etc.) refer to the OLD history, preserved in full at `../Deploy/elixir-hour-full-history-2026-07-24.bundle`. From now on, commit messages follow the public-facing rule in CLAUDE.md.
 
 ## Cross-session requests
