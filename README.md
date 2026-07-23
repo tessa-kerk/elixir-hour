@@ -5,7 +5,7 @@
 <h1 align="center">Elixir Hour</h1>
 
 <p align="center">
-  <em>Coffee Talk, in the Clash Royale universe — a cosy live-ops companion, built solo with AI in 7 days.</em>
+  <em>Coffee Talk, in the Clash Royale universe — a cosy live-ops companion. First build in 7 days; its second edition took a weekend.</em>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@ You play Sage, who keeps the bar on the strip of neutral ground between the king
 
 You read them, you brew, and the conversation opens. Elixir is the base, Clash spells are the mixers, and the drink you hand someone decides how much of themselves they hand back. Pour the cup a person actually needed and they'll tell you something they've told nobody.
 
-Three Nights. Nobody wins. Everyone goes home a little lighter.
+Four Nights. Nobody wins. Everyone goes home a little lighter.
 
 ---
 
@@ -42,7 +42,7 @@ Nothing stops you pouring the wrong thing. The Wizard will drink whatever you pu
 
 ![The Knight's page in the Tome — a printed bio with Sage's handwritten green notes out in the margin](captures/readme/tome-ledger-spread.png)
 
-Sage's book: every recipe she's been taught, every regular she's met, every edition of the paper, and the songs. The Ledger is the good part. Each regular gets a printed page, and Sage annotates it in green in the margins as she works them out — the notes deepen across the three Nights, so the book fills in as you listen.
+Sage's book: every recipe she's been taught, every regular she's met, every edition of the paper, and the songs. The Ledger is the good part. Each regular gets a printed page, and Sage annotates it in green in the margins as she works them out — the notes deepen across the four Nights, so the book fills in as you listen.
 
 It turns like a book, because a book that scrolls isn't a book.
 
@@ -62,9 +62,19 @@ The last of those four is why the Herald exists at all. **The drink you pour the
 
 Above the four story editions sits a page that reports the **real** Clash Royale, retold as gossip. As I write, that's the wandering swordsman who came in off the long road with the Season of Honor & Exile, and the arena masters having a quiet word with the heroes about crowding everyone else out. Nobody in the bar's world knows what a card is: Ronin is a person who has taken a corner table, and the arena has masters, never a balance team.
 
-It lives in [`data/today.js`](data/today.js), which carries the item and a `validUntil` date. Past that date the game falls through to an evergreen page — undated, and true on any night the bar is open — so a live companion never looks abandoned. That fallthrough is also the failure mode: a missing or malformed date yields the evergreen page rather than a stale headline.
+It lives in [`data/today.js`](data/today.js), which carries the editions and a `validUntil` date for the current one. Past that date the game falls through to an evergreen page — undated, and true on any night the bar is open — so a live companion never looks abandoned. That fallthrough is also the failure mode: a missing or malformed date yields the evergreen page rather than a stale headline.
 
-Refreshing it for a new season means rewriting one data file. No code, no schema, no redeploy of anything else. That's the seam the whole format rests on, and it's what the [case study](https://elixirhour.tessa-kerk.com/case-study/) means by a game that can answer a live calendar within a day.
+Past live editions don't vanish, either: each one files itself into the Tome, dated the day after the patch it retold, so the Herald slowly becomes an in-world history of the real game.
+
+A new season means appending one entry to one data file. No code, no schema, no redeploy of anything else. That's the seam the whole format rests on, and it's what the [case study](https://elixirhour.tessa-kerk.com/case-study/) means by a game that can answer a live calendar within a day.
+
+### Edition 2 — The Long Road
+
+![Ronin at the pop-up bar under festival lanterns, guarded over a cup of water](captures/readme/away-night-ronin.png)
+
+When the Season of Honor & Exile put the whole realm on the road, the bar travelled too: a pop-up counter under festival lanterns at a different arena. Same regulars, plus one new face, the wandering swordsman the Herald had already put on its front page. Night 4 is his. A man who drinks only water, pays exactly, and returns whatever he is given. Somewhere in the small hours, Sage pours an answer to that: the first drink the bar ever invented rather than learned. What he does at first light depends on your cup.
+
+The venue, the guest, the Night, the Herald's coverage of the season's real balance news: the whole edition went from patch notes to playable in a weekend. The first build proved the game; Edition 2 proved the format.
 
 ### The Night Cap
 
@@ -76,9 +86,9 @@ Every Night ends with a page worth keeping: who came in, what you poured them, a
 
 ### Music and sound
 
-![The Bard's Songbook — four tracks and a phonograph, in the Tome](captures/readme/songbook.png)
+![The Bard's Songbook — five tracks and a phonograph, in the Tome](captures/readme/songbook.png)
 
-Four tracks play behind the bar, and they unlock as the story does. The last one won't even show you its title before you've earned it, because its title is a spoiler. P.E.K.K.A keeps a phonograph where her heart would be, and once she trusts you, she shares it.
+Five tracks play behind the bar, and they unlock as the story does. One won't even show you its title before you've earned it, because its title is a spoiler; the fifth arrives with a stranger. P.E.K.K.A keeps a phonograph where her heart would be, and once she trusts you, she shares it.
 
 ### On a phone
 
@@ -88,9 +98,9 @@ Plays both ways on a phone — portrait or landscape, no "please rotate your dev
 
 ## How it was made
 
-Built with AI throughout — the writing, the art, the code, and the music (the four bar tracks are AI-generated with Suno). A coding agent, Claude Code, did the build from a single design document.
+Built with AI throughout — the writing, the art, the code, and the music (the five bar tracks are AI-generated with Suno). A coding agent, Claude Code, did the build from a single design document.
 
-Seven days. Three Nights. Seven languages: English is hand-written, the other six are AI-translated and say so in-product.
+Seven days for the first build and its three Nights; the fourth Night arrived with Edition 2, a weekend later. Seven languages: English is hand-written, the other six are AI-translated and say so in-product.
 
 The design document itself stays private, but the two files the agent actually works from are here. [`CLAUDE.md`](CLAUDE.md) holds the rules it re-reads at the start of every session; [`PLAN.md`](PLAN.md) is the round-by-round build log, including the things that went wrong. The [case study](https://elixirhour.tessa-kerk.com/case-study/) has the full method, and is honest about what the AI was good at and what it wasn't.
 

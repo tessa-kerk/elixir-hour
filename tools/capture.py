@@ -57,6 +57,17 @@ DRIVERS = {
         for(var i=0;i<ns.length;i++) for(var j=0;j<ns[i].beats.length;j++) if(ns[i].beats[j].type==='duo'){b=ns[i].beats[j];}
         if(b){ Game.state.night=3; Game.show('duo'); Dialogue.start(b); }
     """),
+    # Edition 2 (away bar, README §"Edition 2 — The Long Road"): Ronin alone at the
+    # travelling counter — a cast portrait like group-rally, not a gameplay shot, so
+    # HUD/panel/bubbles are dropped and only the baked away scene + character carry it.
+    "away-night-ronin": ("land", """
+        localStorage.clear();
+        window.SCENE_SET = 'away';
+        Game.show('serve');
+        Screens.setServeCustomer('Ronin','Guarded');
+        if (Screens.hideServeBubble) Screens.hideServeBubble();
+        ['panel-frame','serve-choices','hud-menu','hud-tome','sage-bubble'].forEach(function(id){var e=document.getElementById(id); if(e) e.style.display='none';});
+    """),
 }
 
 

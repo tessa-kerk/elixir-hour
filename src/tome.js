@@ -645,23 +645,64 @@ window.Tome = (function () {
     if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
     return dt;
   }
-  function todayEdition() {
+  /* `live` is a dated LIST (Brief - Herald Live-Ops Loop.md, 24-07-2026): each
+     monthly edition is appended, never overwritten. Splits the list into the
+     one CURRENT entry (today falls within its validUntil, inclusive) and the
+     rest, which have aged into the archive. An entry with a missing or
+     malformed validUntil is dropped from both — same fail-safe as before. */
+  function liveEditions() {
+    var out = { current: null, archive: [] };
     var T = window.TODAY_EDITION;
-    if (!T) return null;
-    var live = T.live, end = live && localMidnight(live.validUntil);
-    if (live && live.head && end) {
-      var n = new Date();
-      var today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
-      if (today.getTime() <= end.getTime()) return live;      /* inclusive of the last day */
+    if (!T || !T.live) return out;
+    var list = Array.isArray(T.live) ? T.live : [T.live];   /* tolerate a bare object, back-compat */
+    var n = new Date();
+    var today = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i];
+      if (!e || !e.head) continue;
+      var end = localMidnight(e.validUntil);
+      if (!end) continue;
+      if (today.getTime() <= end.getTime() &&
+          (!out.current || end.getTime() > localMidnight(out.current.validUntil).getTime())) {
+        if (out.current) out.archive.push(out.current);     /* two "current" entries shouldn't happen; keep both visible */
+        out.current = e;
+      } else {
+        out.archive.push(e);
+      }
     }
-    return (T.evergreen && T.evergreen.head) ? T.evergreen : null;
+    out.archive.sort(function (a, b) { return localMidnight(b.validUntil).getTime() - localMidnight(a.validUntil).getTime(); });
+    return out;
+  }
+  function todayEdition() {
+    var live = liveEditions();
+    if (live.current) return live.current;
+    var T = window.TODAY_EDITION;
+    return (T && T.evergreen && T.evergreen.head) ? T.evergreen : null;
+  }
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function formatDated(iso) {
+    var d = localMidnight(iso);
+    return d ? (d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear()) : "";
   }
 
-  /* ---- Arena Herald: today's edition, then unlocked back editions ---- */
+  /* ---- Arena Herald: today's edition, then the live archive, then unlocked
+     story editions ---- */
   function renderHerald() {
     var eds = [];
-    var live = todayEdition();
-    if (live) eds.push(live);                     /* always first, never progression-gated */
+    var live = liveEditions();
+    var cur = live.current;
+    if (!cur) {
+      var T = window.TODAY_EDITION;
+      cur = (T && T.evergreen && T.evergreen.head) ? T.evergreen : null;
+    }
+    if (cur) eds.push(cur);                        /* always first, never progression-gated */
+    /* past live editions stay readable too — the proving run's receipts —
+       captioned by their own `dated` field, not re-labelled "Today's Edition" */
+    for (var a = 0; a < live.archive.length; a++) {
+      var p = live.archive[a];
+      eds.push({ ed: "The Arena Herald", dateline: formatDated(p.dated || p.validUntil),
+        head: p.head, story: p.story, story2: p.story2, story3: p.story3, gossip: p.gossip });
+    }
     for (var i = 0; i < window.HERALD_EDITIONS.length; i++) {
       var e = window.HERALD_EDITIONS[i];
       if (e.head && Game.state.unlocks.heralds.indexOf(e.night) >= 0) eds.push(e);
@@ -692,6 +733,7 @@ window.Tome = (function () {
       '<div class="rp-caption">' + esc(h.ed) + (h.dateline ? " · " + esc(h.dateline) : "") + "</div>" +
       '<div class="headline">' + esc(h.head) + "</div>" +
       '<div class="story">' + story + "</div>" +
+      (h.gossip ? '<div class="gossip">' + esc(h.gossip) + "</div>" : "") +
       (h.ripple ? '<div class="ripple">⚗ Traced to a quiet brew poured at a certain bar the night before.</div>' : "");
   }
 

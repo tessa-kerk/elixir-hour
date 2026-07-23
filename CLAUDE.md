@@ -24,6 +24,7 @@ You are building **Elixir Hour**, a cosy conversation game — "Coffee Talk, in 
 
 ## Always
 - Commit after each runnable milestone and **push to GitHub**.
+- **Commit messages are public-facing (rule added 24-07-2026, history curated same day):** write them for a repo visitor — what changed and why it matters. No internal round numbers, no reviewer names, no session references, no co-author trailers. The round-by-round detail belongs in PLAN.md, not the commit message.
 - Keep an **About/Credits screen** with the "Not affiliated with or endorsed by Supercell — original fan concept by Tessa Kerk" notice and the AI-translation disclaimer.
 - Ask before big architectural changes.
 
