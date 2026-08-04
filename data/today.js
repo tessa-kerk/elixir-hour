@@ -75,6 +75,24 @@ window.TODAY_EDITION = {
 
       story3: "And the rules keep turning over: every Monday the masters change what may be carried into the arena.",
     },
+    /* DRAFT — Season 86 "Viking Chaos", fit-check only (PM/Tessa, 24-07). NOT
+       canon-checked or approved copy yet; here to measure whether it clips the
+       Tome page before Tessa signs off. */
+    {
+      validUntil: "2026-09-06",
+      dated: "2026-08-04",
+      ed: "Today's Edition",
+      dateline: "This season · Viking Chaos",
+      head: "The Big Names Are Down to One Trick",
+
+      story: "The arena masters have been round to the big names, and it has not gone down well. Whatever each of them does — the leap, the great swing — they get one go at it now. Only the Boss Bandit was spared: her trick is going again straight away.",
+
+      story2: "Two of the northerners have come back changed. The berserker has a rage in her now, and nothing can put her down while it lasts. The valkyrie spins into a crowd and cuts her way through, though they can still hurt her back.",
+
+      story3: "And the little spirits no longer reach the towers on their own.",
+
+      gossip: "The Knight, into his cup, 'One good blow, then your wits for the rest of the fight. Most of us have always fought that way.'",
+    },
   ],
 
   /* Undated, and true on any night the bar is open. */

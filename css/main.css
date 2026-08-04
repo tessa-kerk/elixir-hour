@@ -95,9 +95,9 @@ body{background:#141019; font-family:'Nunito',sans-serif; overflow:hidden;
    dim wood backdrop (lantern pool at top) → the 3D brown-paper render → the article
    over its blank lower area. The dark gradient is retired; the paper stays brightest. */
 #herald-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=48") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=49") center/cover no-repeat;}
 #broadsheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=48") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=49") center/100% 100% no-repeat;
   /* padding % is relative to the PARENT width (the stage). Top ≈ the paper's
      embossed-masthead depth; the sides set the body-text column. WIDENED 11-07
      (round 22b, Tessa): Edition 2's longer editions ran to 6 lines and crammed the
@@ -395,13 +395,13 @@ body.portrait #title-logo{width:78%; top:13%;}
    landscape paper untouched. Padding %s are of the 720 parent width; the article sits below
    the baked masthead (paper aspect 912/1396). Tuned by looking on a 720×1280 portrait rig. */
 body.portrait #broadsheet{width:94%; max-width:none; aspect-ratio:912/1396;
-  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=48");
+  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=49");
   padding:40.5% 15% 8% 15%;}
 /* the epilogue also shows a closer + two buttons BELOW the sheet, so its paper is a touch
    smaller to leave them on-screen; it carries more copy but starts higher and its type is
    already smaller, so the article still fits with room at Extra Large. */
 body.portrait #epi-sheet{width:80%; max-width:none; aspect-ratio:912/1396;
-  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=48");
+  background-image:url("../assets/ui/Arena Herald Paper (portrait).webp?v=49");
   padding:34% 12% 6% 12%;}
 /* portrait has real article headroom now, so the Herald/epilogue text may scale to the full
    ramp (landscape stays capped at 1 — its landscape paper has none). Set ON #stage so it wins
@@ -447,7 +447,7 @@ body.portrait #duo-split{top:4%; bottom:auto; height:36%;}
 #screen-nightend .placeholder{
   background:
     radial-gradient(ellipse 56% 44% at 50% 52%, rgba(14,10,20,.76), rgba(14,10,20,.30) 66%, transparent 82%),
-    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=48") center/cover no-repeat;}
+    #1c1b3a url("../assets/scenes/Bar Closed (rest screen).webp?v=49") center/cover no-repeat;}
 
 /* ---------- GROUP — Layout 3 (GDD §11): the whole room, no mixing UI ----------
    Late-night dressing of the same master-scene placeholder: darker wall,
@@ -505,7 +505,7 @@ body.portrait #duo-split{top:4%; bottom:auto; height:36%;}
    counter-wood backdrop as every other Herald interstitial (was a dark radial). */
 #epi-wrap{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:16px;
-  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=48") center/cover no-repeat;}
+  background:#0a0810 url("../assets/scenes/Herald Backdrop (counter top-down).webp?v=49") center/cover no-repeat;}
 /* §R15: the epilogue Ed. L prints on the SAME generated 3D paper prop as every other
    full-screen Herald (was a plain CSS card, breaking the 3D look on the wrong-pour path
    Tessa hit) — same framing as #broadsheet: paper fills the sheet, the embossed masthead
@@ -514,7 +514,7 @@ body.portrait #duo-split{top:4%; bottom:auto; height:36%;}
    Padding matched to #broadsheet (round 22c-fix: 15% top clears the masthead flourish;
    the fullest epilogue, Ed. L, still fits with no overflow). */
 #epi-sheet{width:54%; max-width:780px; aspect-ratio:2048/1329; overflow:hidden;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=48") center/100% 100% no-repeat;
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=49") center/100% 100% no-repeat;
   padding:15% 9.5% 2.5% 10.5%; color:#3a2a1c; box-shadow:none; border:none; border-radius:0;
   transform:rotate(-0.8deg);}
 #epi-masthead{display:none;}   /* the paper art carries the embossed masthead */
@@ -821,12 +821,18 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
 .story{font-family:'Cormorant Garamond',serif; font-size:calc(15.5px * var(--text-scale)); font-weight:600; line-height:1.4;}
 .ripple{margin-top:12px; font-size:calc(12px * var(--text-scale)); font-weight:700; color:var(--elixir); font-style:italic;}
 /* the live-ops "gossip" closer (Brief - Herald Live-Ops Loop.md, 24-07): one
-   resident's attributed aside under a story or archive edition — a spoken
-   line, so it borrows the sage voice the Tome already uses for a hand-written
-   note rather than the Herald's own ink. */
-.gossip{margin-top:10px; padding-top:8px; border-top:1px solid var(--sage-pale);
-  font-family:'Cormorant Garamond',serif; font-size:calc(13px * var(--text-scale));
-  font-weight:600; font-style:italic; color:var(--sage-deep); line-height:1.35;}
+   resident's attributed aside under a story or archive edition. Rendered as a
+   genuine Sage note — the SAME `.hand-note` component as the Brew Book's
+   "Taught by …" line (src/tome.js renderBrew), not a one-off style: her
+   Caveat hand, sage-deep ink, the ✎ prefix as the only marker, no divider.
+   `.gossip-note` adds ONLY the top spacing this context needs (it follows the
+   Herald's printed story, not another hand-note) and sizes the hand smaller
+   than the Brew Book's default 19px — the Herald detail pane has no
+   scrollbar (GDD §11) and far less headroom than the Brew Book page has, so
+   the full 19px hand clips here (verified: 19px and 18px both cut the last
+   line, pixel-scanned against the real clip boundary, not just the box
+   model). 17px is the largest size that clears it with real margin. */
+.gossip-note{margin-top:14px; font-size:calc(17px * var(--text-scale));}
 /* §11 (round 10): the Arena Herald prints on the 3D brown-paper masthead render.
    The paper's embossed masthead + crown flourish own the top ~40%; the article
    drops into the blank parchment below. Text goes warm dark-brown to sit on it. */
@@ -834,7 +840,7 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
    Herald page widens for this tab; the article drops into the blank lower ~55%. */
 #pageR.herald-paper{
   left:49%; width:48%; top:13%; height:62%; padding:0;
-  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=48") center top / contain no-repeat;}
+  background:url("../assets/ui/Arena Herald Paper (brown).webp?v=49") center top / contain no-repeat;}
 #pageR.herald-paper .rp-caption{text-align:center; margin-top:42%; color:#5a4632;}
 #pageR.herald-paper .headline{color:#3a2a1c; text-align:center; padding:0 14%;}
 #pageR.herald-paper .story{color:#4a3826; padding:0 14%; font-size:calc(13.5px * var(--text-scale));}
@@ -852,7 +858,7 @@ body.portrait #pageflip.rev .leaf{left:4%; width:46%;}
    prop, so the Tome + Herald read as one system). A soft inner vignette gives page depth. */
 body.portrait #tomeimg{display:none;}
 body.portrait #tome{
-  background:#2a1d12 url("../assets/ui/Tome Paper (portrait).webp?v=48") center/cover no-repeat;
+  background:#2a1d12 url("../assets/ui/Tome Paper (portrait).webp?v=49") center/cover no-repeat;
   box-shadow:inset 0 0 90px 20px rgba(70,45,22,.30);}
 /* the four tabs read as aged-leather ribbon tabs (embossed brown + gilt edge), not flat grey
    chips — crafted, and legible against the parchment. Dropped to 4.5% top so they sit clear

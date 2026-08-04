@@ -733,7 +733,11 @@ window.Tome = (function () {
       '<div class="rp-caption">' + esc(h.ed) + (h.dateline ? " · " + esc(h.dateline) : "") + "</div>" +
       '<div class="headline">' + esc(h.head) + "</div>" +
       '<div class="story">' + story + "</div>" +
-      (h.gossip ? '<div class="gossip">' + esc(h.gossip) + "</div>" : "") +
+      /* the gossip closer is a genuine Sage note — same component as the Brew
+         Book's "Taught by …" line (✎ + .hand-note, her Caveat hand, no divider;
+         the icon+handwriting IS the marker). `.gossip-note` only adds the top
+         spacing this context needs; font/colour/weight are the shared rule. */
+      (h.gossip ? '<div class="hand-note gossip-note">✎ ' + esc(h.gossip) + "</div>" : "") +
       (h.ripple ? '<div class="ripple">⚗ Traced to a quiet brew poured at a certain bar the night before.</div>' : "");
   }
 

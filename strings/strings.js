@@ -20,7 +20,7 @@
    The stamp is how a real player (and Tessa) confirms which build loaded — the
    06-07 P0 was a stale cached build; this makes that visible at a glance. The
    optional .hash is a git short-hash pasted in AFTER commit if wanted. */
-window.BUILD = { n: 48, date: "24-07", hash: "" };
+window.BUILD = { n: 49, date: "04-08", hash: "" };
 
 /* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
 window.buildLabel = function () {
