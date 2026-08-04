@@ -30,3 +30,15 @@ You are building **Elixir Hour**, a cosy conversation game — "Coffee Talk, in 
 
 ## Regression surfaces (non-negotiable — added 06-07-2026)
 **Anything Tessa has signed off is a REGRESSION SURFACE.** When you refactor a shared system — **layout, nav, save, rendering, the Tome, the Night Cap, any exportable/screenshottable surface** — re-render the signed-off states and **diff them against their existing captures BEFORE committing**. Any visual change to an approved surface gets **flagged for approval, never shipped silently**. **"It wasn't broken" is a spec** — a change that "improves" an approved layout without being asked is a regression, not an upgrade. (This rule was written because the 12-card grid pagination silently replaced the signed-off 5-card Ledger grid.)
+
+## New UI elements: reuse the visual vocabulary (non-negotiable — added 04-08-2026)
+The regression rule above guards APPROVED surfaces from silent change. This rule guards the opposite failure: a **brand-new** element built in isolation that doesn't match the design system. **Before shipping any new Tome / Herald / UI element, find the closest existing analogue and reuse its vocabulary — dividers, colours, type, spacing. Never invent a one-off style.** Name the analogue you matched to in your PLAN.md note so the reuse is auditable. (Written because the first Herald live-ops edition shipped its gossip-line divider as a new solid pale-sage line, when the Tome's established sage-aside divider is the dashed hand-note rule — caught only by Tessa's eye at ship time. New elements are exactly where the fit-check gate is blind: it tests overflow, not style consistency, so this check is on you.)
+
+## Sage's identity in the Tome (art-direction lock — solidified 04-08-2026)
+Sage speaks in ONE consistent visual voice everywhere she appears in the Tome, and it must never be reinvented:
+- **Pen/quill icon + green Caveat handwriting** (`color: var(--sage-deep)`). This is her signature wherever she adds her OWN voice — the Brew Book's "Taught by …" notes, the Ledger's margin notes, and the Herald live-ops **gossip closer**. Same icon, same hand, same colour, every time.
+- **Everything printed in the Tome is Cormorant Garamond** (the paper's / Herald's voice). The CSS already states it: *"only Sage's hand is Caveat."* A line in Sage's voice set in Cormorant — even tinted green — is WRONG. That was the first-edition gossip-closer bug.
+- **Sage's notes carry NO dashed divider or one-off separator.** The pen icon + handwriting IS the marker, exactly like the Brew Book note. Don't add a rule/line to set a Sage note off.
+- **Don't confuse the two Herald markers:** the small *figure* icon means "this edition references a pour"; the *pen* icon means "this is Sage." Different signals — use the pen for Sage's voice.
+
+(Solidified after the first Herald live-ops edition: its gossip closer shipped first as printed serif + a one-off pale divider, then a dashed-sage line, before landing on the correct pen + Caveat Sage-note treatment. This lock exists so no future edition or new Tome surface reinvents Sage's voice.)
