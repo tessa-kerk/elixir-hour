@@ -126,7 +126,7 @@ It also runs by opening `index.html` straight off the disk, with one caveat: sav
 
 ---
 
-An original, speculative fan concept by Tessa Kerk. **Not affiliated with or endorsed by Supercell**, and created in line with Supercell's Fan Content Policy. No Supercell code, art or copy is used; the characters are an affectionate homage to Clash canon. Built with AI throughout: writing, art, code and music.
+An original, speculative fan concept by Tessa Kerk. **This material is unofficial and is not endorsed by Supercell.** For more information see Supercell's Fan Content Policy: [www.supercell.com/fan-content-policy](https://supercell.com/en/fan-content-policy/). No official Supercell code or art files are included; the concept uses Clash Royale's characters and world. Built with AI throughout: writing, art, code and music.
 
 Inspired by the structure of *Coffee Talk* (Toge Productions) — an original story and cast, in tribute to the format.
 

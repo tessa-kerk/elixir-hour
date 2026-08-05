@@ -20,7 +20,7 @@
    The stamp is how a real player (and Tessa) confirms which build loaded — the
    06-07 P0 was a stale cached build; this makes that visible at a glance. The
    optional .hash is a git short-hash pasted in AFTER commit if wanted. */
-window.BUILD = { n: 49, date: "04-08", hash: "" };
+window.BUILD = { n: 50, date: "05-08", hash: "" };
 
 /* buildLabel() — the exact text shown in the title corner, e.g. "v9 · 06-07". */
 window.buildLabel = function () {
@@ -157,7 +157,7 @@ window.STRINGS = {
     "settings.back": "Back",
 
     "about.title": "About Elixir Hour",
-    "about.affiliation": "An original fan concept by Tessa Kerk. Not affiliated with or endorsed by Supercell. No Supercell code, art or copy is reproduced.",
+    "about.affiliation": "An original fan concept by Tessa Kerk. Not affiliated with or endorsed by Supercell. For more information see Supercell's Fan Content Policy: www.supercell.com/fan-content-policy. No official Supercell code or art files are included; the concept uses Clash Royale's characters and world.",
     "about.translation": "English is hand-written. Other languages are AI-translated and may not be perfect.",
     "about.inspiration": "Inspired by the structure of Coffee Talk (Toge Productions) — an original story and cast, in tribute to the format.",
     "about.music": "The five bar tracks are AI-generated (Suno).",
@@ -229,7 +229,7 @@ window.STRINGS = {
     "term.Poison": "독 마법",
     /* Freeze: no official ko term verified → stays English (GDD §13) */
     "about.title": "Elixir Hour 정보",
-    "about.affiliation": "Tessa Kerk의 오리지널 팬 창작물입니다. Supercell과 무관하며 Supercell의 승인을 받지 않았습니다. Supercell의 코드, 아트, 문구를 사용하지 않았습니다.",
+    "about.affiliation": "Tessa Kerk의 오리지널 팬 창작물입니다. Supercell과 무관하며 Supercell의 승인을 받지 않았습니다. 자세한 내용은 Supercell의 팬 콘텐츠 정책을 참고하세요: www.supercell.com/fan-content-policy. 공식 Supercell 코드나 아트 파일은 포함되어 있지 않으며, 이 콘셉트는 클래시 로얄의 캐릭터와 세계관을 사용합니다.",
     "about.translation": "영어는 직접 작성된 원문입니다. 다른 언어는 AI 번역으로, 완벽하지 않을 수 있습니다.",
     "about.inspiration": "Coffee Talk(Toge Productions)의 구성에서 영감을 받아, 오리지널 이야기와 등장인물로 만든 헌정작입니다.",
     "about.music": "다섯 곡의 바 음악은 AI로 생성되었습니다 (Suno).",
@@ -300,7 +300,7 @@ window.STRINGS = {
     "term.Mirror": "鏡",
     "term.Poison": "ポイズン",
     "about.title": "Elixir Hour について",
-    "about.affiliation": "Tessa Kerk によるオリジナルのファン作品です。Supercell とは無関係であり、Supercell の承認を受けていません。Supercell のコード・アート・文章は使用していません。",
+    "about.affiliation": "Tessa Kerk によるオリジナルのファン作品です。Supercell とは無関係であり、Supercell の承認を受けていません。詳細はSupercellのファンコンテンツポリシーをご覧ください：www.supercell.com/fan-content-policy。Supercellの公式コードやアートファイルは含まれておらず、本コンセプトはクラッシュ・ロワイヤルのキャラクターと世界観を使用しています。",
     "about.translation": "英語は手書きの原文です。他の言語はAI翻訳のため、完全ではない場合があります。",
     "about.inspiration": "Coffee Talk（Toge Productions）の構成に着想を得た、オリジナルの物語とキャストによるオマージュ作品です。",
     "about.music": "5曲のバー音楽はAIで生成されています（Suno）。",
@@ -371,7 +371,7 @@ window.STRINGS = {
     "term.Mirror": "Spiegel",
     "term.Poison": "Gift",
     "about.title": "Über Elixir Hour",
-    "about.affiliation": "Ein originales Fan-Konzept von Tessa Kerk. Nicht mit Supercell verbunden und nicht von Supercell unterstützt. Es werden kein Code, keine Grafiken und keine Texte von Supercell verwendet.",
+    "about.affiliation": "Ein originales Fan-Konzept von Tessa Kerk. Nicht mit Supercell verbunden und nicht von Supercell unterstützt. Weitere Informationen finden Sie in Supercells Fan Content Policy: www.supercell.com/fan-content-policy. Es sind keine offiziellen Supercell-Code- oder Grafikdateien enthalten; das Konzept verwendet die Charaktere und die Welt von Clash Royale.",
     "about.translation": "Englisch ist von Hand geschrieben. Andere Sprachen sind KI-übersetzt und möglicherweise nicht perfekt.",
     "about.inspiration": "Inspiriert vom Aufbau von Coffee Talk (Toge Productions) — mit eigener Geschichte und eigenem Ensemble, als Hommage an das Format.",
     "about.music": "Die fünf Bar-Musikstücke sind KI-generiert (Suno).",
@@ -441,7 +441,7 @@ window.STRINGS = {
     "term.Mirror": "Espejo",
     "term.Poison": "Veneno",
     "about.title": "Acerca de Elixir Hour",
-    "about.affiliation": "Un concepto fan original de Tessa Kerk. No está afiliado a Supercell ni cuenta con su respaldo. No se reproduce código, arte ni textos de Supercell.",
+    "about.affiliation": "Un concepto fan original de Tessa Kerk. No está afiliado a Supercell ni cuenta con su respaldo. Para más información, consulta la Política de Contenido de Fans de Supercell: www.supercell.com/fan-content-policy. No se incluyen archivos oficiales de código ni arte de Supercell; el concepto utiliza los personajes y el mundo de Clash Royale.",
     "about.translation": "El inglés está escrito a mano. Los demás idiomas están traducidos por IA y pueden no ser perfectos.",
     "about.inspiration": "Inspirado en la estructura de Coffee Talk (Toge Productions): una historia y un reparto originales, en homenaje al formato.",
     "about.music": "Las cinco pistas del bar están generadas por IA (Suno).",
@@ -509,7 +509,7 @@ window.STRINGS = {
     "term.Mirror": "Miroir",
     /* Rage + Poison: official fr terms ARE "Rage"/"Poison" (same as EN) → fall back. Heal + Zap: no official fr term verified → stay English (GDD §13) */
     "about.title": "À propos d'Elixir Hour",
-    "about.affiliation": "Un concept de fan original de Tessa Kerk. Sans affiliation avec Supercell et non approuvé par Supercell. Aucun code, art ou texte de Supercell n'est reproduit.",
+    "about.affiliation": "Un concept de fan original de Tessa Kerk. Sans affiliation avec Supercell et non approuvé par Supercell. Pour plus d'informations, consultez la politique de contenu créé par les fans de Supercell : www.supercell.com/fan-content-policy. Aucun fichier officiel de code ou d'art de Supercell n'est inclus ; le concept utilise les personnages et l'univers de Clash Royale.",
     "about.translation": "L'anglais est écrit à la main. Les autres langues sont traduites par IA et peuvent être imparfaites.",
     "about.inspiration": "Inspiré de la structure de Coffee Talk (Toge Productions) — une histoire et une distribution originales, en hommage au format.",
     "about.music": "Les cinq morceaux du bar sont générés par IA (Suno).",
@@ -579,7 +579,7 @@ window.STRINGS = {
     "term.Poison": "Veneno",
     /* Heal + Freeze: no official pt term verified → stay English (GDD §13) */
     "about.title": "Sobre Elixir Hour",
-    "about.affiliation": "Um conceito original de fã por Tessa Kerk. Sem afiliação com a Supercell e sem endosso da Supercell. Nenhum código, arte ou texto da Supercell é reproduzido.",
+    "about.affiliation": "Um conceito original de fã por Tessa Kerk. Sem afiliação com a Supercell e sem endosso da Supercell. Para mais informações, consulte a Política de Conteúdo de Fãs da Supercell: www.supercell.com/fan-content-policy. Nenhum arquivo oficial de código ou arte da Supercell está incluído; o conceito utiliza os personagens e o universo de Clash Royale.",
     "about.translation": "O inglês foi escrito à mão. Os outros idiomas são traduzidos por IA e podem não ser perfeitos.",
     "about.inspiration": "Inspirado na estrutura de Coffee Talk (Toge Productions) — uma história e um elenco originais, em homenagem ao formato.",
     "about.music": "As cinco faixas do bar são geradas por IA (Suno).",

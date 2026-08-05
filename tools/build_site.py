@@ -34,6 +34,13 @@ EXCLUDE_FILES = {"PLAN.md", "CLAUDE.md", "README.md", ".gitignore",
                  "Elixir Hour Logo (Final).png"}
 KEEP_PNG = {"night-cap-share.png"}  # og:image — some scrapers reject WebP
 
+# site/ -> dist root exclusions. The deck PDF's download button is already commented
+# out in source (05-08-2026, compliance claim on slide 11), but the file was still
+# directly downloadable at its URL — commenting out the <a> doesn't stop that, only
+# not shipping the file does. Source PDF + backups stay on disk; only the dist build
+# drops it. Delete this line once the corrected deck is re-exported and re-linked.
+EXCLUDE_SITE_FILES = {"elixir-hour-gtm.pdf"}
+
 
 def copytree(src, dst, exclude_dirs=(), exclude_files=()):
     for root, dirs, files in os.walk(src):
@@ -105,7 +112,7 @@ def main():
     os.makedirs(DIST)
 
     # landing page -> dist root
-    copytree(os.path.join(REPO, "site"), DIST)
+    copytree(os.path.join(REPO, "site"), DIST, exclude_files=EXCLUDE_SITE_FILES)
     # game -> dist/play
     play = os.path.join(DIST, "play")
     copytree(REPO, play, exclude_dirs=EXCLUDE_DIRS, exclude_files=EXCLUDE_FILES)
@@ -169,8 +176,15 @@ def main():
                 continue
             p = os.path.join(r, f)
             txt = open(p, encoding="utf-8", errors="ignore").read()
-            refs = set(pat.findall(txt)) if f.endswith(".html") else set()
-            refs |= set(strpat.findall(txt))
+            if f.endswith(".html"):
+                # a commented-out href (e.g. the deck-download button, 05-08-2026) is
+                # still literal href="..." text to a naive regex scan — strip HTML
+                # comments first so an intentionally-disabled link isn't flagged missing.
+                txt_for_refs = re.sub(r"<!--.*?-->", "", txt, flags=re.S)
+            else:
+                txt_for_refs = txt
+            refs = set(pat.findall(txt_for_refs)) if f.endswith(".html") else set()
+            refs |= set(strpat.findall(txt_for_refs))
             rel = os.path.relpath(p, DIST)
             approot = os.path.join(DIST, "play") if rel.startswith("play" + os.sep) else DIST
             basehref = None

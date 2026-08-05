@@ -231,6 +231,10 @@ html.reduce .cue-label{animation:none;}
 .foot-links a:hover{opacity:1; color:#fff;}
 .disclaimer{font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:#8f88a8;
   max-width:62ch; line-height:1.55; margin-top:6px;}
+/* the required Fan Content Policy link — same underlined-elixir treatment as .behind-more a,
+   so it reads as clickable against the disclaimer's muted grey (04-08-2026) */
+.disclaimer a{color:var(--elixir); text-decoration:underline; text-underline-offset:2px;}
+.disclaimer a:hover{color:var(--glow);}
 /* "Source on GitHub" — sits with the disclaimer's maker-transparency fine print
    (the code is open), a shade brighter than the disclaimer so it reads as a link */
 .foot-source{margin-top:2px;}
